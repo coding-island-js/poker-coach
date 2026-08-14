@@ -15,6 +15,8 @@ type Scenario = {
   title: string;
   level: string;
   opponent: string;
+  heroPosition: string;
+  villainPosition: string;
   pot: string;
   effective: string;
   hero: string[];
@@ -29,6 +31,7 @@ type Scenario = {
   responseAnswer: string;
   feedback: string;
   caution: string;
+  capEvidence: string[];
   questions: string[];
 };
 
@@ -40,17 +43,19 @@ const scenarios: Scenario[] = [
     title: "The third check",
     level: "Intermediate",
     opponent: "Fit-or-fold regular",
+    heroPosition: "Button (last to act after the flop)",
+    villainPosition: "Big Blind",
     pot: "$92",
     effective: "$940",
     hero: ["A♣", "5♣"],
     board: ["K♦", "8♣", "3♠", "2♥", "Q♠"],
     action: [
-      "BTN opens $20 · BB calls",
-      "Flop: BB checks · BTN bets $25 · BB calls",
-      "Turn: BB checks · BTN checks",
-      "River: BB checks · action on you",
+      "Preflop: You (Button) raise to $20 · Villain (Big Blind) calls",
+      "Flop: Villain checks · You bet $25 · Villain calls",
+      "Turn: Villain checks · You check behind",
+      "River: Villain checks · It is your turn",
     ],
-    prompt: "Before choosing a size, describe what arrives at the river.",
+    prompt: "Start with Villain: which hands could the opponent still have after this action?",
     rangeOptions: [
       { id: "kx", label: "One-pair Kx", detail: "KJ–K9 that took the passive line" },
       { id: "mid", label: "8x / 99–JJ", detail: "Showdown hands protecting pot size" },
@@ -67,6 +72,11 @@ const scenarios: Scenario[] = [
       "Good pressure point. Villain reaches the river with many one-pair hands and few natural raises. Your line still represents KQ, QQ and delayed strength. Against this specific overfolder, A♣5♣ is a reasonable low-showdown bluff candidate.",
     caution:
       "Capped is not empty. If this player traps or calls too wide, the exploit disappears—downgrade the bluff rather than forcing the label.",
+    capEvidence: [
+      "Villain called one small flop bet, then checked both later streets.",
+      "Most sets and two-pair hands often raise or bet somewhere, so they are discounted—not impossible.",
+      "The stated player profile overfolds rivers after passive lines; that read is what supports the large bluff.",
+    ],
     questions: [
       "Which value hands would you use with the same size?",
       "What observed tendency makes this bluff better than checking?",
@@ -80,16 +90,18 @@ const scenarios: Scenario[] = [
     title: "Pressure has a price",
     level: "Intermediate",
     opponent: "Capable big blind",
+    heroPosition: "Cutoff (two seats before the Button)",
+    villainPosition: "Big Blind",
     pot: "7.8 BB",
     effective: "28 BB",
     hero: ["Q♠", "J♥"],
     board: ["A♠", "7♦", "2♣", "K♣"],
     action: [
-      "CO opens 2.2 BB · BB calls",
-      "Flop: BB checks · CO checks",
-      "Turn: BB leads 2.4 BB · action on you",
+      "Preflop: You (Cutoff) raise to 2.2 BB · Villain (Big Blind) calls",
+      "Flop: Villain checks · You check behind",
+      "Turn: Villain bets 2.4 BB · It is your turn",
     ],
-    prompt: "A small lead after a checked flop can be wide. Do not erase the top of it.",
+    prompt: "Which hands could Villain lead after you both checked the flop? Keep the strongest hands in view.",
     rangeOptions: [
       { id: "ax", label: "Slow-played Ax", detail: "Still present after the flop check" },
       { id: "kx", label: "Turned Kx", detail: "Natural thin-value / protection leads" },
@@ -106,6 +118,11 @@ const scenarios: Scenario[] = [
       "The lead is wide, but not cleanly capped. Q♠J♥ has a gutshot, position and enough equity to continue without inflating a bubble pot. Calling preserves weaker bluffs and lets the river reveal more.",
     caution:
       "Tournament pressure changes risk, not hand-reading fundamentals. Add payout and stack context before converting every wide range into a raise target.",
+    capEvidence: [
+      "Villain's small turn bet can include weak pairs and bluffs, so the range is wide.",
+      "Villain can still hold Ax, K7, A7, A2 or slow-played strong hands, so the top is not removed.",
+      "Because the evidence points both ways, 'unclear' is more accurate than forcing a capped label.",
+    ],
     questions: [
       "Which river cards improve your range more than villain's?",
       "How would a 12 BB stack behind you change the bubble pressure?",
@@ -119,17 +136,19 @@ const scenarios: Scenario[] = [
     title: "Don’t invent the cap",
     level: "Advanced",
     opponent: "Thoughtful cold-caller",
+    heroPosition: "Cutoff",
+    villainPosition: "Button (last to act after the flop)",
     pot: "$485",
     effective: "$1,760",
     hero: ["Q♥", "Q♦"],
     board: ["J♣", "7♠", "2♦", "T♠"],
     action: [
-      "UTG opens $35 · CO 3-bets $120",
-      "BTN cold-calls · UTG folds",
-      "Flop: CO bets $80 · BTN calls",
-      "Turn: T♠ · action on you",
+      "Preflop: UTG raises $35 · You (Cutoff) re-raise to $120",
+      "Villain (Button) calls your re-raise · UTG folds",
+      "Flop: You bet $80 · Villain calls",
+      "Turn: T♠ · It is your turn",
     ],
-    prompt: "The turn improves the caller's continuing range. Keep the strong branches alive.",
+    prompt: "What could Villain have after calling your re-raise and flop bet—especially on this turn?",
     rangeOptions: [
       { id: "overpairs", label: "QQ–AA", detail: "Traps and protected cold-calls" },
       { id: "sets", label: "JJ / TT / 77", detail: "Strong hands that continue flop" },
@@ -146,6 +165,11 @@ const scenarios: Scenario[] = [
       "This range keeps real nut combinations: slow-played overpairs, sets and JT suited. The T♠ also strengthens draws. Checking controls the pot, protects your checking range and avoids turning an overpair into an automatic stack-off.",
     caution:
       "A passive action does not prove a capped range. Build the combinations first; apply the label second.",
+    capEvidence: [
+      "Calling a re-raise can still contain trapped AA–QQ and strong suited hands.",
+      "After the flop call, sets, top pair and spade draws all remain plausible.",
+      "The T♠ creates two pair, a set of tens and stronger draws, so Villain can still hold the strongest hands.",
+    ],
     questions: [
       "Which worse hands can comfortably call another bet?",
       "What is your plan versus a large turn bet after checking?",
@@ -253,11 +277,23 @@ export default function Home() {
             </div>
           </div>
 
+          <div className="role-strip" aria-label="Players in this hand">
+            <div className="role-you">
+              <span>YOU · HERO</span>
+              <strong>{scenario.heroPosition}</strong>
+            </div>
+            <div className="role-vs">VERSUS</div>
+            <div className="role-villain">
+              <span>OPPONENT · VILLAIN</span>
+              <strong>{scenario.villainPosition} · {scenario.opponent}</strong>
+            </div>
+          </div>
+
           <div className="table-card">
             <div className="felt-glow" />
             <div className="opponent-tag">
-              <span>VILLAIN</span>
-              <strong>{scenario.opponent}</strong>
+              <span>OPPONENT · VILLAIN</span>
+              <strong>{scenario.villainPosition}</strong>
             </div>
             <div className="board" aria-label={`Board: ${scenario.board.join(" ")}`}>
               {scenario.board.map((card, index) => (
@@ -267,7 +303,7 @@ export default function Home() {
               ))}
             </div>
             <div className="hero-hand">
-              <span>YOUR HAND</span>
+              <span>YOU · HERO · {scenario.heroPosition.split(" (")[0].toUpperCase()}</span>
               <div>
                 {scenario.hero.map((card) => (
                   <div className={`playing-card hero-card ${isRedCard(card) ? "red" : ""}`} key={card}>
@@ -285,8 +321,9 @@ export default function Home() {
             <section className="decision-panel range-panel">
               <div className="panel-title">
                 <span>01</span>
-                <div><small>BUILD THE RANGE</small><h2>What gets here?</h2></div>
+                <div><small>VILLAIN'S POSSIBLE HANDS</small><h2>What could the opponent have?</h2></div>
               </div>
+              <p className="panel-instruction">Select every hand group Villain could reasonably hold—not just the hands you hope they have.</p>
               <div className="range-options">
                 {scenario.rangeOptions.map((option) => {
                   const selected = selectedRange.includes(option.id);
@@ -309,7 +346,12 @@ export default function Home() {
             <section className="decision-panel">
               <div className="panel-title">
                 <span>02</span>
-                <div><small>CLASSIFY</small><h2>How capped?</h2></div>
+                <div><small>READ THE TOP OF THE RANGE</small><h2>Can Villain still have the strongest hands?</h2></div>
+              </div>
+              <div className="cap-guide">
+                <p><strong>Mostly capped</strong><span>Strongest hands are unlikely, but not impossible.</span></p>
+                <p><strong>Unclear</strong><span>The action does not give enough evidence yet.</span></p>
+                <p><strong>Uncapped</strong><span>Villain can still credibly have the strongest hands.</span></p>
               </div>
               <div className="segmented-control">
                 {scenario.capOptions.map((option) => (
@@ -323,11 +365,11 @@ export default function Home() {
                   </button>
                 ))}
               </div>
-              <p className="microcopy">Choose a confidence level, not a permanent label.</p>
+              <p className="microcopy">This is a confidence judgment based on the action, board and player—not a proven fact.</p>
 
               <div className="panel-title response-title">
                 <span>03</span>
-                <div><small>RESPOND</small><h2>What now?</h2></div>
+                <div><small>YOUR PLAY · HERO</small><h2>What should you do with your hand?</h2></div>
               </div>
               <div className="response-options">
                 {scenario.responseOptions.map((option) => (
@@ -349,21 +391,49 @@ export default function Home() {
             disabled={!ready}
             onClick={() => setReviewed(true)}
           >
-            Review my thinking <span>⌘ ↵</span>
+            Show the coach's range &amp; plan <span>⌘ ↵</span>
           </button>
 
           {reviewed && (
             <section className="coach-review" aria-live="polite">
-              <div className="review-kicker">COACH REVIEW</div>
+              <div className="review-kicker">HAND RECAP + COACH EXPLANATION</div>
+              <div className="review-context">
+                <div>
+                  <span>YOU · HERO</span>
+                  <strong>{scenario.hero.join(" ")} · {scenario.heroPosition}</strong>
+                </div>
+                <div className="review-board">
+                  <span>BOARD</span>
+                  <strong>{scenario.board.join("  ")}</strong>
+                </div>
+                <div>
+                  <span>OPPONENT · VILLAIN</span>
+                  <strong>{scenario.villainPosition} · {scenario.opponent}</strong>
+                </div>
+              </div>
+              <div className="review-action">
+                <span>HOW WE GOT HERE</span>
+                <p>{scenario.action.join("  →  ")}</p>
+              </div>
               <div className="score-row">
                 <div className={rangeScore === scenario.rangeAnswer.length ? "pass" : "adjust"}>
-                  <span>RANGE</span><strong>{rangeScore}/{scenario.rangeAnswer.length}</strong>
+                  <span>VILLAIN RANGE</span><strong>{rangeScore}/{scenario.rangeAnswer.length} key groups</strong>
                 </div>
                 <div className={classificationCorrect ? "pass" : "adjust"}>
-                  <span>CLASSIFICATION</span><strong>{classificationCorrect ? "On track" : `Consider ${scenario.capAnswer}`}</strong>
+                  <span>CAN VILLAIN HAVE THE NUTS?</span><strong>{classificationCorrect ? `${capChoice} fits` : `Coach: ${scenario.capAnswer}`}</strong>
                 </div>
                 <div className={responseCorrect ? "pass" : "adjust"}>
-                  <span>RESPONSE</span><strong>{responseCorrect ? "Coherent" : `Try ${scenario.responseAnswer}`}</strong>
+                  <span>YOUR PLAY</span><strong>{responseCorrect ? `${responseChoice} fits` : `Coach: ${scenario.responseAnswer}`}</strong>
+                </div>
+              </div>
+              <div className="comparison-row">
+                <div>
+                  <span>YOUR READ</span>
+                  <p>Villain is <strong>{capChoice.toLowerCase()}</strong>; you chose <strong>{responseChoice}</strong>.</p>
+                </div>
+                <div>
+                  <span>COACH'S READ</span>
+                  <p>Villain is <strong>{scenario.capAnswer.toLowerCase()}</strong>; the suggested play is <strong>{scenario.responseAnswer}</strong>.</p>
                 </div>
               </div>
               <div className="coach-copy">
@@ -373,6 +443,15 @@ export default function Home() {
                   <p>{scenario.feedback}</p>
                   <div className="caution"><span>WATCH-OUT</span>{scenario.caution}</div>
                 </div>
+              </div>
+              <div className="coach-basis">
+                <div className="basis-heading">
+                  <span>WHY THE COACH SAYS THIS</span>
+                  <p>This answer comes from the card combinations still possible, the betting action, the board, and the stated player profile. It is an authored poker judgment—not a hidden AI certainty.</p>
+                </div>
+                <ol>
+                  {scenario.capEvidence.map((item) => <li key={item}>{item}</li>)}
+                </ol>
               </div>
               <div className="socratic-row">
                 <p>{scenario.questions[questionIndex]}</p>
@@ -392,8 +471,15 @@ export default function Home() {
           </div>
           <div className="lesson-card">
             <span className="lesson-index">THIS HAND</span>
-            <h2>A range label is a conclusion.</h2>
-            <p>First preserve every plausible branch. Then discount hands using the action, board and player profile.</p>
+            <h2>“Capped” describes Villain, not you.</h2>
+            <p>You are Hero. The opponent is Villain. First list Villain's possible hands; then decide whether the strongest hands are unlikely, unclear, or still fully possible.</p>
+          </div>
+          <div className="terms-card">
+            <span className="side-label">POKER TERMS</span>
+            <p><strong>Hero</strong><span>You—the player making the decision.</span></p>
+            <p><strong>Villain</strong><span>The opponent whose range you are estimating.</span></p>
+            <p><strong>Button</strong><span>Dealer position; usually acts last after the flop.</span></p>
+            <p><strong>Big Blind</strong><span>The forced blind two seats left of the Button.</span></p>
           </div>
           <div className="evidence-stack">
             <span className="side-label">EVIDENCE CHECK</span>
