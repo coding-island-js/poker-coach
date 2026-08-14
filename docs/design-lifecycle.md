@@ -335,3 +335,32 @@ The learner had to open a disclosure to see the betting history even though the 
 - Opened the focused deep review and confirmed it exposes assumptions and uncertainty without pretending the authored spot is solver-verified.
 - Verified the phone home, coached question, coached result, and table-speed practice at 375 pixels with no horizontal overflow.
 - Passed lint, the production build, and rendered-page regression tests.
+
+## Phase 13 — scan the hand instead of reading a paragraph
+
+### Problem found in the phone walkthrough
+
+- The factual information was correct, but cards, pot, positions, the current decision, and the street history all had nearly the same visual weight.
+- Hole cards and the board were rendered as small text rather than recognizable poker cards.
+- The decisive river state and the hand history repeated the same sentence.
+- Ten- and eleven-pixel action text forced the trainee to read carefully before they could begin reasoning.
+- The terms Hero and Villain remained in the active questions even though the interface used You and Opponent elsewhere.
+
+### Changes
+
+- Added a prominent decision bar that answers three questions first: which street, who acts now, and how large the pot is.
+- Rendered the learner's cards and board as large, suit-colored playing cards with explicit You and Opponent positions.
+- Replaced the prose history with a four-row visual action sequence. The learner's actions are emphasized and arrows preserve order.
+- Removed the repeated board cards from the history because the full board is already visible above it.
+- Removed the repeated “line so far” summary from the first step; it remains on later steps where the full history is intentionally absent.
+- Increased phone history text to thirteen pixels and kept the complete history visible before the first range question.
+- Replaced Hero and Villain in the active training questions with You and Opponent.
+- Rewrote each skill goal as a short table rule, such as “Bet when a worse hand can call.”
+
+### Gate tests
+
+- Verified the full value hand at 375 × 812: the decision, hole cards, complete board, positions, pot, and most of the action sequence fit in the first viewport; the range question begins immediately below it.
+- Verified that the complete phone page has no horizontal overflow and is shorter than the prior text-first version.
+- Verified the compact context on later steps retains the board and decisive line without repeating the full history.
+- Verified the same shared context component renders correctly in coached and table-speed practice at desktop width.
+- Passed lint, the production build, and rendered-page regression tests.

@@ -1211,31 +1211,49 @@ type TrainingLesson = { scenarioIndex: number; module: string; skill: string; go
 type TrainingAttempt = { lesson: number; range: boolean; plan: boolean; action: boolean };
 
 const trainingLessons: TrainingLesson[] = [
-  { scenarioIndex: 3, module: "Foundations", skill: "Value betting", goal: "Learn when weaker hands can call.", cue: "Value bet when enough weaker hands can call. Choose a size those hands will still pay." },
-  { scenarioIndex: 0, module: "Foundations", skill: "Bluff or check", goal: "Name the better hands your bluff must fold.", cue: "Do not bluff missed hands you already beat. Bluff only when better pairs fold often enough." },
-  { scenarioIndex: 1, module: "Price and draws", skill: "Calling a small bet", goal: "Connect the price with your chance to improve.", cue: "Facing a bet, compare the call price with how often you can improve or already win." },
-  { scenarioIndex: 2, module: "Range reading", skill: "Strong hands remain", goal: "Separate the top of a range from its average strength.", cue: "Uncapped means strong hands remain—not that Villain is ahead. Plan for a raise before betting." },
+  { scenarioIndex: 3, module: "Foundations", skill: "Value betting", goal: "Bet when a worse hand can call.", cue: "Value bet when enough weaker hands can call. Choose a size those hands will still pay." },
+  { scenarioIndex: 0, module: "Foundations", skill: "Bluff or check", goal: "Bluff only when a better hand can fold.", cue: "Do not bluff missed hands you already beat. Bluff only when better pairs fold often enough." },
+  { scenarioIndex: 1, module: "Price and draws", skill: "Calling a small bet", goal: "Call when the price fits your chance to win or improve.", cue: "Facing a bet, compare the call price with how often you can improve or already win." },
+  { scenarioIndex: 2, module: "Range reading", skill: "Strong hands remain", goal: "Notice when very strong hands are still possible.", cue: "Uncapped means strong hands remain—not that the opponent is ahead. Plan for a raise before betting." },
 ];
 
 function TrainingHistory({ scenario }: { scenario: Scenario }) {
   return (
     <div className="training-history" aria-label="Complete hand history">
+      <div className="history-heading"><span>How the hand developed</span></div>
       {scenario.streetHistory.map((street) => (
-        <div key={street.street}><strong>{street.street}{street.board ? ` · ${street.board.join(" ")}` : ""}</strong><span>{street.actions.join(" ")}</span></div>
+        <div className={`history-street ${street.street === scenario.street ? "current" : ""}`} key={street.street}>
+          <div className="history-street-label"><strong>{street.street}</strong></div>
+          <div className="history-actions">{street.actions.map((action, index) => <span className={action.startsWith("You") || action.includes("on you") ? "you-action" : "opponent-action"} key={`${action}-${index}`}>{action}</span>)}</div>
+        </div>
       ))}
     </div>
   );
 }
 
+function PlayingCard({ card }: { card: string }) {
+  const suit = card.slice(-1);
+  const rank = card.slice(0, -1);
+  const red = suit === "♥" || suit === "♦";
+  return <span className={`playing-card ${red ? "red" : ""}`} aria-label={card}><b>{rank}</b><i>{suit}</i></span>;
+}
+
 function TrainingContext({ scenario, showHistory = false }: { scenario: Scenario; showHistory?: boolean }) {
+  const heroPosition = scenario.heroPosition.split(" —")[0];
+  const opponentPosition = scenario.villainPosition.split(" —")[0];
   return (
-    <section className="training-context" aria-label="Current poker hand">
-      <div className="training-cards">
-        <p><span>You</span><strong>{scenario.hero.join(" ")}</strong></p>
-        <p><span>Board</span><strong>{scenario.board.join(" ")}</strong></p>
-        <p><span>Pot</span><strong>{scenario.pot}</strong></p>
+    <section className={`training-context ${showHistory ? "full" : "compact"}`} aria-label="Current poker hand">
+      <div className="decision-focus">
+        <span>{scenario.street} decision</span>
+        <strong>{scenario.decisionNow}</strong>
+        <b>Pot {scenario.pot}</b>
       </div>
-      <p className="training-clue"><strong>{scenario.street}:</strong> {scenario.decisionFact} You act now.</p>
+      <div className="poker-state">
+        <div className="hero-cards"><span>You · {heroPosition}</span><div>{scenario.hero.map((card) => <PlayingCard card={card} key={card} />)}</div></div>
+        <div className="board-cards"><span>Board</span><div>{scenario.board.map((card) => <PlayingCard card={card} key={card} />)}</div></div>
+        <div className="opponent-seat"><span>Opponent</span><strong>{opponentPosition}</strong></div>
+      </div>
+      {!showHistory && <p className="line-so-far"><span>Line so far</span><strong>{scenario.decisionFact}</strong></p>}
       {showHistory && <TrainingHistory scenario={scenario} />}
     </section>
   );
@@ -1247,7 +1265,7 @@ function TrainingHome({ pace, setPace, completed, attempts, onStart }: { pace: T
   const dimensions = [{ key: "range" as const, label: "Range read" }, { key: "plan" as const, label: "Plan" }, { key: "action" as const, label: "Action" }];
   return (
     <div className="training-home" id="main-workspace">
-      <section className="training-hero"><p className="eyebrow">Train the decision, not the vocabulary</p><h1>Build one poker habit until it works at table speed.</h1><p>Read Villain&apos;s likely hands, choose what your hand is trying to accomplish, then make the play.</p></section>
+      <section className="training-hero"><p className="eyebrow">Train the decision, not the vocabulary</p><h1>Build one poker habit until it works at table speed.</h1><p>Read the opponent&apos;s likely hands, choose what your hand is trying to accomplish, then make the play.</p></section>
       <section className="resume-training">
         <div className="resume-copy"><span>{completed.size} of {trainingLessons.length} skills complete</span><h2>{completed.size === trainingLessons.length ? "Run the session again" : `Continue: ${trainingLessons[recommended].skill}`}</h2><p>{trainingLessons[recommended].goal} · About 2 minutes</p></div>
         <button className="primary-button" onClick={() => onStart(recommended)}>{completed.size === 0 ? "Start training" : "Continue training"} →</button>
@@ -1318,11 +1336,11 @@ function TrainingHand({ scenario, lesson, lessonNumber, pace, onComplete, onExit
   const choose = (value: string) => { if (locked) return; if (step === 0) setRange(value); if (step === 1) setPlan(value); if (step === 2) setAction(value); setLocked(true); };
   const next = () => { if (step === 2) setReview(true); else { setStep(step + 1); setLocked(false); } window.scrollTo({ top: 0 }); };
   if (review) return <TrainingResult scenario={scenario} lesson={lesson} lessonIndex={lessonNumber - 1} range={range} plan={plan} action={action} onNext={onComplete} onRetry={reset} />;
-  if (pace === "table") return <section className="trainer-card table-speed"><div className="trainer-topline"><button className="back-link" onClick={onExit}>← Training</button><span>Hand {lessonNumber} of {trainingLessons.length}</span></div><div className="skill-banner"><span>{lesson.module}</span><h1>{lesson.skill}</h1><p>{lesson.goal}</p></div><TrainingContext scenario={scenario} showHistory /><TrainingQuestion label="1 · Range" question="What does Villain have most often?" options={scenario.dominantRangeOptions} selected={range} locked={false} onSelect={setRange} /><TrainingQuestion label="2 · Plan" question="Against that range, what is Hero trying to accomplish?" options={scenario.goalOptions} selected={plan} locked={false} onSelect={setPlan} /><TrainingQuestion label="3 · Action" question="Which action and size does that job?" options={scenario.actionOptions} selected={action} locked={false} onSelect={setAction} /><button className="primary-button full-button" disabled={!range || !plan || !action} onClick={() => { setReview(true); window.scrollTo({ top: 0 }); }}>Review the hand</button></section>;
+  if (pace === "table") return <section className="trainer-card table-speed"><div className="trainer-topline"><button className="back-link" onClick={onExit}>← Training</button><span>Hand {lessonNumber} of {trainingLessons.length}</span></div><div className="skill-banner"><span>{lesson.module}</span><h1>{lesson.skill}</h1><p>{lesson.goal}</p></div><TrainingContext scenario={scenario} showHistory /><TrainingQuestion label="1 · Range" question="What does the opponent have most often?" options={scenario.dominantRangeOptions} selected={range} locked={false} onSelect={setRange} /><TrainingQuestion label="2 · Plan" question="Against those hands, what are you trying to accomplish?" options={scenario.goalOptions} selected={plan} locked={false} onSelect={setPlan} /><TrainingQuestion label="3 · Action" question="Which action and size does that job?" options={scenario.actionOptions} selected={action} locked={false} onSelect={setAction} /><button className="primary-button full-button" disabled={!range || !plan || !action} onClick={() => { setReview(true); window.scrollTo({ top: 0 }); }}>Review the hand</button></section>;
   const selectedRangeSound = range === scenario.dominantRangeAnswer;
   const selectedPlanSound = plan === scenario.goalAnswer || isGoalAlternative(scenario, plan);
   const feedback = step === 0 ? { sound: selectedRangeSound, title: selectedRangeSound ? scenario.rangeFeedbackTitle : `Use instead: ${correctRange.label}`, body: scenario.dominantRangeExplanation } : step === 1 ? { sound: selectedPlanSound, title: selectedPlanSound ? "That plan fits." : `Use instead: ${correctPlan.label}`, body: `${scenario.handPositionExplanation} ${scenario.goalExplanation}` } : { sound: assessAction(scenario, action).status !== "review" && actionMatchesGoal(scenario, plan, action), title: "Decision recorded.", body: assessAction(scenario, action).explanation };
-  const questions = ["What does Villain have most often?", "Against that range, what is Hero trying to accomplish?", "Which action and size does that job?"];
+  const questions = ["What does the opponent have most often?", "Against those hands, what are you trying to accomplish?", "Which action and size does that job?"];
   const options = [scenario.dominantRangeOptions, scenario.goalOptions, scenario.actionOptions][step];
   return <section className="trainer-card coached-hand"><div className="trainer-topline"><button className="back-link" onClick={onExit}>← Training</button><span>Hand {lessonNumber} of {trainingLessons.length} · Step {step + 1} of 3</span></div><div className="skill-banner"><span>{lesson.module} · Today&apos;s skill</span><h1>{lesson.skill}</h1><p>{lesson.goal}</p></div><TrainingContext scenario={scenario} showHistory={step === 0} /><TrainingQuestion label={`${step + 1} · ${["Range", "Plan", "Action"][step]}`} question={questions[step]} options={options} selected={currentChoice} locked={locked} onSelect={choose} />{locked && <div className={`fast-feedback ${feedback.sound ? "sound" : "fix"}`}><strong>{feedback.sound ? "✓ " : "→ "}{feedback.title}</strong><p>{feedback.body}</p>{step === 0 && <div className="range-bucket-strip">{scenario.rangeBuckets.map((bucket) => <span key={bucket.label}><b>{bucket.label}</b>{bucket.detail}</span>)}</div>}</div>}<button className="primary-button full-button" disabled={!locked} onClick={next}>{step === 2 ? "See result" : "Next"} →</button></section>;
 }

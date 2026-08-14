@@ -65,9 +65,9 @@ test("uses one range-plan-action loop and preserves poker correctness", async ()
   assert.match(page, /Fewer clues are provided\. Apply the same four questions/);
   assert.match(page, /inline-feedback/);
   assert.match(page, /Train the decision, not the vocabulary/);
-  assert.match(page, /Read Villain&apos;s likely hands/);
-  assert.match(page, /What does Villain have most often/);
-  assert.match(page, /Against that range, what is Hero trying to accomplish/);
+  assert.match(page, /Read the opponent&apos;s likely hands/);
+  assert.match(page, /What does the opponent have most often/);
+  assert.match(page, /Against those hands, what are you trying to accomplish/);
   assert.match(page, /Which action and size does that job/);
   assert.match(page, /Feedback after each choice/);
   assert.match(page, /Three decisions, then review/);
@@ -79,7 +79,7 @@ test("uses one range-plan-action loop and preserves poker correctness", async ()
   assert.match(page, /Review deeply/);
   assert.match(page, /Why this answer/);
   assert.match(page, /What to strengthen next/);
-  assert.match(page, /Uncapped means strong hands remain—not that Villain is ahead/);
+  assert.match(page, /Uncapped means strong hands remain—not that the opponent is ahead/);
   assert.match(page, /Check answer/);
   assert.match(page, /Retry from memory/);
   assert.match(page, /disabled=\{rangeChecked\}/);
@@ -96,6 +96,10 @@ test("uses one range-plan-action loop and preserves poker correctness", async ()
   assert.match(css, /resume-training/);
   assert.match(css, /pace-control/);
   assert.match(css, /training-history/);
+  assert.match(css, /decision-focus/);
+  assert.match(css, /playing-card/);
+  assert.match(css, /line-so-far/);
+  assert.match(css, /history-actions/);
   assert.match(css, /training-choices/);
   assert.match(css, /result-chain/);
   assert.match(css, /--accent: #176b5b/);

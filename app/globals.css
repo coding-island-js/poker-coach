@@ -268,20 +268,40 @@ button:focus-visible, summary:focus-visible { outline: 3px solid rgba(23,107,91,
 .skill-banner > span { color: var(--accent); font-size: 12px; font-weight: 750; }
 .skill-banner h1 { margin: 4px 0; font-size: 30px; line-height: 1.08; letter-spacing: -.035em; }
 .skill-banner p { margin: 0; color: var(--muted); font-size: 14px; }
-.training-context { padding: 14px 0 16px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-.training-cards { display: grid; grid-template-columns: auto 1fr auto; gap: 16px; }
-.training-cards p { display: grid; gap: 2px; margin: 0; }
-.training-cards p:nth-child(2) { text-align: center; }
-.training-cards p:last-child { text-align: right; }
-.training-cards span { color: var(--muted); font-size: 11px; }
-.training-cards strong { font-size: 14px; }
-.training-clue { margin: 10px 0 0; color: var(--text); font-size: 13px; line-height: 1.45; }
-.training-history { margin-top: 12px; border-top: 1px solid var(--border); }
-.training-history > div { display: grid; grid-template-columns: 145px 1fr; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--border); }
-.training-history > div strong { color: var(--accent-dark); font-size: 11px; }
-.training-history > div span { color: var(--muted); font-size: 11px; line-height: 1.4; }
-.training-history > p { display: flex; justify-content: space-between; gap: 12px; margin: 0; padding: 9px 0 0; color: var(--accent-dark); font-size: 12px; }
-.training-history > p span { white-space: nowrap; }
+.training-context { overflow: hidden; margin-top: 18px; border: 1px solid var(--border); border-radius: 12px; background: #fcfcfa; }
+.decision-focus { display: grid; grid-template-columns: 120px 1fr auto; gap: 14px; align-items: center; padding: 12px 16px; background: var(--accent-soft); }
+.decision-focus span { color: var(--accent); font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .035em; }
+.decision-focus strong { font-size: 16px; line-height: 1.3; }
+.decision-focus b { padding-left: 14px; border-left: 1px solid #bfd7cf; color: var(--accent-dark); font-size: 14px; white-space: nowrap; }
+.poker-state { display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: end; padding: 18px 16px 14px; }
+.poker-state > div { display: grid; gap: 7px; }
+.poker-state > div > span { color: var(--muted); font-size: 12px; font-weight: 650; }
+.poker-state > div > div { display: flex; gap: 5px; }
+.board-cards { justify-items: center; }
+.opponent-seat { justify-items: end; text-align: right; }
+.opponent-seat strong { font-size: 15px; }
+.playing-card { width: 44px; height: 56px; display: grid; grid-template-rows: 1fr 1fr; place-items: center; padding: 5px 4px; border: 1px solid #cfd6d2; border-radius: 7px; background: #fff; box-shadow: 0 1px 2px rgba(24,33,30,.05); color: #17211e; font-style: normal; line-height: 1; }
+.playing-card b { align-self: end; font-size: 17px; }
+.playing-card i { align-self: start; font-size: 16px; font-style: normal; }
+.playing-card.red { color: #a83f35; }
+.line-so-far { display: grid; grid-template-columns: 95px 1fr; gap: 16px; margin: 0 16px 16px; padding: 11px 12px; border-left: 3px solid var(--accent); background: #f4f7f5; }
+.line-so-far span { color: var(--accent); font-size: 12px; font-weight: 800; }
+.line-so-far strong { font-size: 14px; line-height: 1.4; }
+.training-history { border-top: 1px solid var(--border); background: var(--surface); }
+.history-heading { display: flex; align-items: center; justify-content: space-between; padding: 11px 16px; }
+.history-heading span { color: var(--text); font-size: 13px; font-weight: 800; }
+.history-heading small { color: var(--muted); font-size: 11px; }
+.training-history > .history-street { display: grid; grid-template-columns: 130px 1fr; gap: 14px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--border); }
+.training-history > .history-street.current { background: #f7faf8; }
+.history-street-label { display: grid; gap: 6px; }
+.history-street-label > strong { color: var(--accent-dark); font-size: 12px; text-transform: uppercase; letter-spacing: .035em; }
+.history-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 5px 8px; }
+.history-actions > span { position: relative; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.history-actions > span:not(:last-child)::after { content: "→"; margin-left: 8px; color: #9aa49f; }
+.history-actions > .you-action { color: var(--text); font-weight: 650; }
+.training-context.compact .training-history { display: none; }
+.training-context.compact .playing-card { width: 38px; height: 47px; }
+.training-context.compact .playing-card b, .training-context.compact .playing-card i { font-size: 14px; }
 .training-question { margin-top: 22px; }
 .training-question .step-label { margin-bottom: 6px; }
 .training-question h2 { max-width: 650px; margin: 0; font-size: 26px; line-height: 1.15; letter-spacing: -.025em; }
@@ -344,10 +364,24 @@ button:focus-visible, summary:focus-visible { outline: 3px solid rgba(23,107,91,
   .trainer-shell { padding: 8px 0 44px; }
   .trainer-card { padding: 16px; border-radius: 10px; }
   .skill-banner h1 { font-size: 26px; }
-  .training-cards { gap: 8px; }
-  .training-cards strong { font-size: 12px; }
-  .training-history > div { grid-template-columns: 105px 1fr; gap: 8px; padding: 6px 0; }
-  .training-history > div strong, .training-history > div span { font-size: 10px; }
+  .training-context { margin-top: 14px; border-radius: 10px; }
+  .decision-focus { grid-template-columns: 1fr auto; gap: 4px 10px; padding: 11px 12px; }
+  .decision-focus span { grid-column: 1 / -1; font-size: 11px; }
+  .decision-focus strong { font-size: 15px; }
+  .decision-focus b { padding-left: 10px; font-size: 13px; }
+  .poker-state { grid-template-columns: 1fr auto; gap: 14px; padding: 15px 12px 12px; }
+  .board-cards { grid-column: 1 / -1; grid-row: 2; justify-items: start; }
+  .opponent-seat { justify-self: end; }
+  .playing-card { width: 42px; height: 52px; }
+  .playing-card b, .playing-card i { font-size: 15px; }
+  .line-so-far { grid-template-columns: 1fr; gap: 3px; margin: 0 12px 13px; padding: 10px; }
+  .line-so-far strong { font-size: 13px; }
+  .training-history > .history-street { grid-template-columns: 78px 1fr; gap: 10px; padding: 10px 12px; }
+  .history-actions { display: flex; gap: 3px 6px; }
+  .history-actions > span { font-size: 13px; }
+  .history-actions > span:not(:last-child)::after { content: "→"; margin-left: 6px; }
+  .training-context.compact .poker-state { padding-bottom: 10px; }
+  .training-context.compact .line-so-far { margin-bottom: 11px; }
   .training-question { margin-top: 18px; }
   .training-question h2 { font-size: 24px; }
   .training-choices { margin: 14px 0; }
