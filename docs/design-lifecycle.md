@@ -235,3 +235,37 @@ The learner had to open a disclosure to see the betting history even though the 
 - Completed the transfer hand and confirmed the learner must identify a value target rather than repeat the bluff pattern.
 - Verified no horizontal overflow at 375 pixels and 1280 pixels.
 - Verified the production build, rendered-page tests, and lint checks pass.
+
+## Phase 10 — first attempts, trustworthy poker logic, and curriculum navigation
+
+### Second coach-and-trainee audit
+
+- **Beginner trainee:** found that immediate feedback could be answer-hunted, Retry preserved prior selections, later questions omitted the board, and the calling lesson did not show enough price information.
+- **Poker coach:** found an unsupported four-out call, an incorrect turn pot, an incorrect action-order label, and two overclaims: that an uncapped range implies checking and that one exact bet size is objectively best.
+
+### Changes
+
+- Added Choose → Check answer → lock first attempt → Continue for the first three reasoning questions.
+- Results now explicitly label each answer as the learner's first try.
+- Retry from memory clears every answer and hides all prior feedback.
+- Corrected foundations identify whether the next step uses the learner's answer or a coach correction.
+- Added cards, board, street, pot, and decisive action to the sticky phone reminder.
+- Added Hand X of 4 beside Step X of 4 and reposition the screen when moving to a new hand.
+- Added scenario-specific decision statements instead of inferring that the opponent acted.
+- Reframed Learn as a post-flop method and added a calling-price rule for facing bets.
+- Changed the tournament draw to queen-jack of clubs, corrected the post-bet pot to 10.2 big blinds, and explained the combined flush and inside-straight draw.
+- Corrected the connected-turn pot to $450 and the displayed bet percentages.
+- Explicitly taught that uncapped means the strongest hands remain possible, not that the opponent is ahead overall.
+- Made both checking and a small value bet defensible with queens, provided the learner's purpose and action agree.
+- Treated $50, $100, and $150 river bluffs as different conditional sizes rather than claiming one is categorically correct.
+- Renamed lesson titles so they no longer reveal “bluff,” “false cap,” or “value” before the learner reasons through the hand.
+- Added coach-confidence copy and a one-line spoken transfer chain to each review.
+
+### Gate tests
+
+- Selected a wrong range, locked it, and verified every option became immutable while the coach correction carried forward with clear ownership.
+- Completed the lesson and verified Retry from memory returned to an unselected, unanswered Question 1.
+- Completed the corrected combined-draw hand with explicit pot-before-bet, bet, pot-now, and call-cost information.
+- Completed the connected-turn hand through the small-value-bet branch and received a defensible alternative instead of a false error.
+- Moved from Hand 3 to Hand 4 and verified new-hand positioning, orientation, and reset state.
+- Verified no horizontal overflow at 375 and 1280 pixels, and passed the production build, rendered-page tests, and lint checks.

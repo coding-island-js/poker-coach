@@ -141,6 +141,8 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 .choice-list > button { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 14px; border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: #f9f8f3; text-align: left; cursor: pointer; }
 .choice-list > button:hover { border-color: #8ca99f; }
 .choice-list > button.selected { border-color: var(--teal); background: var(--teal-soft); box-shadow: inset 0 0 0 1px var(--teal); }
+.choice-list > button:disabled { color: inherit; cursor: default; opacity: .68; }
+.choice-list > button.selected:disabled { opacity: 1; }
 .choice-list button > span:not(.checkbox-mark) { display: grid; gap: 5px; }
 .choice-list strong { font-size: 15px; }
 .choice-list small { color: var(--muted); font-size: 13px; line-height: 1.4; }
@@ -156,7 +158,7 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 .thinking-breadcrumb span { color: var(--teal); font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
 .thinking-breadcrumb { margin: -20px 0 24px; padding: 10px 12px; border-left: 3px solid var(--teal); background: var(--teal-soft); }
 .thinking-breadcrumb p { margin: 4px 0 0; color: var(--ink-2); font-size: 12px; line-height: 1.4; }
-.thinking-breadcrumb b { padding: 0 4px; color: var(--teal); }
+.thinking-breadcrumb b { color: var(--teal); }
 .coach-mini-context { display: grid; gap: 5px; margin: 0 0 18px; padding: 13px 14px; border: 1px solid var(--line); border-radius: 11px; background: #f0eee6; }
 .coach-mini-context > span { color: var(--teal); font-size: 10px; font-weight: 850; text-transform: uppercase; letter-spacing: .04em; }
 .coach-mini-context p { margin: 0; color: var(--ink); font-size: 12px; font-weight: 700; line-height: 1.45; }
@@ -165,6 +167,10 @@ button:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px soli
 .inline-feedback { display: grid; gap: 5px; margin: -10px 0 22px; padding: 14px 15px; border-radius: 11px; }
 .inline-feedback strong { font-size: 13px; }
 .inline-feedback p { margin: 0; color: var(--ink-2); font-size: 12px; line-height: 1.5; }
+.coach-confidence { margin: 16px 0; padding: 11px 13px; border: 1px solid #cbd7d2; border-radius: 10px; background: #f3f8f6; color: var(--teal); font-size: 12px; line-height: 1.45; }
+.transfer-prompt { margin: 14px 0 22px; padding: 13px 15px; border-left: 3px solid var(--lime-dark); background: #f5f7e8; }
+.transfer-prompt span { color: var(--ink); font-size: 10px; font-weight: 850; text-transform: uppercase; letter-spacing: .04em; }
+.transfer-prompt p { margin: 4px 0 0; color: var(--ink-2); font-size: 13px; line-height: 1.45; }
 .feedback-sound { border-left: 4px solid var(--teal); background: var(--teal-soft); }
 .feedback-sound strong { color: var(--teal-dark); }
 .feedback-fix { border-left: 4px solid var(--coral); background: var(--coral-soft); }
