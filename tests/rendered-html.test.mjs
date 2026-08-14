@@ -30,7 +30,7 @@ test("server-renders the complete Range Coach workspace", async () => {
   assert.match(html, /Guided hand/);
   assert.match(html, /You · Hero/);
   assert.match(html, /Opponent · Villain/);
-  assert.match(html, /A capped range has lost most of its strongest hands/);
+  assert.match(html, /A passive line can be one-pair-heavy without proving weakness/);
   assert.doesNotMatch(html, /codex-preview/i);
   assert.doesNotMatch(html, /react-loading-skeleton/);
 });
@@ -47,16 +47,19 @@ test("keeps coaching language explicit and removes the disposable preview", asyn
   assert.match(page, /You are not checking every hand that might be possible/);
   assert.match(page, /How does.*perform against that range/s);
   assert.match(page, /What are you trying to accomplish/);
-  assert.match(page, /The decision in one chain/);
-  assert.match(page, /You built the decision correctly/);
-  assert.match(page, /What is the bluff trying to fold/);
+  assert.match(page, /Good read\. Your.*is plausible, not proven/s);
+  assert.match(page, /Defensible alternative/);
+  assert.match(page, /First place to fix/);
+  assert.match(page, /checks alone do not prove a cap/i);
+  assert.match(page, /Fact: Villain called the flop/);
   assert.match(page, /Overbet \$150/);
-  assert.match(page, /needs about 62% folds/);
-  assert.match(page, /Polarized.*describes the hands/s);
-  assert.match(page, /Show assumptions and when the answer changes/);
+  assert.match(page, /\$150 must work about 62% of the time/);
+  assert.match(page, /Why this answer/);
+  assert.match(page, /When the play changes/);
   assert.match(page, /exact action awaits solver and expert review/i);
-  assert.doesNotMatch(page, /checkbox-mark|Select every reasonable|2\/4 key groups|story holds together|classification response/i);
+  assert.doesNotMatch(page, /Could you overbet bigger|The decision in one chain|checkbox-mark|Select every reasonable|2\/4 key groups|story holds together|classification response/i);
   assert.match(css, /mobile-context-strip/);
+  assert.match(css, /answer-review-list/);
   assert.match(layout, /Range Coach/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
 

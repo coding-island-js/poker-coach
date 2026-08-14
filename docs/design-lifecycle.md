@@ -144,3 +144,31 @@ Range advantage and hand strength are intentionally separated. A stronger overal
 - Submitted an intentionally wrong range, hand comparison, goal, and action; all four corrections appeared independently.
 - Submitted the complete intended chain; all four decisions reported Matched.
 - Verified desktop and 375-pixel mobile layouts with no horizontal overflow.
+
+## Phase 7 — phone-first result and auditable inference
+
+### Three-perspective audit
+
+- **UX designer:** found the same four decisions repeated in scorecards, a second chain, and an action section.
+- **Poker coach:** found that repeated out-of-position checks do not independently prove a capped range and that $100 versus $150 is not objectively solved by the lesson.
+- **Trainee:** needed the decisive hand facts and player read before question one, followed by one verdict and one takeaway.
+
+### Changes
+
+- On phones, replaced the full hand panel with a compact Decision Now card containing cards, board, pot, fact, player read, and optional full history.
+- Added Fact and Player Read to the guided questions so the inference is auditable.
+- Replaced the scorecard, duplicate decision chain, and repeated action section with one four-row answer comparison.
+- Standardized feedback to Correct, Defensible alternative, and Needs work.
+- Show only the first broken reasoning link in the open view.
+- Added one memorable takeaway and moved range evolution, assumptions, sizing detail, and the advanced coach question behind disclosure.
+- Reframed the $150 overbet as plausible but unproven; $100 is a lesson baseline rather than an objective answer.
+- Corrected the first scenario so checks are facts, while the rare-trapping player read supports the one-pair-heavy inference.
+- Removed 76s from the missed-draw group and relabeled 65s/54s as backdoor floats that picked up turn draws.
+
+### Gate tests
+
+- Replayed the exact correct Range, Hand, and Goal chain with a $150 action; the result reports three correct and one defensible alternative.
+- Confirmed that $100 appears only as the lesson baseline where the size differs.
+- Submitted four wrong decisions; all four rows show their status while only Villain's range appears as the first correction.
+- Verified the compact Decision Now card, full text wrapping, disclosures, and no horizontal overflow at 375 pixels.
+- Verified the streamlined desktop result visually.

@@ -44,6 +44,9 @@ type Scenario = {
   hero: string[];
   board: string[];
   action: string[];
+  decisionFact: string;
+  decisionRead: string;
+  takeaway: string;
   lessonTitle: string;
   lessonDefinition: string;
   lessonWhy: string;
@@ -75,13 +78,13 @@ type Scenario = {
 const scenarios: Scenario[] = [
   {
     id: "river-pressure",
-    shortTitle: "The third check",
+    shortTitle: "A river bluff target",
     format: "Live cash · $2/$5",
     street: "River",
     difficulty: "Intermediate",
     heroPosition: "Button — acts last after the flop",
     villainPosition: "Big Blind",
-    opponent: "A regular who often folds rivers",
+    opponent: "A regular who overfolds large river bets and rarely traps two pair or better",
     pot: "$92",
     effective: "$940",
     hero: ["A♣", "5♣"],
@@ -92,11 +95,14 @@ const scenarios: Scenario[] = [
       "Both players check the turn.",
       "Villain checks the river. It is your turn.",
     ],
-    lessonTitle: "A capped range has lost most of its strongest hands.",
+    decisionFact: "Big Blind called the flop, then checked the turn and river.",
+    decisionRead: "This player overfolds large river bets and rarely traps two pair or better.",
+    takeaway: "Do not bluff missed draws you already beat. Bet only if better pairs fold often enough; checks alone do not prove a cap.",
+    lessonTitle: "A passive line can be one-pair-heavy without proving weakness.",
     lessonDefinition:
-      "Villain is mostly capped when their actions make sets, two pair, and other very strong hands less likely—even though an occasional trap can remain.",
+      "Checks alone do not cap Villain. In this lesson, the player read that Villain rarely traps strong hands is what weights the range toward one pair.",
     lessonWhy:
-      "When Villain has many one-pair hands and few strong hands, Hero can sometimes use a large value bet or bluff. The opponent must actually fold often enough for the bluff to work.",
+      "The separate read that Villain overfolds large river bets creates the bluffing opportunity. The range inference and the folding tendency are two different assumptions.",
     lessonChecks: [
       "Name the strongest hands Villain could have.",
       "Ask whether those hands usually take this passive line.",
@@ -106,23 +112,23 @@ const scenarios: Scenario[] = [
     rangeOptions: [
       { id: "kx", label: "One-pair kings", examples: "KJ through K9", coachNote: "A large, natural part of the flop-calling range." },
       { id: "mid", label: "Medium showdown hands", examples: "8x and 99–JJ", coachNote: "Often call once, then try to reach showdown cheaply." },
-      { id: "missed", label: "Missed straight draws", examples: "76s, 65s, 54s", coachNote: "Some draws call the flop and miss by the river." },
+      { id: "missed", label: "Turn draws that missed", examples: "65s and 54s", coachNote: "Some backdoor floats pick up a turn draw, then miss the river." },
       { id: "traps", label: "Occasional strong traps", examples: "Sets or two pair", coachNote: "Still possible, but the repeated checks reduce their frequency." },
       { id: "air", label: "Completely unconnected hands", examples: "Hands with no pair or draw", coachNote: "Most pure air folds to the flop bet." },
     ],
     rangeAnswer: ["kx", "mid", "missed", "traps"],
     rangeStory: [
-      "Flop call: Villain can still have Kx, 8x, 99–JJ, missed draws, and a few traps.",
-      "Turn and river checks: sets and two pair become less likely, but they do not disappear.",
-      "River result: mostly one-pair hands and missed draws, with few very strong hands—so the range is mostly capped.",
+      "Fact: Villain called the flop, then checked the turn and river.",
+      "Inference: the line can be weighted toward one-pair hands, but the checks alone do not prove a cap.",
+      "Player read: this opponent overfolds large river bets and rarely traps strong hands, supporting the bluffing exploit.",
     ],
     dominantRangeOptions: [
-      { id: "pairs", label: "Mostly one-pair hands", detail: "Kx, 8x, and 99–JJ; plus some missed draws and rare traps." },
+      { id: "pairs", label: "Mostly one-pair hands", detail: "Kx, 8x, and 99–JJ; plus some missed 65s/54s and rare traps." },
       { id: "air", label: "Mostly missed draws and air", detail: "Very few made hands reach the river." },
       { id: "strong", label: "Many sets and two-pair hands", detail: "Villain often slow-played a very strong hand." },
     ],
     dominantRangeAnswer: "pairs",
-    dominantRangeExplanation: "The flop call keeps many one-pair hands. Two later checks discount very strong hands, but do not remove them.",
+    dominantRangeExplanation: "The flop call keeps many one-pair hands. The checks alone do not prove weakness; the player read that Villain rarely traps is what weights the range toward one pair.",
     handPositionOptions: [
       { id: "ahead", label: "Hero is ahead of most of the range", detail: "Ace-high is usually the best hand." },
       { id: "mixed", label: "Hero loses to pairs but beats some missed draws", detail: "A♣5♣ has some showdown value, but not against made hands." },
@@ -139,7 +145,7 @@ const scenarios: Scenario[] = [
     goalExplanation: "This lesson assumes Villain overfolds rivers, so the exploit is to make better one-pair hands fold. Without that read, checking is reasonable.",
     strengthAnswer: "Mostly capped",
     strengthExplanation:
-      "Villain still has an occasional trap, but the repeated checks make very strong hands less likely than one-pair hands and missed draws.",
+      "Villain can still trap. This lesson calls the range mostly capped only because the stated player read says strong hands are usually fast-played.",
     actionOptions: [
       { id: "check", label: "Check behind", detail: "Keep your ace-high showdown value." },
       { id: "half", label: "Bet $50", detail: "54% pot · may not pressure enough one-pair hands." },
@@ -151,9 +157,9 @@ const scenarios: Scenario[] = [
     actionExplanation:
       "Against the stated opponent, a large bluff can pressure one-pair hands. This exact hand and size are a provisional coaching example, not a solver-verified recommendation.",
     evidence: [
-      "Villain called one flop bet and then checked twice.",
-      "One-pair hands naturally take this line more often than sets or two pair.",
-      "The large bluff depends on the stated read that Villain folds rivers too often.",
+      "The checks are facts, not proof that Villain is capped.",
+      "The range inference depends on the read that this player rarely traps two pair or better.",
+      "The bluff depends separately on the read that Villain folds large river bets too often.",
     ],
     reversal:
       "Check instead if Villain traps strong hands, dislikes folding pairs, or has not shown an overfolding tendency.",
@@ -181,6 +187,9 @@ const scenarios: Scenario[] = [
       "Both players check the flop.",
       "Villain bets 2.4 BB on the turn. It is your turn.",
     ],
+    decisionFact: "Big Blind checked the flop, then led 2.4 BB into 7.8 BB on the turn.",
+    decisionRead: "Capable regular; the small size is not a reliable weakness tell.",
+    takeaway: "A small bet can still contain strong hands. Use position and price before escalating the pot.",
     lessonTitle: "A wide range is not automatically a capped range.",
     lessonDefinition:
       "A small bet can contain weak hands and bluffs, but it can also contain slow-played top pair, turned two pair, and other strong hands.",
@@ -270,6 +279,9 @@ const scenarios: Scenario[] = [
       "You bet $80 on the flop. Villain calls.",
       "The T♠ arrives on the turn. It is your turn.",
     ],
+    decisionFact: "Button cold-called preflop and called the flop; the T♠ improves several strong hands.",
+    decisionRead: "Thoughtful caller who can retain traps, connected hands, and strong draws.",
+    takeaway: "A passive line can stay uncapped. One pair should not automatically build a huge pot.",
     lessonTitle: "Passive action does not prove that Villain is capped.",
     lessonDefinition:
       "Calling can preserve traps, sets, suited two pair, straights, top pair, and strong draws—especially when Villain has position.",
@@ -346,7 +358,7 @@ function assessAction(scenario: Scenario, actionId: string): ActionAssessment {
   if (actionId === scenario.actionAnswer) {
     return {
       status: "matched",
-      label: "Matches this lesson",
+      label: "Correct",
       explanation: scenario.actionExplanation,
     };
   }
@@ -354,16 +366,16 @@ function assessAction(scenario: Scenario, actionId: string): ActionAssessment {
   if (scenario.id === "river-pressure" && actionId === "huge") {
     return {
       status: "reasonable",
-      label: "Reasonable exploit—higher burden",
+      label: "Defensible alternative",
       explanation:
-        "A $150 overbet may fold more one-pair hands, but it risks $150 to win $92 and needs about 62% folds to break even. Use it only with strong evidence that Villain overfolds and with value hands that can use the same size.",
+        "The bluff logic fits, but this lesson cannot prove that $150 is better than $100. The larger size needs stronger evidence that the extra $50 creates meaningfully more folds.",
     };
   }
 
   if (scenario.id === "river-pressure" && actionId === "check") {
     return {
       status: "reasonable",
-      label: "Reasonable low-variance alternative",
+      label: "Defensible alternative",
       explanation:
         "Checking keeps the showdown value of ace-high and avoids bluffing when Villain may call too often. It passes on the exploit assumed by this lesson.",
     };
@@ -372,7 +384,7 @@ function assessAction(scenario: Scenario, actionId: string): ActionAssessment {
   if (scenario.id === "river-pressure" && actionId === "half") {
     return {
       status: "review",
-      label: "Too small for this goal",
+      label: "Needs work",
       explanation:
         "A $50 bet may fold missed draws that ace-high already beats while failing to pressure enough Kx and 8x. If the goal is to fold out better one-pair hands, the size must credibly threaten those hands.",
     };
@@ -380,7 +392,7 @@ function assessAction(scenario: Scenario, actionId: string): ActionAssessment {
 
   return {
     status: "review",
-    label: "Does not match this lesson",
+    label: "Needs work",
     explanation: scenario.actionExplanation,
   };
 }
@@ -569,7 +581,6 @@ function CoachMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
   const [handPosition, setHandPosition] = useState("");
   const [goal, setGoal] = useState("");
   const [action, setAction] = useState("");
-  const [questionIndex, setQuestionIndex] = useState(0);
 
   const selectedRange = scenario.dominantRangeOptions.find((option) => option.id === rangeChoice)!;
   const selectedHandPosition = scenario.handPositionOptions.find((option) => option.id === handPosition)!;
@@ -591,104 +602,80 @@ function CoachMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
   };
 
   if (step === "review") {
-    const resultHeadline = actionAssessment.status === "matched"
-      ? reasoningAligned ? "You built the decision correctly." : "Your action matched. Fix the thinking below."
-      : actionAssessment.status === "reasonable"
-        ? reasoningAligned ? "Your thinking works. The action is a reasonable alternative." : "The action may work. Fix the thinking below."
-        : "Fix the thinking before choosing the action.";
-    const resultLabel = reasoningAligned ? "Thinking matched" : "Thinking needs work";
+    const firstFix = !rangeMatches
+      ? { label: "Villain's range", answer: correctRange.label, explanation: scenario.dominantRangeExplanation }
+      : !handMatches
+        ? { label: "Hero's hand", answer: correctHandPosition.label, explanation: scenario.handPositionExplanation }
+        : !goalMatches
+          ? { label: "Goal", answer: correctGoal.label, explanation: scenario.goalExplanation }
+          : actionAssessment.status === "review"
+            ? { label: "Action", answer: coachAction.label, explanation: actionAssessment.explanation }
+            : null;
+    const correctSteps = [rangeMatches, handMatches, goalMatches, actionAssessment.status === "matched"].filter(Boolean).length;
+    const resultHeadline = reasoningAligned && actionAssessment.status === "reasonable"
+      ? `Good read. Your ${playerAction.label} is plausible, not proven.`
+      : reasoningAligned && actionAssessment.status === "matched"
+        ? "Good read. Your action matches the lesson."
+        : `Fix ${firstFix?.label.toLowerCase()} first.`;
+    const resultSummary = `${correctSteps} correct${actionAssessment.status === "reasonable" ? " · 1 defensible alternative" : firstFix ? " · review the first broken link" : ""}`;
 
     return (
       <section className="work-card review-view" aria-live="polite">
         <div className="review-heading">
           <div>
-            <span className="section-kicker">Your result</span>
+            <span className="section-kicker">{resultSummary}</span>
             <h2>{resultHeadline}</h2>
           </div>
-          <span className={`status-badge ${reasoningAligned ? "status-good" : "status-learn"}`}>
-            {resultLabel}
-          </span>
         </div>
 
-        <div className="result-scorecard" aria-label="Result by decision">
-          <div className={rangeMatches ? "score-good" : "score-fix"}>
-            <span>Villain&apos;s range</span>
-            <strong>{rangeMatches ? "Matched" : "Fix this"}</strong>
-            <small>{selectedRange.label}</small>
+        <div className="answer-review-list" aria-label="Your answers and coach feedback">
+          <div className={`answer-review-row ${rangeMatches ? "row-correct" : "row-fix"}`}>
+            <span className="row-status">{rangeMatches ? "✓" : "!"}</span>
+            <div><span>Villain&apos;s range</span><strong>{selectedRange.label}</strong>{!rangeMatches && <small>Coach: {correctRange.label}</small>}</div>
+            <b>{rangeMatches ? "Correct" : "Needs work"}</b>
           </div>
-          <div className={handMatches ? "score-good" : "score-fix"}>
-            <span>Hero&apos;s hand</span>
-            <strong>{handMatches ? "Matched" : "Fix this"}</strong>
-            <small>{selectedHandPosition.label}</small>
+          <div className={`answer-review-row ${handMatches ? "row-correct" : "row-fix"}`}>
+            <span className="row-status">{handMatches ? "✓" : "!"}</span>
+            <div><span>Hero&apos;s hand</span><strong>{selectedHandPosition.label}</strong>{!handMatches && <small>Coach: {correctHandPosition.label}</small>}</div>
+            <b>{handMatches ? "Correct" : "Needs work"}</b>
           </div>
-          <div className={goalMatches ? "score-good" : "score-fix"}>
-            <span>Goal</span>
-            <strong>{goalMatches ? "Matched" : "Fix this"}</strong>
-            <small>{selectedGoal.label}</small>
+          <div className={`answer-review-row ${goalMatches ? "row-correct" : "row-fix"}`}>
+            <span className="row-status">{goalMatches ? "✓" : "!"}</span>
+            <div><span>Goal</span><strong>{selectedGoal.label}</strong>{!goalMatches && <small>Coach: {correctGoal.label}</small>}</div>
+            <b>{goalMatches ? "Correct" : "Needs work"}</b>
           </div>
-          <div className={actionAssessment.status === "review" ? "score-fix" : "score-good"}>
-            <span>Action</span>
-            <strong>{actionAssessment.status === "matched" ? "Matched" : actionAssessment.status === "reasonable" ? "Reasonable" : "Fix this"}</strong>
-            <small>{playerAction.label}</small>
+          <div className={`answer-review-row ${actionAssessment.status === "matched" ? "row-correct" : actionAssessment.status === "reasonable" ? "row-alternative" : "row-fix"}`}>
+            <span className="row-status">{actionAssessment.status === "matched" ? "✓" : actionAssessment.status === "reasonable" ? "△" : "!"}</span>
+            <div><span>Action &amp; size</span><strong>{playerAction.label}</strong>{actionAssessment.status !== "matched" && <small>Lesson baseline: {coachAction.label}</small>}</div>
+            <b>{actionAssessment.label}</b>
           </div>
         </div>
 
-        {!reasoningAligned && <div className="correction-list">
-          {!rangeMatches && <div><span>Range</span><strong>{correctRange.label}</strong><p>{scenario.dominantRangeExplanation}</p></div>}
-          {!handMatches && <div><span>Hero&apos;s hand</span><strong>{correctHandPosition.label}</strong><p>{scenario.handPositionExplanation}</p></div>}
-          {!goalMatches && <div><span>Goal</span><strong>{correctGoal.label}</strong><p>{scenario.goalExplanation}</p></div>}
-        </div>}
+        {firstFix && <div className="first-fix"><span>First place to fix</span><strong>{firstFix.label}: {firstFix.answer}</strong><p>{firstFix.explanation}</p></div>}
 
-        <div className="review-section">
-          <span className="review-label">The decision in one chain</span>
-          <div className="decision-chain">
-            <div><span>Range</span><p>{correctRange.label}</p></div>
-            <b aria-hidden="true">→</b>
-            <div><span>Hand</span><p>{correctHandPosition.label}</p></div>
-            <b aria-hidden="true">→</b>
-            <div><span>Goal</span><p>{correctGoal.label}</p></div>
-            <b aria-hidden="true">→</b>
-            <div><span>Action</span><p>{coachAction.label}</p></div>
-          </div>
-          <p className="chain-explanation">{scenario.goalExplanation}</p>
-        </div>
+        {!firstFix && actionAssessment.status === "reasonable" && <div className="alternative-note"><span>Why the extra size needs more evidence</span><p>{actionAssessment.explanation}</p>{scenario.id === "river-pressure" && <p><strong>$150 must work about 62% of the time.</strong> Use it only when the extra $50 makes meaningfully more pairs fold than $100.</p>}</div>}
 
-        <div className="review-section action-review">
-          <span className="review-label">Your decision</span>
-          <h3>{playerAction.label} · {actionAssessment.label}</h3>
-          <p>{actionAssessment.explanation}</p>
-          {scenario.id === "river-pressure" && (
-            <div className="bluff-lesson">
-              <strong>What is the bluff trying to fold?</strong>
-              <p>Better hands: Kx, 8x, and 99–JJ. Missed draws are not the target—your ace-high may already beat them.</p>
-              <details className="details-block">
-                <summary>Could you overbet bigger than $100?</summary>
-                <p>Yes, if the extra size makes enough better hands fold. $100 needs about 52% folds to break even; $150 needs about 62%. “Polarized” describes the hands you bet—strong value and bluffs—not the size itself.</p>
-              </details>
-            </div>
-          )}
-        </div>
+        {!firstFix && actionAssessment.status === "matched" && <div className="alternative-note"><span>Why it works in this lesson</span><p>{actionAssessment.explanation}</p></div>}
+
+        <div className="takeaway-card"><span>Takeaway</span><p>{scenario.takeaway}</p></div>
 
         <details className="details-block full-review-details">
-          <summary>Show how the action changed Villain&apos;s range</summary>
+          <summary>Why this answer</summary>
           <ol className="line-story">{scenario.rangeStory.map((item) => <li key={item}>{item}</li>)}</ol>
+          {scenario.id === "river-pressure" && <p><strong>Bluff target:</strong> 8x and 99–JJ, plus weak Kx only if the overfold read is strong. A5 already beats many missed draws.</p>}
         </details>
 
         <details className="details-block full-review-details">
-          <summary>Show assumptions and when the answer changes</summary>
+          <summary>When the play changes</summary>
           <ul>{scenario.evidence.map((item) => <li key={item}>{item}</li>)}</ul>
           <p><strong>Change the play when:</strong> {scenario.reversal}</p>
         </details>
 
-        <div className="coach-question">
-          <span>One question to take to the table</span>
-          <p>{scenario.questions[questionIndex]}</p>
-          <button className="text-button" onClick={() => setQuestionIndex((questionIndex + 1) % scenario.questions.length)}>Show another</button>
-        </div>
+        <details className="details-block full-review-details"><summary>Advanced coach question</summary><p>{scenario.questions[0]}</p></details>
 
         <div className="button-row">
-          <button className="secondary-button" onClick={() => goToStep("range")}>Try this hand again</button>
           <button className="primary-button" onClick={onNext}>Next hand <span aria-hidden="true">→</span></button>
+          <button className="secondary-button" onClick={() => goToStep("range")}>Try again</button>
         </div>
       </section>
     );
@@ -698,10 +685,15 @@ function CoachMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
 
   return (
     <section className="work-card coach-view">
+      <div className="decision-brief">
+        <div><span>Fact</span><p>{scenario.decisionFact}</p></div>
+        <div><span>Player read</span><p>{scenario.decisionRead}</p></div>
+      </div>
       <div className="progress-block" aria-label={`Step ${stepNumber} of 4`}>
         <div><span style={{ width: `${stepNumber * 25}%` }} /></div>
         <p>Step {stepNumber} of 4</p>
       </div>
+      {step !== "range" && <div className="thinking-breadcrumb"><span>Your chain</span><p>{selectedRange?.label}{step !== "hand" && <> <b>→</b> {selectedHandPosition?.label}</>}{(step === "action") && <> <b>→</b> {selectedGoal?.label}</>}</p></div>}
 
       {step === "range" && (
         <>
@@ -845,10 +837,16 @@ export default function Home() {
       <div className="workspace" id="main-workspace">
         <HandContext key={scenario.id} scenario={scenario} />
         <div className="work-area" key={`${scenario.id}-${mode}`}>
-          <div className="mobile-context-strip" aria-label="Hand reminder">
-            <div><span>You</span><strong>{scenario.hero.join(" ")}</strong></div>
-            <div><span>Board</span><strong>{scenario.board.join(" ")}</strong></div>
-            <div><span>Villain</span><strong>{scenario.villainPosition.split(" —")[0]}</strong></div>
+          <div className="mobile-context-strip" aria-label="Decision now">
+            <div className="mobile-context-heading"><strong>{scenario.shortTitle}</strong><span>{scenario.street} · Pot {scenario.pot} · {scenario.effective} effective</span></div>
+            <div className="mobile-context-cards">
+              <div><span>You</span><strong>{scenario.hero.join(" ")}</strong></div>
+              <div><span>Board</span><strong>{scenario.board.join(" ")}</strong></div>
+              <div><span>Villain</span><strong>{scenario.villainPosition.split(" —")[0]}</strong></div>
+            </div>
+            <p>{scenario.decisionFact}</p>
+            <p className="mobile-player-read"><strong>Read:</strong> {scenario.decisionRead}</p>
+            <details><summary>Full hand history</summary><ol>{scenario.action.map((line) => <li key={line}>{line}</li>)}</ol></details>
           </div>
           {mode === "learn" && <LearnMode scenario={scenario} onPractice={() => changeMode("coach")} />}
           {mode === "quick" && <QuickMode scenario={scenario} onNext={nextScenario} />}
