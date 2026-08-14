@@ -324,23 +324,45 @@ button:focus-visible, summary:focus-visible { outline: 3px solid rgba(23,107,91,
 .table-speed .training-question { padding-top: 20px; border-top: 1px solid var(--border); }
 .table-speed .training-context + .training-question { border-top: 0; }
 
-.training-result > h1, .deep-review > h1 { margin: 5px 0 0; font-size: 38px; line-height: 1.06; letter-spacing: -.04em; }
-.result-chain { margin: 22px 0; border-top: 1px solid var(--border); }
-.result-chain > p { display: grid; grid-template-columns: 22px 70px 1fr; gap: 10px; align-items: center; margin: 0; padding: 12px 0; border-bottom: 1px solid var(--border); }
-.result-chain > p > span { color: var(--accent); font-weight: 850; }
-.result-chain > p.fix > span { color: var(--danger); }
-.result-chain b { color: var(--muted); font-size: 11px; }
-.result-chain strong { font-size: 14px; }
-.result-chain small { grid-column: 3; color: var(--danger); font-size: 12px; }
-.table-cue { margin: 18px 0; padding: 16px; border: 1px solid var(--border); border-radius: 10px; }
-.table-cue span { color: var(--accent); font-size: 11px; font-weight: 750; }
-.table-cue p { margin: 5px 0 0; font-size: 15px; line-height: 1.45; }
-.result-buttons { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
-.result-links { display: flex; gap: 18px; margin-top: 14px; }
-.result-links button { border: 0; padding: 2px 0; background: transparent; color: var(--accent); cursor: pointer; font-size: 12px; font-weight: 700; }
-.why-answer { margin-top: 16px; border-top: 1px solid var(--border); }
-.why-answer summary { padding: 14px 0; color: var(--accent-dark); cursor: pointer; font-size: 13px; font-weight: 700; }
-.why-answer ul { display: grid; gap: 8px; margin: 0; padding: 0 0 0 18px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.deep-review > h1 { margin: 5px 0 0; font-size: 38px; line-height: 1.06; letter-spacing: -.04em; }
+.result-verdict { display: flex; gap: 14px; align-items: center; margin-top: 4px; }
+.result-verdict > span { flex: 0 0 48px; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: #fff; font-size: 23px; font-weight: 850; }
+.result-verdict.fix > span { background: var(--danger); }
+.result-verdict h1 { margin: 0; font-size: 34px; line-height: 1.05; letter-spacing: -.035em; }
+.result-verdict p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+.training-result > .result-summary { max-width: 680px; margin-top: 18px; color: var(--text); font-size: 17px; line-height: 1.5; }
+.thinking-title { margin: 26px 0 10px; font-size: 15px; }
+.result-chain { display: grid; margin: 0; }
+.result-link { position: relative; display: grid; grid-template-columns: 38px 1fr; gap: 12px; min-height: 78px; padding: 13px 12px; border: 1px solid var(--border); background: #fbfcfb; }
+.result-link + .result-link { border-top: 0; }
+.result-link:first-child { border-radius: 10px 10px 0 0; }
+.result-link:last-child { border-radius: 0 0 10px 10px; }
+.result-link.fix { border-color: #e5b8b1; background: var(--danger-soft); }
+.result-link.alternative { border-color: #ddd5ad; background: #faf8ec; }
+.result-node { position: relative; z-index: 1; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; font-weight: 850; }
+.result-link.fix .result-node { background: var(--danger); }
+.result-link.alternative .result-node { background: #8a6f16; }
+.result-link:not(:last-child) .result-node::after { content: ""; position: absolute; top: 30px; bottom: -49px; left: 14px; width: 2px; background: #cfd9d5; }
+.result-link > div > p { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 4px; }
+.result-link b { color: var(--muted); font-size: 13px; }
+.result-link em { padding: 3px 7px; border-radius: 99px; background: var(--accent-soft); color: var(--accent-dark); font-size: 12px; font-style: normal; font-weight: 750; }
+.result-link.fix em { background: #f5d9d4; color: var(--danger); }
+.result-link.alternative em { background: #efe8c9; color: #745c0d; }
+.result-link strong { display: block; font-size: 16px; line-height: 1.35; }
+.result-link small { display: block; margin-top: 5px; color: var(--danger); font-size: 13px; line-height: 1.4; }
+.result-link .result-note { color: var(--muted); }
+.table-cue { margin: 18px 0; padding: 16px; border: 1px solid #bcd6ce; border-radius: 10px; background: var(--accent-soft); }
+.table-cue span { color: var(--accent); font-size: 13px; font-weight: 800; }
+.table-cue p { margin: 5px 0 0; font-size: 16px; line-height: 1.45; }
+.result-buttons { display: grid; gap: 8px; }
+.result-buttons .primary-button { width: 100%; }
+.retry-link { justify-self: center; border: 0; padding: 8px; background: transparent; color: var(--accent); cursor: pointer; font-size: 13px; font-weight: 700; }
+.coach-reasoning { margin-top: 10px; border-top: 1px solid var(--border); }
+.coach-reasoning summary { padding: 16px 0; color: var(--accent-dark); cursor: pointer; font-size: 14px; font-weight: 750; }
+.coach-reasoning > div { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 4px; }
+.coach-reasoning section { padding: 13px; border: 1px solid var(--border); border-radius: 9px; }
+.coach-reasoning h3 { margin: 0; font-size: 13px; }
+.coach-reasoning p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
 .deep-review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 22px; }
 .deep-review-grid section { padding: 14px; border: 1px solid var(--border); border-radius: 10px; }
 .deep-review-grid span { color: var(--accent); font-size: 11px; font-weight: 750; }
@@ -388,9 +410,15 @@ button:focus-visible, summary:focus-visible { outline: 3px solid rgba(23,107,91,
   .training-choices > button { min-height: 48px; padding: 11px 12px; }
   .range-bucket-strip { grid-template-columns: 1fr; gap: 6px; }
   .range-bucket-strip span { grid-template-columns: 80px 1fr; }
-  .training-result > h1, .deep-review > h1 { font-size: 32px; }
-  .result-buttons { grid-template-columns: 1fr 1fr; }
-  .result-buttons .primary-button { grid-column: auto; }
+  .deep-review > h1 { font-size: 32px; }
+  .result-verdict { align-items: flex-start; }
+  .result-verdict > span { flex-basis: 44px; width: 44px; height: 44px; }
+  .result-verdict h1 { font-size: 28px; }
+  .training-result > .result-summary { font-size: 16px; }
+  .result-link { grid-template-columns: 34px 1fr; padding: 13px 10px; }
+  .result-node { width: 28px; height: 28px; }
+  .result-link:not(:last-child) .result-node::after { top: 28px; bottom: -51px; left: 13px; }
+  .coach-reasoning > div { grid-template-columns: 1fr; }
   .deep-review-grid { grid-template-columns: 1fr; }
   .session-progress p { grid-template-columns: 1fr auto; }
   .session-progress p b { grid-column: 1 / -1; text-align: left; }

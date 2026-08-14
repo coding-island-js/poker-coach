@@ -364,3 +364,32 @@ The learner had to open a disclosure to see the betting history even though the 
 - Verified the compact context on later steps retains the board and decisive line without repeating the full history.
 - Verified the same shared context component renders correctly in coached and table-speed practice at desktop width.
 - Passed lint, the production build, and rendered-page regression tests.
+
+## Phase 14 — results as a coaching verdict
+
+### UX review
+
+- The result contained the right material but read like a report rather than a quick coaching moment.
+- “Good plan” did not clearly answer what the learner got right, while three identical checkmarks hid the difference between a lesson match and a reasonable alternative.
+- The summary, reasoning chain, table takeaway, deep review, and Why disclosure repeated the same lesson in competing formats.
+- Correct, alternative, and incorrect outcomes needed distinct visual and verbal affordances that did not rely on color alone.
+
+### Changes
+
+- Replaced the generic result headline with an explicit verdict: “Your reasoning works” or “One thinking link needs work.”
+- Added a visible count showing how many of the three Range → Plan → Action links line up.
+- Rebuilt the reasoning chain as three connected numbered nodes with a status word on every row.
+- Added separate states for Good read / Good plan / Matches lesson, Reasonable option, and Needs change.
+- Made corrections explicit with “Try instead,” while defensible alternatives retain their explanation and remain successful reasoning links.
+- Added a concise hand-specific success sentence instead of repeating the complete action assessment above the chain.
+- Renamed the takeaway to “Remember this” and gave it a single visually prominent rule.
+- Changed the action area to one full-width Next hand button plus a quiet Try this hand again control.
+- Merged the old Deep review and Why disclosure into one “See the coach's reasoning” section containing why it works, when to change course, confidence, and available math.
+
+### Gate tests
+
+- Verified the fully correct value-bet result at 375 × 812: the verdict, all three reasoning links, and the start of the takeaway fit in the first viewport.
+- Verified a wrong range produces a coral Needs change row and an explicit replacement while the two sound links remain green.
+- Verified a defensible $20 value size produces an amber Reasonable option row while preserving the overall successful reasoning verdict.
+- Confirmed every result state has text labels in addition to color and the page has no horizontal overflow.
+- Passed lint, the production build, and rendered-page regression tests.

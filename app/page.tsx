@@ -1207,14 +1207,14 @@ void TablePractice;
 void DeepAnalysis;
 void CurriculumHome;
 
-type TrainingLesson = { scenarioIndex: number; module: string; skill: string; goal: string; cue: string };
+type TrainingLesson = { scenarioIndex: number; module: string; skill: string; goal: string; result: string; cue: string };
 type TrainingAttempt = { lesson: number; range: boolean; plan: boolean; action: boolean };
 
 const trainingLessons: TrainingLesson[] = [
-  { scenarioIndex: 3, module: "Foundations", skill: "Value betting", goal: "Bet when a worse hand can call.", cue: "Value bet when enough weaker hands can call. Choose a size those hands will still pay." },
-  { scenarioIndex: 0, module: "Foundations", skill: "Bluff or check", goal: "Bluff only when a better hand can fold.", cue: "Do not bluff missed hands you already beat. Bluff only when better pairs fold often enough." },
-  { scenarioIndex: 1, module: "Price and draws", skill: "Calling a small bet", goal: "Call when the price fits your chance to win or improve.", cue: "Facing a bet, compare the call price with how often you can improve or already win." },
-  { scenarioIndex: 2, module: "Range reading", skill: "Strong hands remain", goal: "Notice when very strong hands are still possible.", cue: "Uncapped means strong hands remain—not that the opponent is ahead. Plan for a raise before betting." },
+  { scenarioIndex: 3, module: "Foundations", skill: "Value betting", goal: "Bet when a worse hand can call.", result: "You found a value bet: weaker queens and other pairs can call.", cue: "Value bet when enough weaker hands can call. Choose a size those hands will still pay." },
+  { scenarioIndex: 0, module: "Foundations", skill: "Bluff or check", goal: "Bluff only when a better hand can fold.", result: "You connected the opponent's likely pairs to the hands a bluff must fold.", cue: "Do not bluff missed hands you already beat. Bluff only when better pairs fold often enough." },
+  { scenarioIndex: 1, module: "Price and draws", skill: "Calling a small bet", goal: "Call when the price fits your chance to win or improve.", result: "You connected the price of calling with the ways your hand can improve.", cue: "Facing a bet, compare the call price with how often you can improve or already win." },
+  { scenarioIndex: 2, module: "Range reading", skill: "Strong hands remain", goal: "Notice when very strong hands are still possible.", result: "You kept strong hands in the opponent's range and chose a controlled line.", cue: "Uncapped means strong hands remain—not that the opponent is ahead. Plan for a raise before betting." },
 ];
 
 function TrainingHistory({ scenario }: { scenario: Scenario }) {
@@ -1291,9 +1291,10 @@ function TrainingQuestion({ label, question, options, selected, locked, onSelect
 }
 
 function TrainingResult({ scenario, lesson, lessonIndex, range, plan, action, onNext, onRetry }: { scenario: Scenario; lesson: TrainingLesson; lessonIndex: number; range: string; plan: string; action: string; onNext: (attempt: TrainingAttempt) => void; onRetry: () => void }) {
-  const [deep, setDeep] = useState(false);
   const rangeSound = range === scenario.dominantRangeAnswer;
-  const planSound = plan === scenario.goalAnswer || isGoalAlternative(scenario, plan);
+  const planMatched = plan === scenario.goalAnswer;
+  const planAlternative = !planMatched && isGoalAlternative(scenario, plan);
+  const planSound = planMatched || planAlternative;
   const assessment = assessAction(scenario, action);
   const coherent = actionMatchesGoal(scenario, plan, action);
   const actionSound = coherent && assessment.status !== "review";
@@ -1303,21 +1304,30 @@ function TrainingResult({ scenario, lesson, lessonIndex, range, plan, action, on
   const correctRange = scenario.dominantRangeOptions.find((option) => option.id === scenario.dominantRangeAnswer)!;
   const correctPlan = scenario.goalOptions.find((option) => option.id === scenario.goalAnswer)!;
   const coachAction = scenario.actionOptions.find((option) => option.id === scenario.actionAnswer)!;
-  const headline = !rangeSound ? "Fix the range read first." : !planSound ? "Fix the plan first." : !coherent ? "Your action and plan contradict each other." : actionSound ? "Good plan." : "Revisit the action.";
-  if (deep) return <section className="trainer-card deep-review"><button className="back-link" onClick={() => setDeep(false)}>← Result</button><p className="lesson-meta">Deep review · {lesson.skill}</p><h1>Why this decision changes</h1><div className="deep-review-grid"><section><span>Range assumption</span><p>{scenario.strengthExplanation}</p></section><section><span>Action comparison</span><p>{assessment.explanation}</p><p><strong>Coach comparison:</strong> {coachAction.label}</p></section><section><span>Confidence</span><p>{scenario.coachConfidence}</p></section><section><span>Change course when</span><p>{scenario.reversal}</p></section></div>{scenario.id === "river-pressure" && <p className="key-math"><strong>Key math:</strong> $50 needs about 35% folds, $100 about 52%, and $150 about 62%.</p>}</section>;
+  const soundCount = [rangeSound, planSound, actionSound].filter(Boolean).length;
+  const needsWork = 3 - soundCount;
+  const headline = needsWork === 0 ? "Your reasoning works" : needsWork === 1 ? "One thinking link needs work" : `${needsWork} thinking links need work`;
+  const summary = needsWork === 0 ? lesson.result : !rangeSound ? scenario.dominantRangeExplanation : !planSound ? `${scenario.handPositionExplanation} ${scenario.goalExplanation}` : !coherent ? "Your action does not perform the job in your plan." : assessment.explanation;
+  const actionStatus = !coherent || assessment.status === "review" ? "Needs change" : assessment.status === "reasonable" ? "Reasonable option" : "Matches lesson";
+  const actionTone = !actionSound ? "fix" : assessment.status === "reasonable" ? "alternative" : "sound";
+  const actionNote = actionTone === "sound" ? actionChoice?.label.startsWith("Bet") ? "The betting idea matches this lesson; the exact size is illustrative." : "This action matches the lesson's reasoning." : assessment.explanation;
+  const rows = [
+    { label: "Range", status: rangeSound ? "Good read" : "Needs change", tone: rangeSound ? "sound" : "fix", answer: rangeChoice?.label, correction: !rangeSound ? correctRange.label : "" },
+    { label: "Plan", status: !planSound ? "Needs change" : planAlternative ? "Reasonable plan" : "Good plan", tone: !planSound ? "fix" : planAlternative ? "alternative" : "sound", answer: planChoice?.label, correction: !planSound ? correctPlan.label : "" },
+    { label: "Action", status: actionStatus, tone: actionTone, answer: actionChoice?.label, correction: !actionSound ? coachAction.label : "", note: actionNote },
+  ];
   return (
     <section className="trainer-card training-result" aria-live="polite">
-      <p className="lesson-meta">Result · {lesson.skill}</p><h1>{headline}</h1>
-      <p className="result-summary">{!rangeSound ? scenario.dominantRangeExplanation : !planSound ? `${scenario.handPositionExplanation} ${scenario.goalExplanation}` : !coherent ? "Choose an action that performs the job in your plan." : assessment.explanation}</p>
+      <p className="lesson-meta">Result · {lesson.skill}</p>
+      <div className={`result-verdict ${needsWork ? "fix" : "sound"}`}><span aria-hidden="true">{needsWork ? "!" : "✓"}</span><div><h1>{headline}</h1><p>{soundCount} of 3 thinking links line up</p></div></div>
+      <p className="result-summary">{summary}</p>
+      <h2 className="thinking-title">Your thinking</h2>
       <div className="result-chain">
-        <p className={rangeSound ? "sound" : "fix"}><span>{rangeSound ? "✓" : "!"}</span><b>Range</b><strong>{rangeChoice?.label}</strong>{!rangeSound && <small>Use instead: {correctRange.label}</small>}</p>
-        <p className={planSound ? "sound" : "fix"}><span>{planSound ? "✓" : "!"}</span><b>Plan</b><strong>{planChoice?.label}</strong>{!planSound && <small>Use instead: {correctPlan.label}</small>}</p>
-        <p className={actionSound ? "sound" : !coherent || assessment.status === "review" ? "fix" : "alternative"}><span>{actionSound ? "✓" : !coherent ? "!" : "△"}</span><b>Action</b><strong>{actionChoice?.label}</strong>{!actionSound && <small>Coach comparison: {coachAction.label}</small>}</p>
+        {rows.map((row, index) => <div className={`result-link ${row.tone}`} key={row.label}><span className="result-node">{index + 1}</span><div><p><b>{row.label}</b><em>{row.status}</em></p><strong>{row.answer}</strong>{row.correction && <small>Try instead: {row.correction}</small>}{row.note && <small className="result-note">{row.note}</small>}</div></div>)}
       </div>
-      <div className="table-cue"><span>Take to the table</span><p>{lesson.cue}</p></div>
-      <div className="result-buttons"><button className="primary-button" onClick={() => onNext({ lesson: lessonIndex, range: rangeSound, plan: planSound, action: actionSound })}>Next hand →</button><button className="secondary-button" onClick={onRetry}>Retry</button></div>
-      <div className="result-links"><button onClick={() => setDeep(true)}>Review deeply</button></div>
-      <details className="why-answer"><summary>Why this answer</summary><ul><li><strong>Range:</strong> {scenario.dominantRangeExplanation}</li><li><strong>Plan:</strong> {scenario.goalExplanation}</li><li><strong>Changes when:</strong> {scenario.reversal}</li></ul></details>
+      <div className="table-cue"><span>Remember this</span><p>{lesson.cue}</p></div>
+      <div className="result-buttons"><button className="primary-button" onClick={() => onNext({ lesson: lessonIndex, range: rangeSound, plan: planSound, action: actionSound })}>Next hand →</button><button className="retry-link" onClick={onRetry}>Try this hand again</button></div>
+      <details className="coach-reasoning"><summary>See the coach&apos;s reasoning</summary><div><section><h3>Why it works</h3><p>{scenario.dominantRangeExplanation} {scenario.goalExplanation}</p></section><section><h3>Change course when</h3><p>{scenario.reversal}</p></section><section><h3>Coach confidence</h3><p>{scenario.coachConfidence}</p></section>{scenario.id === "river-pressure" && <section><h3>Key math</h3><p>$50 needs about 35% folds, $100 about 52%, and $150 about 62%.</p></section>}</div></details>
     </section>
   );
 }
