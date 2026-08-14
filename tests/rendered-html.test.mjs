@@ -17,27 +17,25 @@ async function render() {
   );
 }
 
-test("server-renders the complete Range Coach workspace", async () => {
+test("server-renders the coaching curriculum", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
   assert.match(html, /<title>Range Coach/);
-  assert.match(html, /Practice mode/);
-  assert.match(html, /Learn/);
-  assert.match(html, /Quick decision/);
-  assert.match(html, /Guided hand/);
-  assert.match(html, />You</);
-  assert.match(html, /Complete hand history/);
-  assert.match(html, /Opponent/);
-  assert.match(html, /Use four questions for post-flop decisions/);
-  assert.match(html, /A weaker hand calls/);
+  assert.match(html, /How much coaching do you want/);
+  assert.match(html, /Beginner-friendly/);
+  assert.match(html, /Table practice/);
+  assert.match(html, /Deep analysis/);
+  assert.match(html, /Value: which weaker hands will call/);
+  assert.match(html, /The four-question habit/);
+  assert.doesNotMatch(html, /Choose a hand|Practice mode|scenario-tabs/);
   assert.doesNotMatch(html, /codex-preview/i);
   assert.doesNotMatch(html, /react-loading-skeleton/);
 });
 
-test("teaches decisions before terminology and includes a transfer hand", async () => {
+test("uses progressive coaching levels and preserves poker correctness", async () => {
   const [css, page, layout, packageJson] = await Promise.all([
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
@@ -52,7 +50,7 @@ test("teaches decisions before terminology and includes a transfer hand", async 
   assert.match(page, /A weaker hand calls = value\. A better hand folds = bluff/);
   assert.match(page, /In four similar river spots, this opponent folded three times to a large bet/);
   assert.match(page, /Why a large bluff may look believable/);
-  assert.match(page, /Your reasoning was sound\. The exact size is uncertain/);
+  assert.match(page, /Your plan makes sense\. The exact size is uncertain/);
   assert.match(page, /Defensible alternative/);
   assert.match(page, /First place to fix/);
   assert.match(page, /The checks alone do not tell you how often strong hands remain/);
@@ -64,7 +62,21 @@ test("teaches decisions before terminology and includes a transfer hand", async 
   assert.match(page, /Paired river decision/);
   assert.match(page, /Fewer clues are provided\. Apply the same four questions/);
   assert.match(page, /inline-feedback/);
-  assert.match(page, /Reasoning used for the next step/);
+  assert.match(page, /How much coaching do you want/);
+  assert.match(page, /Beginner-friendly/);
+  assert.match(page, /Teach each step and correct the foundation/);
+  assert.match(page, /Let me reason through the hand/);
+  assert.match(page, /Show assumptions, alternatives, math/);
+  assert.match(page, /guided: \[3, 0\]/);
+  assert.match(page, /Complete hand history/);
+  assert.match(page, /Read the full hand once/);
+  assert.match(page, /CompactContext/);
+  assert.match(page, /A weaker hand calls/);
+  assert.match(page, /A better hand folds/);
+  assert.match(page, /The call price is worth it/);
+  assert.match(page, /Avoid building a bigger pot/);
+  assert.match(page, /Concept analysis only\. No solver-backed mix/);
+  assert.match(page, /Uncapped.*strongest hands still fit the line/s);
   assert.match(page, /Check answer/);
   assert.match(page, /Retry from memory/);
   assert.match(page, /disabled=\{rangeChecked\}/);
@@ -78,7 +90,10 @@ test("teaches decisions before terminology and includes a transfer hand", async 
   assert.doesNotMatch(page, /shortTitle: "A river bluff target"|shortTitle: "The false cap"|shortTitle: "Transfer: river value"/);
   assert.match(page, /exact action awaits solver and expert review/i);
   assert.doesNotMatch(page, /credibilityOptions|correctSteps|resultSummary|label: "Overbet|Could you overbet bigger|The decision in one chain|checkbox-mark|Select every reasonable|2\/4 key groups|story holds together|classification response/i);
-  assert.match(css, /mobile-context-strip/);
+  assert.match(css, /support-options/);
+  assert.match(css, /compact-context/);
+  assert.match(css, /analysis-grid/);
+  assert.match(css, /--accent: #176b5b/);
   assert.match(css, /street-timeline/);
   assert.match(css, /coach-mini-context/);
   assert.match(css, /inline-feedback/);

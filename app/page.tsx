@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
-type Mode = "learn" | "quick" | "coach";
+type SupportLevel = "guided" | "table" | "deep";
+type AppView = "curriculum" | "setup" | "lesson";
 type CoachStep = "range" | "hand" | "goal" | "action" | "review";
 
 type StreetHistory = {
@@ -626,7 +627,7 @@ function moveToWorkArea() {
 
 function moveToQuestion() {
   window.requestAnimationFrame(() => {
-    const question = document.querySelector(".coach-view");
+    const question = document.querySelector(".coach-view, .review-view");
     if (!question) return;
     const top = question.getBoundingClientRect().top + window.scrollY - 88;
     window.scrollTo({ top, behavior: "smooth" });
@@ -871,14 +872,16 @@ function CoachMode({ scenario, onNext, handNumber, handCount }: { scenario: Scen
         : scenario.id === "false-cap" && goalAlternative && action === "small"
           ? "Your reasoning is coherent. A small value bet is defensible."
         : actionAssessment.status === "reasonable"
-          ? "Your reasoning was sound. The exact size is uncertain."
-          : "Your reasoning was sound. This action matches the authored example.";
+          ? "Your plan makes sense. The exact size is uncertain."
+          : "Your plan makes sense.";
 
     return (
       <section className="work-card review-view" aria-live="polite">
         <div className="review-heading"><div><span className="section-kicker">Coach review</span><h2>{resultHeadline}</h2></div></div>
 
-        <div className="answer-review-list" aria-label="Your reasoning and coach feedback">
+        <details className="details-block answer-audit-details">
+          <summary>Review all four answers</summary>
+          <div className="answer-review-list" aria-label="Your reasoning and coach feedback">
           <div className={`answer-review-row ${rangeMatches ? "row-correct" : "row-fix"}`}>
             <span className="row-status">{rangeMatches ? "✓" : "!"}</span>
             <div><span>Opponent — first try</span><strong>{selectedRange.label}</strong>{!rangeMatches && <small>Coach correction: {correctRange.label}</small>}</div>
@@ -899,10 +902,11 @@ function CoachMode({ scenario, onNext, handNumber, handCount }: { scenario: Scen
             <div><span>Action and size — first try</span><strong>{playerAction.label}</strong>{actionAssessment.status !== "matched" && <small>Authored example: {coachAction.label}</small>}</div>
             <b>{actionAssessment.label}</b>
           </div>
-        </div>
+          </div>
+        </details>
 
         {firstFix && <div className="first-fix"><span>First place to fix</span><strong>{firstFix.answer}</strong><p>{firstFix.explanation}</p></div>}
-        {!firstFix && <div className="alternative-note"><span>What the coach can and cannot claim</span><p>{actionAssessment.explanation}</p></div>}
+        {!firstFix && <div className="alternative-note"><span>{scenario.id === "transfer-value" ? "About the size" : "Coach note"}</span><p>{actionAssessment.explanation}</p></div>}
         <div className="coach-confidence"><strong>{scenario.coachConfidence}</strong></div>
 
         <div className="takeaway-card"><span>Takeaway</span><p>{scenario.takeaway}</p></div>
@@ -925,7 +929,7 @@ function CoachMode({ scenario, onNext, handNumber, handCount }: { scenario: Scen
         <details className="details-block full-review-details"><summary>When the play changes</summary><p>{scenario.reversal}</p></details>
 
         <div className="button-row">
-          <button className="primary-button" onClick={onNext}>{scenario.transfer ? "Start over" : "Next hand"} <span aria-hidden="true">→</span></button>
+          <button className="primary-button" onClick={onNext}>Next lesson <span aria-hidden="true">→</span></button>
           <button className="secondary-button" onClick={resetCoach}>Retry from memory</button>
         </div>
       </section>
@@ -1011,85 +1015,223 @@ function CoachMode({ scenario, onNext, handNumber, handCount }: { scenario: Scen
   );
 }
 
+// Retained temporarily while authored scenario content migrates into the new curriculum.
+void moveToScenarioStart;
+void HandContext;
+void LearnMode;
+void QuickMode;
+
+const curriculum: Record<SupportLevel, number[]> = {
+  guided: [3, 0],
+  table: [1, 2],
+  deep: [0, 2, 1, 3],
+};
+
+const supportCopy: Record<SupportLevel, { label: string; level: string; description: string }> = {
+  guided: { label: "Guided", level: "Beginner-friendly", description: "Teach each step and correct the foundation before moving on." },
+  table: { label: "Table practice", level: "Intermediate", description: "Let me reason through the hand, then coach the first weak link." },
+  deep: { label: "Deep analysis", level: "Advanced", description: "Show assumptions, alternatives, math, and what is not verified." },
+};
+
+const reasonOptions = [
+  { id: "value", label: "A weaker hand calls" },
+  { id: "bluff", label: "A better hand folds" },
+  { id: "price", label: "The call price is worth it" },
+  { id: "control", label: "Avoid building a bigger pot" },
+];
+
+function CompactContext({ scenario }: { scenario: Scenario }) {
+  return (
+    <div className="compact-context" aria-label="Hand reminder">
+      <p><strong>You:</strong> {scenario.hero.join(" ")} <span>·</span> <strong>Board:</strong> {scenario.board.join(" ")}</p>
+      <p><strong>{scenario.street}:</strong> {scenario.decisionFact} <span>·</span> <strong>Pot:</strong> {scenario.pot}</p>
+    </div>
+  );
+}
+
+function LessonSetup({ scenario, level, lessonNumber, lessonCount, onStart, onBack }: {
+  scenario: Scenario; level: SupportLevel; lessonNumber: number; lessonCount: number; onStart: () => void; onBack: () => void;
+}) {
+  return (
+    <div className="lesson-shell lesson-setup" id="main-workspace">
+      <button className="back-link" onClick={onBack}>← Curriculum</button>
+      <p className="lesson-meta">{supportCopy[level].label} · Lesson {lessonNumber} of {lessonCount}</p>
+      <h1>{scenario.shortTitle}</h1>
+      <p className="setup-lead">Read the full hand once. These actions are the evidence for every decision that follows.</p>
+
+      <section className="setup-hand" aria-label="Current hand">
+        <div className="setup-summary">
+          <div><span>You · {scenario.heroPosition}</span><div className="cards-inline">{scenario.hero.map((card) => <Card value={card} key={card} />)}</div></div>
+          <div><span>Board</span><div className="cards-inline">{scenario.board.map((card, index) => <Card value={card} key={`${card}-${index}`} />)}</div></div>
+        </div>
+        <div className="setup-facts">
+          <p><span>Opponent</span><strong>{scenario.villainPosition}</strong></p>
+          <p><span>Pot now</span><strong>{scenario.pot}</strong></p>
+          <p><span>Stack behind</span><strong>{scenario.effective}</strong></p>
+        </div>
+        <h2>Complete hand history</h2>
+        <HandTimeline scenario={scenario} />
+      </section>
+
+      <button className="primary-button setup-start" onClick={onStart}>Start the hand →</button>
+    </div>
+  );
+}
+
+function GuidedLesson({ scenario, onNext, lessonNumber, lessonCount }: { scenario: Scenario; onNext: () => void; lessonNumber: number; lessonCount: number }) {
+  const guidedScenario = { ...scenario, transfer: false };
+  return <CoachMode scenario={guidedScenario} onNext={onNext} handNumber={lessonNumber} handCount={lessonCount} />;
+}
+
+function TablePractice({ scenario, onNext, lessonNumber, lessonCount }: { scenario: Scenario; onNext: () => void; lessonNumber: number; lessonCount: number }) {
+  const [step, setStep] = useState(0);
+  const [range, setRange] = useState("");
+  const [purpose, setPurpose] = useState("");
+  const [action, setAction] = useState("");
+  const choices = [range, purpose, action];
+  const setters = [setRange, setPurpose, setAction];
+  const optionGroups = [scenario.dominantRangeOptions, scenario.goalOptions, scenario.actionOptions];
+  const questions = ["Describe the opponent's range now.", scenario.goalPrompt, "Choose the action and size."];
+  const labels = ["Likely hands", "Purpose", "Decision"];
+
+  if (step === 3) {
+    const rangeSound = range === scenario.dominantRangeAnswer;
+    const purposeSound = purpose === scenario.goalAnswer || isGoalAlternative(scenario, purpose);
+    const assessment = assessAction(scenario, action);
+    const actionSound = !actionMatchesGoal(scenario, purpose, action) ? false : assessment.status !== "review";
+    const firstFix = !rangeSound ? scenario.dominantRangeExplanation : !purposeSound ? scenario.goalExplanation : !actionSound ? assessment.explanation : null;
+    return (
+      <section className="lesson-shell practice-card result-simple" aria-live="polite">
+        <p className="lesson-meta">Table practice · Lesson {lessonNumber} of {lessonCount}</p>
+        <h1>{firstFix ? "One link needs revision." : "Your reasoning holds together."}</h1>
+        <p className="result-summary">{firstFix || "The range, purpose, and action form a coherent plan under this lesson's assumptions."}</p>
+        <div className="simple-audit">
+          <p><span>{rangeSound ? "✓" : "!"}</span><b>Range</b><strong>{scenario.dominantRangeOptions.find((item) => item.id === range)?.label}</strong></p>
+          <p><span>{purposeSound ? "✓" : "!"}</span><b>Purpose</b><strong>{scenario.goalOptions.find((item) => item.id === purpose)?.label}</strong></p>
+          <p><span>{actionSound ? "✓" : "△"}</span><b>Decision</b><strong>{scenario.actionOptions.find((item) => item.id === action)?.label}</strong></p>
+        </div>
+        <div className="takeaway-simple"><strong>Take to the table</strong><p>{scenario.takeaway}</p></div>
+        <div className="button-row result-actions"><button className="primary-button" onClick={onNext}>Next lesson →</button><button className="secondary-button" onClick={() => { setStep(0); setRange(""); setPurpose(""); setAction(""); }}>Retry</button></div>
+        {scenario.id === "false-cap" && <details className="details-block"><summary>Poker term after the decision: uncapped</summary><p>The strongest hands still fit the action. Coaches call that <strong>uncapped</strong>. It does not mean most of the opponent&apos;s hands are strong or that the opponent is ahead overall.</p></details>}
+        <details className="details-block"><summary>Assumption and reversal</summary><p>{scenario.reversal}</p></details>
+      </section>
+    );
+  }
+
+  const options = optionGroups[step];
+  return (
+    <section className="lesson-shell practice-card">
+      <CompactContext scenario={scenario} />
+      <div className="quiet-progress"><span>Table practice · Lesson {lessonNumber} of {lessonCount}</span><b>{step + 1} / 3</b></div>
+      <p className="step-label">{labels[step]}</p>
+      <h1>{questions[step]}</h1>
+      {step === 0 && <p className="question-help">Include the main group and remember that a few stronger hands may remain.</p>}
+      {scenario.observedEvidence && step > 0 && <p className="plain-clue"><strong>Opponent evidence:</strong> {scenario.observedEvidence}</p>}
+      <div className="choice-list">
+        {options.map((option) => <button key={option.id} className={choices[step] === option.id ? "selected" : ""} onClick={() => setters[step](option.id)}><strong>{option.label}</strong><span className="radio-dot" /></button>)}
+      </div>
+      <div className="button-row"><button className="secondary-button" disabled={step === 0} onClick={() => setStep(step - 1)}>Back</button><button className="primary-button" disabled={!choices[step]} onClick={() => setStep(step + 1)}>{step === 2 ? "Review reasoning" : "Continue →"}</button></div>
+    </section>
+  );
+}
+
+function DeepAnalysis({ scenario, onNext, lessonNumber, lessonCount }: { scenario: Scenario; onNext: () => void; lessonNumber: number; lessonCount: number }) {
+  const [action, setAction] = useState("");
+  const [reason, setReason] = useState("");
+  const [revealed, setRevealed] = useState(false);
+  const assessment = action ? assessAction(scenario, action) : null;
+  const selectedAction = scenario.actionOptions.find((item) => item.id === action);
+  if (revealed && assessment) {
+    return (
+      <section className="lesson-shell practice-card deep-result" aria-live="polite">
+        <p className="lesson-meta">Deep analysis · Lesson {lessonNumber} of {lessonCount}</p>
+        <h1>{assessment.status === "review" ? "Revisit the action-purpose link." : "Consistent with these assumptions."}</h1>
+        <p className="result-summary"><strong>Your decision:</strong> {selectedAction?.label} · {reasonOptions.find((item) => item.id === reason)?.label}</p>
+        <div className="analysis-grid">
+          <section><h2>Range assumptions</h2><p>{scenario.strengthExplanation}</p><ul>{scenario.evidence.map((item) => <li key={item}>{item}</li>)}</ul></section>
+          <section><h2>Action tree</h2><p>{assessment.explanation}</p><p><strong>Authored baseline:</strong> {scenario.actionOptions.find((item) => item.id === scenario.actionAnswer)?.label}. This is a comparison point, not a solver frequency.</p></section>
+          <section><h2>Confidence</h2><p>{scenario.coachConfidence}</p><p>Concept analysis only. No solver-backed mix is available for this exact spot.</p></section>
+          <section><h2>What changes it</h2><p>{scenario.reversal}</p></section>
+        </div>
+        {scenario.id === "river-pressure" && <details className="details-block" open><summary>Break-even bluff math</summary><p>$50 needs about 35% folds, $100 about 52%, and $150 about 62%. Bigger is better only when the added pressure creates enough extra folds.</p></details>}
+        {scenario.id === "false-cap" && <details className="details-block" open><summary>Capped and uncapped</summary><p><strong>Uncapped</strong> means the strongest hands still fit the line. It does not mean the opponent is ahead overall. <strong>Mostly capped</strong> means top hands are heavily discounted, not guaranteed impossible.</p></details>}
+        <div className="button-row result-actions"><button className="primary-button" onClick={onNext}>Next analysis →</button><button className="secondary-button" onClick={() => { setAction(""); setReason(""); setRevealed(false); }}>Retry</button></div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="lesson-shell practice-card deep-practice">
+      <CompactContext scenario={scenario} />
+      <div className="quiet-progress"><span>Deep analysis · Lesson {lessonNumber} of {lessonCount}</span><b>Decision</b></div>
+      <h1>Choose a line and state its job.</h1>
+      <p className="question-help">There may be more than one defensible action. The review compares assumptions instead of pretending an unverified mix is exact.</p>
+      <h2>Action and size</h2>
+      <div className="choice-list compact-choices">{scenario.actionOptions.map((option) => <button key={option.id} className={action === option.id ? "selected" : ""} onClick={() => setAction(option.id)}><strong>{option.label}</strong><span className="radio-dot" /></button>)}</div>
+      <h2>Primary reason</h2>
+      <div className="choice-list compact-choices">{reasonOptions.map((option) => <button key={option.id} className={reason === option.id ? "selected" : ""} onClick={() => setReason(option.id)}><strong>{option.label}</strong><span className="radio-dot" /></button>)}</div>
+      <button className="primary-button" disabled={!action || !reason} onClick={() => setRevealed(true)}>Compare assumptions</button>
+    </section>
+  );
+}
+
+function CurriculumHome({ selected, onSelect, onContinue }: { selected: SupportLevel; onSelect: (level: SupportLevel) => void; onContinue: () => void }) {
+  return (
+    <div className="curriculum-home" id="main-workspace">
+      <section className="curriculum-intro">
+        <p className="eyebrow">Poker thinking, one decision at a time</p>
+        <h1>How much coaching do you want?</h1>
+        <p>Start with plain-language guidance, practice at table speed, or inspect the assumptions behind the answer.</p>
+      </section>
+      <div className="support-options" role="radiogroup" aria-label="Choose coaching support">
+        {(Object.keys(supportCopy) as SupportLevel[]).map((level) => {
+          const item = supportCopy[level];
+          return <button key={level} role="radio" aria-checked={selected === level} className={selected === level ? "selected" : ""} onClick={() => onSelect(level)}><span>{item.level}</span><strong>{item.label}</strong><p>{item.description}</p><b>{selected === level ? "Selected" : "Choose"}</b></button>;
+        })}
+      </div>
+      <section className="continue-card">
+        <div><span>Recommended next</span><h2>{selected === "guided" ? "Value: which weaker hands will call?" : selected === "table" ? "A drawing hand facing a small bet" : "Ace-high river pressure"}</h2><p>{selected === "guided" ? "A clear first hand for learning the four-question habit." : supportCopy[selected].description}</p></div>
+        <button className="primary-button" onClick={onContinue}>Start {supportCopy[selected].label} →</button>
+      </section>
+      <details className="method-preview"><summary>The four-question habit</summary><ol><li>What does the opponent have most often?</li><li>What can my hand beat?</li><li>Will a weaker hand call or a better hand fold?</li><li>Which action and size do that job?</li></ol></details>
+    </div>
+  );
+}
+
 export default function Home() {
-  const [mode, setMode] = useState<Mode>("learn");
-  const [scenarioIndex, setScenarioIndex] = useState(0);
+  const [level, setLevel] = useState<SupportLevel>("guided");
+  const [view, setView] = useState<AppView>("curriculum");
+  const [lessonPosition, setLessonPosition] = useState(0);
+  const scenarioIndex = curriculum[level][lessonPosition];
   const scenario = scenarios[scenarioIndex];
+  const lessonCount = curriculum[level].length;
 
-  const nextScenario = () => {
-    setScenarioIndex((current) => (current + 1) % scenarios.length);
-    moveToScenarioStart();
-  };
-
-  const modeCopy = useMemo(() => ({
-    learn: "Learn",
-    quick: "Quick decision",
-    coach: "Guided hand",
-  }), []);
-
-  const changeMode = (nextMode: Mode) => {
-    setMode(nextMode);
-    moveToWorkArea();
-  };
-
-  const changeScenario = (nextIndex: number) => {
-    setScenarioIndex(nextIndex);
-    moveToScenarioStart();
+  const startLevel = () => { setLessonPosition(0); setView("setup"); window.scrollTo({ top: 0 }); };
+  const nextLesson = () => {
+    if (lessonPosition + 1 >= lessonCount) { setView("curriculum"); setLessonPosition(0); }
+    else { setLessonPosition(lessonPosition + 1); setView("setup"); }
+    window.scrollTo({ top: 0 });
   };
 
   return (
     <main className="app-shell">
-      <header className="app-header">
-        <a className="brand" href="#main-workspace" aria-label="Range Coach home">
-          <span className="brand-mark">RC</span>
-          <span>Range Coach</span>
-        </a>
-        <nav className="mode-nav" aria-label="Practice mode">
-          {(Object.keys(modeCopy) as Mode[]).map((item) => (
-            <button key={item} className={mode === item ? "active" : ""} onClick={() => changeMode(item)} aria-pressed={mode === item}>
-              {modeCopy[item]}
-            </button>
-          ))}
-        </nav>
-        <span className="study-only">Study only · not for live play</span>
+      <header className="app-header simple-header">
+        <button className="brand brand-button" onClick={() => setView("curriculum")} aria-label="Range Coach curriculum"><span className="brand-mark">RC</span><span>Range Coach</span></button>
+        <span className="study-only">Study only · not for live hands</span>
       </header>
 
-      <section className="scenario-bar" aria-label="Choose a hand">
-        <span className="scenario-label">Choose a hand</span>
-        <div className="scenario-tabs">
-          {scenarios.map((item, index) => (
-            <button key={item.id} className={scenarioIndex === index ? "active" : ""} onClick={() => changeScenario(index)} aria-pressed={scenarioIndex === index}>
-              <span>{index + 1}</span>
-              <strong>{item.shortTitle}</strong>
-              <small>{item.format}</small>
-            </button>
-          ))}
+      {view === "curriculum" && <CurriculumHome selected={level} onSelect={(next) => { setLevel(next); setLessonPosition(0); }} onContinue={startLevel} />}
+      {view === "setup" && <LessonSetup scenario={scenario} level={level} lessonNumber={lessonPosition + 1} lessonCount={lessonCount} onStart={() => { setView("lesson"); window.scrollTo({ top: 0 }); }} onBack={() => setView("curriculum")} />}
+      {view === "lesson" && (
+        <div className="active-lesson" id="main-workspace">
+          <button className="back-link lesson-back" onClick={() => setView("setup")}>← Full hand</button>
+          {level === "guided" && <GuidedLesson key={`${level}-${scenario.id}-${lessonPosition}`} scenario={scenario} onNext={nextLesson} lessonNumber={lessonPosition + 1} lessonCount={lessonCount} />}
+          {level === "table" && <TablePractice key={`${level}-${scenario.id}-${lessonPosition}`} scenario={scenario} onNext={nextLesson} lessonNumber={lessonPosition + 1} lessonCount={lessonCount} />}
+          {level === "deep" && <DeepAnalysis key={`${level}-${scenario.id}-${lessonPosition}`} scenario={scenario} onNext={nextLesson} lessonNumber={lessonPosition + 1} lessonCount={lessonCount} />}
         </div>
-      </section>
+      )}
 
-      <div className="workspace" id="main-workspace">
-        <HandContext key={scenario.id} scenario={scenario} />
-        <div className="work-area" key={`${scenario.id}-${mode}`}>
-          <div className="mobile-context-strip" aria-label="Decision now">
-            <div className="mobile-context-heading"><strong>{scenario.shortTitle}</strong><span>{scenario.street} · Pot {scenario.pot} · {scenario.effective} behind</span></div>
-            <div className="mobile-context-cards">
-              <div><span>You</span><strong>{scenario.hero.join(" ")}</strong></div>
-              <div><span>Board</span><strong>{scenario.board.join(" ")}</strong></div>
-              <div><span>Opponent</span><strong>{scenario.villainPosition.split(" —")[0]}</strong></div>
-            </div>
-            <div className="mobile-history-title"><strong>Complete hand history</strong><span>Facts used for every answer</span></div>
-            <HandTimeline scenario={scenario} compact />
-          </div>
-          {mode === "learn" && <LearnMode scenario={scenario} onPractice={() => changeMode("coach")} />}
-          {mode === "quick" && <QuickMode scenario={scenario} onNext={nextScenario} />}
-          {mode === "coach" && <CoachMode scenario={scenario} onNext={nextScenario} handNumber={scenarioIndex + 1} handCount={scenarios.length} />}
-        </div>
-      </div>
-
-      <footer className="app-footer">
-        <p>Prototype lessons use fixed authored answers. Exact actions are not solver-verified yet.</p>
-        <p>Adults 18+ · Educational use only · No real-money play</p>
-      </footer>
+      <footer className="app-footer"><p>Authored educational prototype. Exact actions and frequencies are not solver-verified.</p><p>Adults 18+ · No real-money play</p></footer>
     </main>
   );
 }

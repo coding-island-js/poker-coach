@@ -269,3 +269,34 @@ The learner had to open a disclosure to see the betting history even though the 
 - Completed the connected-turn hand through the small-value-bet branch and received a defensible alternative instead of a false error.
 - Moved from Hand 3 to Hand 4 and verified new-hand positioning, orientation, and reset state.
 - Verified no horizontal overflow at 375 and 1280 pixels, and passed the production build, rendered-page tests, and lint checks.
+
+## Phase 11 — coaching support, not interface modes
+
+### Cross-level research and review
+
+- **Beginner trainee:** the opening lesson was too advanced, the phone repeated the same hand context, and the learner had to decode poker terms while making a decision.
+- **Intermediate trainee:** four answer-check cycles felt slow; the useful review was the first weak reasoning link, the assumption, and what would reverse the play.
+- **Advanced trainee:** binary right-or-wrong grading was misleading for mixed, unverified actions; useful analysis requires assumptions, alternatives, math, and provenance.
+- **Poker coach:** recommended likely-hand buckets before combination detail and teaching capped or uncapped only after the learner identifies whether the strongest hands still fit the action.
+- **UX review:** found three competing navigation axes—mode, hand, and question—and recommended one curriculum with one obvious next lesson.
+
+### Changes
+
+- Replaced Learn / Quick / Guided and the global hand carousel with a single “How much coaching?” curriculum.
+- Added Guided, Table practice, and Deep analysis as support choices, with plain descriptions of what changes.
+- Made the clear ace-queen river value hand the first Guided lesson; the uncertain ace-high exploit is no longer the default beginner problem.
+- Added a one-time setup screen with the complete hand history. Question screens retain one compact card, board, pot, and action reminder.
+- Guided keeps four questions and immediate locked feedback. Its result shows one verdict, one takeaway, and Next lesson before optional details.
+- Table practice uses three decisions and delays coaching until review so the first weak link can be diagnosed.
+- Deep analysis asks for an action and its job, then compares assumptions, alternatives, confidence, reversal conditions, and available sizing math.
+- Removed capped/uncapped from the Guided path. Intermediate introduces “uncapped” only after a concrete hand demonstrates that the strongest hands still fit.
+- Reduced the visual system to a white surface, warm-gray page, one green accent, one correction color, one border radius, and restrained typography.
+- Removed duplicated sticky context, colorful status systems, the scenario carousel, and competing navigation tabs.
+
+### Gate tests
+
+- Verified the 375-pixel curriculum, complete-history setup, first Guided question, immediate feedback, simplified result, Table practice, and Deep analysis.
+- Confirmed the first Guided question and first choices appear in the initial phone viewport with no horizontal overflow.
+- Confirmed the full hand history is present before Question 1 and the lesson itself has only one compact context reminder.
+- Confirmed Deep analysis does not claim solver-backed frequencies and Intermediate teaches uncapped only after the decision.
+- Passed the production build, rendered-page regression tests, and lint checks.
