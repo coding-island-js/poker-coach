@@ -18,6 +18,12 @@ type ActionOption = {
   detail: string;
 };
 
+type ActionAssessment = {
+  status: "matched" | "reasonable" | "review";
+  label: string;
+  explanation: string;
+};
+
 type Scenario = {
   id: string;
   shortTitle: string;
@@ -39,6 +45,7 @@ type Scenario = {
   rangePrompt: string;
   rangeOptions: RangeOption[];
   rangeAnswer: string[];
+  rangeStory: string[];
   strengthAnswer: "Mostly capped" | "Unclear" | "Uncapped";
   strengthExplanation: string;
   actionOptions: ActionOption[];
@@ -107,13 +114,19 @@ const scenarios: Scenario[] = [
       { id: "air", label: "Completely unconnected hands", examples: "Hands with no pair or draw", coachNote: "Most pure air folds to the flop bet." },
     ],
     rangeAnswer: ["kx", "mid", "missed", "traps"],
+    rangeStory: [
+      "Flop call: Villain can still have Kx, 8x, 99–JJ, missed draws, and a few traps.",
+      "Turn and river checks: sets and two pair become less likely, but they do not disappear.",
+      "River result: mostly one-pair hands and missed draws, with few very strong hands—so the range is mostly capped.",
+    ],
     strengthAnswer: "Mostly capped",
     strengthExplanation:
       "Villain still has an occasional trap, but the repeated checks make very strong hands less likely than one-pair hands and missed draws.",
     actionOptions: [
-      { id: "check", label: "Check behind", detail: "Take the showdown and avoid risking more chips." },
-      { id: "half", label: "Bet $50", detail: "A little more than half the pot." },
-      { id: "large", label: "Bet $100", detail: "A large, polarized bet—slightly more than the pot." },
+      { id: "check", label: "Check behind", detail: "Keep your ace-high showdown value." },
+      { id: "half", label: "Bet $50", detail: "54% pot · may not pressure enough one-pair hands." },
+      { id: "large", label: "Overbet $100", detail: "109% pot · the default exploit in this lesson." },
+      { id: "huge", label: "Overbet $150", detail: "163% pot · a higher-risk exploit if Villain overfolds." },
     ],
     actionAnswer: "large",
     actionGrade: "Reasonable exploit—not a universal rule",
@@ -169,6 +182,11 @@ const scenarios: Scenario[] = [
       { id: "strong", label: "Two pair and sets", examples: "A7, A2, K7, 77, 22", coachNote: "Low frequency, but not removed by the action." },
     ],
     rangeAnswer: ["ax", "kx", "pairs", "draws", "strong"],
+    rangeStory: [
+      "Flop check: Villain keeps slow-played Ax and other strong hands.",
+      "Small turn lead: Villain may bet Kx, weak pairs, draws, and bluffs without excluding strong value.",
+      "Turn result: the range is wide, but its strongest hands remain—so there is not enough evidence to call it capped.",
+    ],
     strengthAnswer: "Unclear",
     strengthExplanation:
       "Villain's range is wide, but the flop check preserves enough strong Ax, two pair, and sets that we cannot confidently call the range capped.",
@@ -232,6 +250,11 @@ const scenarios: Scenario[] = [
       { id: "pairsdraws", label: "Pairs and strong draws", examples: "AJ, KJ, QJ and spades", coachNote: "Many worse hands still continue, but some have substantial equity." },
     ],
     rangeAnswer: ["overpairs", "sets", "straight", "two", "pairsdraws"],
+    rangeStory: [
+      "Preflop cold-call: a thoughtful Button can retain AA, KK, and suited connected hands.",
+      "Flop call: sets, top pair, 98 suited, and strong draws all continue.",
+      "Turn result: 98 makes a straight and TT or JT improve, so Villain remains uncapped.",
+    ],
     strengthAnswer: "Uncapped",
     strengthExplanation:
       "Villain can credibly hold a straight, sets, two pair, and trapped overpairs. The strongest part of the range is fully present.",
@@ -258,6 +281,40 @@ const scenarios: Scenario[] = [
     ],
   },
 ];
+
+function assessAction(scenario: Scenario, actionId: string): ActionAssessment {
+  if (actionId === scenario.actionAnswer) {
+    return {
+      status: "matched",
+      label: "Matches this lesson",
+      explanation: scenario.actionExplanation,
+    };
+  }
+
+  if (scenario.id === "river-pressure" && actionId === "huge") {
+    return {
+      status: "reasonable",
+      label: "Reasonable exploit—higher burden",
+      explanation:
+        "A $150 overbet may fold more one-pair hands, but it risks $150 to win $92 and needs about 62% folds to break even. Use it only with strong evidence that Villain overfolds and with value hands that can use the same size.",
+    };
+  }
+
+  if (scenario.id === "river-pressure" && actionId === "check") {
+    return {
+      status: "reasonable",
+      label: "Reasonable low-variance alternative",
+      explanation:
+        "Checking keeps the showdown value of ace-high and avoids bluffing when Villain may call too often. It passes on the exploit assumed by this lesson.",
+    };
+  }
+
+  return {
+    status: "review",
+    label: "Does not match this lesson",
+    explanation: scenario.actionExplanation,
+  };
+}
 
 function isRedCard(card: string) {
   return card.includes("♥") || card.includes("♦");
@@ -324,10 +381,10 @@ function HandContext({ scenario }: { scenario: Scenario }) {
         </ol>
       )}
 
-      <div className="source-note">
-        <span>Prototype coaching basis</span>
+      <details className="source-note">
+        <summary>How this coaching answer was built</summary>
         <p>Fixed, authored answer. General concept checked; exact action awaits solver and expert review.</p>
-      </div>
+      </details>
     </aside>
   );
 }
@@ -372,11 +429,11 @@ function QuickMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
   const playerAction = scenario.actionOptions.find((option) => option.id === choice);
 
   if (revealed) {
-    const matches = choice === scenario.actionAnswer;
+    const assessment = assessAction(scenario, choice);
     return (
       <section className="work-card quick-result" aria-live="polite">
-        <span className="section-kicker">Answer</span>
-        <h2>{matches ? "Your choice matches the coach's plan." : "The coach prefers a different action."}</h2>
+        <span className="section-kicker">Your result</span>
+        <h2>{assessment.label}</h2>
         <div className="answer-comparison">
           <div>
             <span>Your choice</span>
@@ -387,10 +444,16 @@ function QuickMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
             <strong>{coachAction.label}</strong>
           </div>
         </div>
-        <div className="verdict-block">
-          <span>{scenario.actionGrade}</span>
-          <p>{scenario.actionExplanation}</p>
+        <div className={`verdict-block verdict-${assessment.status}`}>
+          <span>{assessment.label}</span>
+          <p>{assessment.explanation}</p>
         </div>
+        {scenario.id === "river-pressure" && (
+          <details className="details-block">
+            <summary>Could a bigger overbet work?</summary>
+            <p>Yes, if it makes more better hands fold. A $100 bluff needs about 52% folds; $150 needs about 62%. “Polarized” describes a range of strong value hands and bluffs—it is not a maximum bet size.</p>
+          </details>
+        )}
         <details className="details-block">
           <summary>Why this answer depends on Villain&apos;s range</summary>
           <p>{scenario.strengthExplanation}</p>
@@ -435,9 +498,9 @@ function CoachMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
   const unlikely = scenario.rangeOptions.filter((option) => selectedRange.includes(option.id) && !scenario.rangeAnswer.includes(option.id));
   const rangeComplete = missed.length === 0 && unlikely.length === 0;
   const strengthMatches = strength === scenario.strengthAnswer;
-  const actionMatches = action === scenario.actionAnswer;
-  const coachAction = scenario.actionOptions.find((option) => option.id === scenario.actionAnswer)!;
   const playerAction = scenario.actionOptions.find((option) => option.id === action)!;
+  const actionAssessment = assessAction(scenario, action);
+  const reasoningAligned = rangeComplete && strengthMatches;
 
   const goToStep = (nextStep: CoachStep) => {
     setStep(nextStep);
@@ -449,62 +512,96 @@ function CoachMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
   };
 
   if (step === "review") {
+    const resultHeadline = actionAssessment.status === "matched"
+      ? reasoningAligned ? "Your action and reasoning matched this lesson." : "Your action matched. Fix the reasoning below."
+      : actionAssessment.status === "reasonable"
+        ? reasoningAligned ? "Your reasoning works. Your action is a reasonable alternative." : "Your action is reasonable. Fix the range read below."
+        : "Your action does not follow from this range read yet.";
+    const resultLabel = actionAssessment.status === "matched" ? "Action matched" : actionAssessment.status === "reasonable" ? "Reasonable" : "Needs review";
+
     return (
       <section className="work-card review-view" aria-live="polite">
         <div className="review-heading">
           <div>
-            <span className="section-kicker">Coach review</span>
-            <h2>{rangeComplete && strengthMatches && actionMatches ? "Your reasoning is aligned." : "Here is where your reasoning changed course."}</h2>
+            <span className="section-kicker">Your result</span>
+            <h2>{resultHeadline}</h2>
           </div>
-          <span className={`status-badge ${rangeComplete && strengthMatches && actionMatches ? "status-good" : "status-learn"}`}>
-            {rangeComplete && strengthMatches && actionMatches ? "Aligned" : "Review"}
+          <span className={`status-badge ${actionAssessment.status === "matched" ? "status-good" : "status-learn"}`}>
+            {resultLabel}
           </span>
         </div>
 
+        <div className="result-scorecard" aria-label="Result by decision">
+          <div className={rangeComplete ? "score-good" : "score-fix"}>
+            <span>Range</span>
+            <strong>{rangeComplete ? "Matched" : "Fix this"}</strong>
+            <small>{rangeComplete ? "Key groups covered" : `${missed.length} missed · ${unlikely.length} unlikely`}</small>
+          </div>
+          <div className={strengthMatches ? "score-good" : "score-fix"}>
+            <span>Cap read</span>
+            <strong>{strengthMatches ? "Matched" : "Fix this"}</strong>
+            <small>{strengthOptions.find((item) => item.id === strength)?.label}</small>
+          </div>
+          <div className={actionAssessment.status === "review" ? "score-fix" : "score-good"}>
+            <span>Action</span>
+            <strong>{actionAssessment.status === "matched" ? "Matched" : actionAssessment.status === "reasonable" ? "Reasonable" : "Fix this"}</strong>
+            <small>{playerAction.label}</small>
+          </div>
+        </div>
+
+        {!rangeComplete && (
+          <div className="correction-card">
+            <span className="review-label">Fix your range</span>
+            {missed.length > 0 && <p><strong>Add:</strong> {missed.map((item) => `${item.label} (${item.examples})`).join("; ")}.</p>}
+            {unlikely.length > 0 && <p><strong>Remove:</strong> {unlikely.map((item) => item.label).join(", ")}. These hands usually folded before the river.</p>}
+          </div>
+        )}
+
         <div className="review-section">
-          <span className="review-label">1 · Villain&apos;s possible hands</span>
-          <h3>{rangeComplete ? "You covered the important parts of Villain's range." : missed.length ? `Your range missed ${missed.length === 1 ? "an important hand group" : "some important hand groups"}.` : "Your range included a group that rarely reaches this point."}</h3>
+          <span className="review-label">How a coach reads the line</span>
+          <ol className="line-story">{scenario.rangeStory.map((item) => <li key={item}>{item}</li>)}</ol>
+          <div className={`cap-verdict ${strengthMatches ? "cap-matched" : "cap-correction"}`}>
+            <strong>{strengthMatches ? "Your cap read matched:" : "Coach correction:"} {scenario.strengthAnswer}</strong>
+            <p>{scenario.strengthExplanation}</p>
+          </div>
+        </div>
+
+        <div className="review-section action-review">
+          <span className="review-label">Your decision</span>
+          <h3>{playerAction.label} · {actionAssessment.label}</h3>
+          <p>{actionAssessment.explanation}</p>
+          {scenario.id === "river-pressure" && (
+            <div className="bluff-lesson">
+              <strong>What is the bluff trying to fold?</strong>
+              <p>Better hands: Kx, 8x, and 99–JJ. Missed draws are not the target—your ace-high may already beat them.</p>
+              <details className="details-block">
+                <summary>Could you overbet bigger than $100?</summary>
+                <p>Yes, if the extra size makes enough better hands fold. $100 needs about 52% folds to break even; $150 needs about 62%. “Polarized” describes the hands you bet—strong value and bluffs—not the size itself.</p>
+              </details>
+            </div>
+          )}
+        </div>
+
+        <details className="details-block full-review-details">
+          <summary>Show the full range breakdown</summary>
           <div className="range-summary">
             {included.length > 0 && <div><span>You included</span><div className="summary-chips">{included.map((item) => <span className="chip chip-good" key={item.id}>{item.label}</span>)}</div></div>}
             {missed.length > 0 && <div><span>You missed</span><div className="summary-chips">{missed.map((item) => <span className="chip chip-missed" key={item.id}>{item.label}</span>)}</div></div>}
-            {unlikely.length > 0 && <div><span>Usually folds earlier</span><div className="summary-chips">{unlikely.map((item) => <span className="chip chip-muted" key={item.id}>{item.label}</span>)}</div></div>}
+            {unlikely.length > 0 && <div><span>Unlikely here</span><div className="summary-chips">{unlikely.map((item) => <span className="chip chip-muted" key={item.id}>{item.label}</span>)}</div></div>}
           </div>
-          <details className="details-block compact-details">
-            <summary>See why each hand group belongs</summary>
-            <div className="range-detail-list">{expected.map((item) => <div key={item.id}><strong>{item.label}</strong><span>{item.examples}</span><p>{item.coachNote}</p></div>)}</div>
-          </details>
-        </div>
+          <div className="range-detail-list">{expected.map((item) => <div key={item.id}><strong>{item.label}</strong><span>{item.examples}</span><p>{item.coachNote}</p></div>)}</div>
+        </details>
 
-        <div className="review-section two-column-review">
-          <div>
-            <span className="review-label">2 · Can Villain have the strongest hands?</span>
-            <p className="your-answer">You chose <strong>{strengthOptions.find((item) => item.id === strength)?.label}</strong></p>
-            <h3>Coach: {strengthOptions.find((item) => item.id === scenario.strengthAnswer)?.label}</h3>
-            <p>{scenario.strengthExplanation}</p>
-          </div>
-          <div>
-            <span className="review-label">3 · Hero&apos;s action</span>
-            <p className="your-answer">You chose <strong>{playerAction.label}</strong></p>
-            <h3>Coach: {coachAction.label}</h3>
-            <p>{scenario.actionExplanation}</p>
-          </div>
-        </div>
-
-        <div className="evidence-block">
-          <div>
-            <span className="review-label">Why the coach says this</span>
-            <ul>{scenario.evidence.map((item) => <li key={item}>{item}</li>)}</ul>
-          </div>
-          <div className="reversal-card">
-            <span>When the answer changes</span>
-            <p>{scenario.reversal}</p>
-          </div>
-        </div>
+        <details className="details-block full-review-details">
+          <summary>Show assumptions and when the answer changes</summary>
+          <ul>{scenario.evidence.map((item) => <li key={item}>{item}</li>)}</ul>
+          <p><strong>Change the play when:</strong> {scenario.reversal}</p>
+        </details>
 
         <div className="coach-question">
-          <span>Coach asks</span>
+          <span>One question to take to the table</span>
           <p>{scenario.questions[questionIndex]}</p>
-          <button className="text-button" onClick={() => setQuestionIndex((questionIndex + 1) % scenario.questions.length)}>Ask another question</button>
+          <button className="text-button" onClick={() => setQuestionIndex((questionIndex + 1) % scenario.questions.length)}>Show another</button>
         </div>
 
         <div className="button-row">

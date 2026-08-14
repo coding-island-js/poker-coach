@@ -46,8 +46,12 @@ test("keeps coaching language explicit and removes the disposable preview", asyn
   assert.match(page, /Which groups of hands can Villain reasonably reach/);
   assert.match(page, /You included/);
   assert.match(page, /You missed/);
-  assert.match(page, /Usually folds earlier/);
-  assert.match(page, /When the answer changes/);
+  assert.match(page, /Your action matched\. Fix the reasoning below/);
+  assert.match(page, /What is the bluff trying to fold/);
+  assert.match(page, /Overbet \$150/);
+  assert.match(page, /needs about 62% folds/);
+  assert.match(page, /Polarized.*describes the hands/s);
+  assert.match(page, /Show assumptions and when the answer changes/);
   assert.match(page, /exact action awaits solver and expert review/i);
   assert.doesNotMatch(page, /2\/4 key groups|story holds together|classification response/i);
   assert.match(css, /mobile-context-strip/);

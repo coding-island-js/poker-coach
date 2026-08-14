@@ -89,3 +89,27 @@ Replace the long dashboard with a two-part workspace: a persistent hand card and
 - Do not present a numerical score for range construction; name the actual reasoning gap instead.
 - Do not claim solver-grade exact actions until a licensed solver dataset and poker expert review are added.
 - Do not add live table assistance. This is a study product for reviewing constructed scenarios away from real-money play.
+
+## Phase 5 — coaching clarity revision
+
+### Problem found in player testing
+
+The review made learners read the full range breakdown before they could tell whether their action matched the lesson. It also used “polarized” as though it were a bet size, and did not distinguish hands a bluff should target from missed draws that ace-high may already beat.
+
+### Changes
+
+- Lead with one verdict: action matched, reasonable alternative, or needs review.
+- Show separate Range, Cap Read, and Action results immediately.
+- Put only the required range correction in the open view; move the complete breakdown behind disclosure.
+- Teach the action sequence as a three-step street-by-street story.
+- Add a $150 overbet option and compare its approximate break-even fold rate with the $100 overbet.
+- Explain that polarization describes range composition, while an overbet describes size.
+- Name the better hands the bluff is trying to fold and clarify that missed draws are not the target.
+- Collapse provenance, assumptions, and advanced notes by default.
+
+### Gate tests
+
+- Replayed the exact confusing answer: two missed groups, one unlikely group, correct cap read, and $100 overbet.
+- The first screen now says the action matched and the range needs correction, then names the additions and removal.
+- Verified the $150 answer is graded as a reasonable higher-burden exploit rather than simply wrong.
+- Verified the revised result at desktop and 375-pixel mobile widths with no horizontal overflow.
