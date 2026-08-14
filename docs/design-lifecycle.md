@@ -172,3 +172,36 @@ Range advantage and hand strength are intentionally separated. A stronger overal
 - Submitted four wrong decisions; all four rows show their status while only Villain's range appears as the first correction.
 - Verified the compact Decision Now card, full text wrapping, disclosures, and no horizontal overflow at 375 pixels.
 - Verified the streamlined desktop result visually.
+
+## Phase 8 — facts first, plain-English coaching
+
+### Problem found in player testing
+
+The learner had to open a disclosure to see the betting history even though the first question depended on it. The opening player read also supplied conclusions before the learner formed a baseline range. In Learn mode, phrases such as “passive line,” “range inference,” “apply pressure,” and “control the pot” read like coach notes rather than instruction. Question two did not clearly separate Hero's actual hand from the strong hands Hero might represent.
+
+### Coaching decision
+
+- The complete hand history is evidence and remains visible before every decision question.
+- A neutral opponent description belongs with the factual hand. Player-specific tendencies appear later as raw observations with sample size and uncertainty.
+- The learner first identifies the opponent's likely hands, then asks what their actual hand beats, then gives the next action a concrete purpose.
+- Building the pot is explicitly taught as a reason to bet when weaker hands or draws can continue. On the flop and turn, bets can also charge draws; on the river, the bet is value or a bluff.
+- Range representation is a later credibility check: “What strong hands could you credibly have after taking this line?” It cannot replace evaluation of the learner's actual hand.
+
+### Changes
+
+- Replaced collapsible prose histories with a compact, always-visible street timeline on desktop and mobile.
+- Removed archetype labels from the opening and labeled the opponent unknown when no reliable read exists.
+- Added a range check after Question 1 with Most often, Sometimes, and Still possible buckets.
+- Reworded Question 2 for the river hand to “If you check, what does A♣ 5♣ beat?”
+- Introduced the river-fold sample only after the baseline range and actual-hand questions.
+- Added a bluff-credibility question before sizing for the river scenario.
+- Rewrote Learn mode in complete sentences around four actions: estimate hands, compare the actual hand, define the bet's purpose, and choose the play.
+- Replaced “control the pot” instructions with concrete outcomes such as seeing the next card without raising or keeping weaker hands available.
+
+### Gate tests
+
+- Completed the river lesson through all five decisions and confirmed the result contains five distinct feedback rows.
+- Completed both turn lessons through their four-step paths.
+- Verified the full street history remains visible at 375 pixels and on desktop.
+- Verified the player evidence does not appear in Question 1 and appears before the goal and action decisions.
+- Verified all layouts have no horizontal overflow, and the production build, rendered-page tests, and lint checks pass.
