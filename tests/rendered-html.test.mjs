@@ -27,7 +27,7 @@ test("server-renders the complete Range Coach workspace", async () => {
   assert.match(html, /Practice mode/);
   assert.match(html, /Learn/);
   assert.match(html, /Quick decision/);
-  assert.match(html, /Thinking coach/);
+  assert.match(html, /Guided hand/);
   assert.match(html, /You · Hero/);
   assert.match(html, /Opponent · Villain/);
   assert.match(html, /A capped range has lost most of its strongest hands/);
@@ -43,17 +43,19 @@ test("keeps coaching language explicit and removes the disposable preview", asyn
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /Which groups of hands can Villain reasonably reach/);
-  assert.match(page, /You included/);
-  assert.match(page, /You missed/);
-  assert.match(page, /Your action matched\. Fix the reasoning below/);
+  assert.match(page, /What is most of Villain/);
+  assert.match(page, /You are not checking every hand that might be possible/);
+  assert.match(page, /How does.*perform against that range/s);
+  assert.match(page, /What are you trying to accomplish/);
+  assert.match(page, /The decision in one chain/);
+  assert.match(page, /You built the decision correctly/);
   assert.match(page, /What is the bluff trying to fold/);
   assert.match(page, /Overbet \$150/);
   assert.match(page, /needs about 62% folds/);
   assert.match(page, /Polarized.*describes the hands/s);
   assert.match(page, /Show assumptions and when the answer changes/);
   assert.match(page, /exact action awaits solver and expert review/i);
-  assert.doesNotMatch(page, /2\/4 key groups|story holds together|classification response/i);
+  assert.doesNotMatch(page, /checkbox-mark|Select every reasonable|2\/4 key groups|story holds together|classification response/i);
   assert.match(css, /mobile-context-strip/);
   assert.match(layout, /Range Coach/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);

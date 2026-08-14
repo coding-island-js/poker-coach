@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 
 type Mode = "learn" | "quick" | "coach";
-type CoachStep = "range" | "strength" | "action" | "review";
+type CoachStep = "range" | "hand" | "goal" | "action" | "review";
 
 type RangeOption = {
   id: string;
@@ -22,6 +22,12 @@ type ActionAssessment = {
   status: "matched" | "reasonable" | "review";
   label: string;
   explanation: string;
+};
+
+type ThoughtOption = {
+  id: string;
+  label: string;
+  detail: string;
 };
 
 type Scenario = {
@@ -46,6 +52,15 @@ type Scenario = {
   rangeOptions: RangeOption[];
   rangeAnswer: string[];
   rangeStory: string[];
+  dominantRangeOptions: ThoughtOption[];
+  dominantRangeAnswer: string;
+  dominantRangeExplanation: string;
+  handPositionOptions: ThoughtOption[];
+  handPositionAnswer: string;
+  handPositionExplanation: string;
+  goalOptions: ThoughtOption[];
+  goalAnswer: string;
+  goalExplanation: string;
   strengthAnswer: "Mostly capped" | "Unclear" | "Uncapped";
   strengthExplanation: string;
   actionOptions: ActionOption[];
@@ -56,24 +71,6 @@ type Scenario = {
   reversal: string;
   questions: string[];
 };
-
-const strengthOptions = [
-  {
-    id: "Mostly capped",
-    label: "Mostly capped",
-    detail: "Villain's very strongest hands are possible, but unlikely.",
-  },
-  {
-    id: "Unclear",
-    label: "Not enough evidence",
-    detail: "The action has not clearly removed the strongest hands.",
-  },
-  {
-    id: "Uncapped",
-    label: "Uncapped",
-    detail: "Villain can credibly hold the strongest hands on this board.",
-  },
-] as const;
 
 const scenarios: Scenario[] = [
   {
@@ -119,6 +116,27 @@ const scenarios: Scenario[] = [
       "Turn and river checks: sets and two pair become less likely, but they do not disappear.",
       "River result: mostly one-pair hands and missed draws, with few very strong hands—so the range is mostly capped.",
     ],
+    dominantRangeOptions: [
+      { id: "pairs", label: "Mostly one-pair hands", detail: "Kx, 8x, and 99–JJ; plus some missed draws and rare traps." },
+      { id: "air", label: "Mostly missed draws and air", detail: "Very few made hands reach the river." },
+      { id: "strong", label: "Many sets and two-pair hands", detail: "Villain often slow-played a very strong hand." },
+    ],
+    dominantRangeAnswer: "pairs",
+    dominantRangeExplanation: "The flop call keeps many one-pair hands. Two later checks discount very strong hands, but do not remove them.",
+    handPositionOptions: [
+      { id: "ahead", label: "Hero is ahead of most of the range", detail: "Ace-high is usually the best hand." },
+      { id: "mixed", label: "Hero loses to pairs but beats some missed draws", detail: "A♣5♣ has some showdown value, but not against made hands." },
+      { id: "value", label: "Hero has a strong made hand", detail: "Hero can expect worse hands to call." },
+    ],
+    handPositionAnswer: "mixed",
+    handPositionExplanation: "A♣5♣ loses to every pair. It can still beat unpaired missed draws, so it is not pure air.",
+    goalOptions: [
+      { id: "value", label: "Get called by worse", detail: "Bet for value." },
+      { id: "bluff", label: "Make better one-pair hands fold", detail: "Bet as a bluff." },
+      { id: "showdown", label: "Take the showdown", detail: "Check and try to beat missed draws." },
+    ],
+    goalAnswer: "bluff",
+    goalExplanation: "This lesson assumes Villain overfolds rivers, so the exploit is to make better one-pair hands fold. Without that read, checking is reasonable.",
     strengthAnswer: "Mostly capped",
     strengthExplanation:
       "Villain still has an occasional trap, but the repeated checks make very strong hands less likely than one-pair hands and missed draws.",
@@ -187,6 +205,27 @@ const scenarios: Scenario[] = [
       "Small turn lead: Villain may bet Kx, weak pairs, draws, and bluffs without excluding strong value.",
       "Turn result: the range is wide, but its strongest hands remain—so there is not enough evidence to call it capped.",
     ],
+    dominantRangeOptions: [
+      { id: "mixed", label: "A mix of pairs, draws, and bluffs", detail: "The small lead is wide, but strong hands still remain." },
+      { id: "bluffs", label: "Mostly bluffs", detail: "The small size proves weakness." },
+      { id: "nuts", label: "Mostly two pair and sets", detail: "The lead is heavily value-weighted." },
+    ],
+    dominantRangeAnswer: "mixed",
+    dominantRangeExplanation: "A small lead can contain many weak hands without removing Ax, two pair, or sets.",
+    handPositionOptions: [
+      { id: "value", label: "Hero has a strong made hand", detail: "QJ is ahead and wants value." },
+      { id: "draw", label: "Hero has a draw with little showdown value", detail: "QJ has a gutshot and may improve to a straight." },
+      { id: "dead", label: "Hero is drawing dead", detail: "No river can improve the hand." },
+    ],
+    handPositionAnswer: "draw",
+    handPositionExplanation: "QJ is usually behind made hands, but a ten completes a straight and position helps Hero realize that equity.",
+    goalOptions: [
+      { id: "value", label: "Raise for value", detail: "Build the pot with the best hand." },
+      { id: "realize", label: "See the river at a manageable price", detail: "Call and use position." },
+      { id: "bluff", label: "Force every pair to fold now", detail: "Turn the draw into a large bluff." },
+    ],
+    goalAnswer: "realize",
+    goalExplanation: "Calling preserves weaker bets, uses position, and gives the gutshot a chance to improve without inflating the pot.",
     strengthAnswer: "Unclear",
     strengthExplanation:
       "Villain's range is wide, but the flop check preserves enough strong Ax, two pair, and sets that we cannot confidently call the range capped.",
@@ -255,6 +294,27 @@ const scenarios: Scenario[] = [
       "Flop call: sets, top pair, 98 suited, and strong draws all continue.",
       "Turn result: 98 makes a straight and TT or JT improve, so Villain remains uncapped.",
     ],
+    dominantRangeOptions: [
+      { id: "weak", label: "Mostly weak pairs and draws", detail: "Villain rarely has a strong made hand." },
+      { id: "capped", label: "Mostly medium hands with no nuts", detail: "The calls remove straights, sets, and traps." },
+      { id: "uncapped", label: "Medium and very strong hands remain", detail: "Straights, sets, two pair, traps, and draws are all possible." },
+    ],
+    dominantRangeAnswer: "uncapped",
+    dominantRangeExplanation: "Calling does not remove Villain's strongest hands, and the turn improves several of them.",
+    handPositionOptions: [
+      { id: "nuts", label: "Hero has the nuts", detail: "QQ is effectively unbeatable." },
+      { id: "onepair", label: "Hero has a strong but vulnerable one-pair hand", detail: "QQ beats many hands but loses to the top of Villain's range." },
+      { id: "bluff", label: "Hero has only a bluff", detail: "QQ has no showdown value." },
+    ],
+    handPositionAnswer: "onepair",
+    handPositionExplanation: "QQ is often ahead, but it is not strong enough to ignore straights, sets, two pair, and raises.",
+    goalOptions: [
+      { id: "stack", label: "Build the biggest possible pot", detail: "Overbet and play for stacks." },
+      { id: "control", label: "Control the pot and keep worse hands in", detail: "Check and prepare to bluff-catch selectively." },
+      { id: "bluff", label: "Turn QQ into a bluff", detail: "Try to fold out stronger hands." },
+    ],
+    goalAnswer: "control",
+    goalExplanation: "Checking respects Villain's uncapped range, protects Hero's checks, and keeps weaker hands and bluffs available.",
     strengthAnswer: "Uncapped",
     strengthExplanation:
       "Villain can credibly hold a straight, sets, two pair, and trapped overpairs. The strongest part of the range is fully present.",
@@ -306,6 +366,15 @@ function assessAction(scenario: Scenario, actionId: string): ActionAssessment {
       label: "Reasonable low-variance alternative",
       explanation:
         "Checking keeps the showdown value of ace-high and avoids bluffing when Villain may call too often. It passes on the exploit assumed by this lesson.",
+    };
+  }
+
+  if (scenario.id === "river-pressure" && actionId === "half") {
+    return {
+      status: "review",
+      label: "Too small for this goal",
+      explanation:
+        "A $50 bet may fold missed draws that ace-high already beats while failing to pressure enough Kx and 8x. If the goal is to fold out better one-pair hands, the size must credibly threaten those hands.",
     };
   }
 
@@ -396,16 +465,25 @@ function LearnMode({ scenario, onPractice }: { scenario: Scenario; onPractice: (
       <h2>{scenario.lessonTitle}</h2>
       <p className="lead-copy">{scenario.lessonDefinition}</p>
 
-      <div className="definition-grid">
-        <div>
-          <span className="definition-word">Mostly capped</span>
-          <p>Villain&apos;s strongest hands are unlikely, though a few traps can remain.</p>
-        </div>
-        <div>
-          <span className="definition-word">Uncapped</span>
-          <p>Villain can still credibly hold the strongest hands available.</p>
-        </div>
+      <div className="thought-framework">
+        <div><span>1</span><p><strong>Range</strong> What is most of Villain&apos;s range?</p></div>
+        <div><span>2</span><p><strong>Hand</strong> How does your actual hand perform against it?</p></div>
+        <div><span>3</span><p><strong>Goal</strong> Get called by worse, fold out better, or control the pot?</p></div>
+        <div><span>4</span><p><strong>Action</strong> Check, call, fold, or bet—and what size?</p></div>
       </div>
+
+      <div className="simple-rule">
+        <strong>The simple rule</strong>
+        <p>A stronger range lets you apply pressure more often. It does not mean every hand should bet. Your actual hand still needs a job: value, bluff, draw, or showdown.</p>
+      </div>
+
+      <details className="details-block">
+        <summary>What do capped and uncapped mean?</summary>
+        <div className="definition-grid nested-definition">
+          <div><span className="definition-word">Mostly capped</span><p>Villain&apos;s strongest hands are unlikely, though a few traps can remain.</p></div>
+          <div><span className="definition-word">Uncapped</span><p>Villain can still credibly hold the strongest hands available.</p></div>
+        </div>
+      </details>
 
       <div className="lesson-callout">
         <span>Why it matters in this hand</span>
@@ -487,37 +565,38 @@ function QuickMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
 
 function CoachMode({ scenario, onNext }: { scenario: Scenario; onNext: () => void }) {
   const [step, setStep] = useState<CoachStep>("range");
-  const [selectedRange, setSelectedRange] = useState<string[]>([]);
-  const [strength, setStrength] = useState("");
+  const [rangeChoice, setRangeChoice] = useState("");
+  const [handPosition, setHandPosition] = useState("");
+  const [goal, setGoal] = useState("");
   const [action, setAction] = useState("");
   const [questionIndex, setQuestionIndex] = useState(0);
 
-  const expected = scenario.rangeOptions.filter((option) => scenario.rangeAnswer.includes(option.id));
-  const included = expected.filter((option) => selectedRange.includes(option.id));
-  const missed = expected.filter((option) => !selectedRange.includes(option.id));
-  const unlikely = scenario.rangeOptions.filter((option) => selectedRange.includes(option.id) && !scenario.rangeAnswer.includes(option.id));
-  const rangeComplete = missed.length === 0 && unlikely.length === 0;
-  const strengthMatches = strength === scenario.strengthAnswer;
+  const selectedRange = scenario.dominantRangeOptions.find((option) => option.id === rangeChoice)!;
+  const selectedHandPosition = scenario.handPositionOptions.find((option) => option.id === handPosition)!;
+  const selectedGoal = scenario.goalOptions.find((option) => option.id === goal)!;
+  const correctRange = scenario.dominantRangeOptions.find((option) => option.id === scenario.dominantRangeAnswer)!;
+  const correctHandPosition = scenario.handPositionOptions.find((option) => option.id === scenario.handPositionAnswer)!;
+  const correctGoal = scenario.goalOptions.find((option) => option.id === scenario.goalAnswer)!;
+  const rangeMatches = rangeChoice === scenario.dominantRangeAnswer;
+  const handMatches = handPosition === scenario.handPositionAnswer;
+  const goalMatches = goal === scenario.goalAnswer;
   const playerAction = scenario.actionOptions.find((option) => option.id === action)!;
+  const coachAction = scenario.actionOptions.find((option) => option.id === scenario.actionAnswer)!;
   const actionAssessment = assessAction(scenario, action);
-  const reasoningAligned = rangeComplete && strengthMatches;
+  const reasoningAligned = rangeMatches && handMatches && goalMatches;
 
   const goToStep = (nextStep: CoachStep) => {
     setStep(nextStep);
     moveToWorkArea();
   };
 
-  const toggleRange = (id: string) => {
-    setSelectedRange((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
-  };
-
   if (step === "review") {
     const resultHeadline = actionAssessment.status === "matched"
-      ? reasoningAligned ? "Your action and reasoning matched this lesson." : "Your action matched. Fix the reasoning below."
+      ? reasoningAligned ? "You built the decision correctly." : "Your action matched. Fix the thinking below."
       : actionAssessment.status === "reasonable"
-        ? reasoningAligned ? "Your reasoning works. Your action is a reasonable alternative." : "Your action is reasonable. Fix the range read below."
-        : "Your action does not follow from this range read yet.";
-    const resultLabel = actionAssessment.status === "matched" ? "Action matched" : actionAssessment.status === "reasonable" ? "Reasonable" : "Needs review";
+        ? reasoningAligned ? "Your thinking works. The action is a reasonable alternative." : "The action may work. Fix the thinking below."
+        : "Fix the thinking before choosing the action.";
+    const resultLabel = reasoningAligned ? "Thinking matched" : "Thinking needs work";
 
     return (
       <section className="work-card review-view" aria-live="polite">
@@ -526,21 +605,26 @@ function CoachMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
             <span className="section-kicker">Your result</span>
             <h2>{resultHeadline}</h2>
           </div>
-          <span className={`status-badge ${actionAssessment.status === "matched" ? "status-good" : "status-learn"}`}>
+          <span className={`status-badge ${reasoningAligned ? "status-good" : "status-learn"}`}>
             {resultLabel}
           </span>
         </div>
 
         <div className="result-scorecard" aria-label="Result by decision">
-          <div className={rangeComplete ? "score-good" : "score-fix"}>
-            <span>Range</span>
-            <strong>{rangeComplete ? "Matched" : "Fix this"}</strong>
-            <small>{rangeComplete ? "Key groups covered" : `${missed.length} missed · ${unlikely.length} unlikely`}</small>
+          <div className={rangeMatches ? "score-good" : "score-fix"}>
+            <span>Villain&apos;s range</span>
+            <strong>{rangeMatches ? "Matched" : "Fix this"}</strong>
+            <small>{selectedRange.label}</small>
           </div>
-          <div className={strengthMatches ? "score-good" : "score-fix"}>
-            <span>Cap read</span>
-            <strong>{strengthMatches ? "Matched" : "Fix this"}</strong>
-            <small>{strengthOptions.find((item) => item.id === strength)?.label}</small>
+          <div className={handMatches ? "score-good" : "score-fix"}>
+            <span>Hero&apos;s hand</span>
+            <strong>{handMatches ? "Matched" : "Fix this"}</strong>
+            <small>{selectedHandPosition.label}</small>
+          </div>
+          <div className={goalMatches ? "score-good" : "score-fix"}>
+            <span>Goal</span>
+            <strong>{goalMatches ? "Matched" : "Fix this"}</strong>
+            <small>{selectedGoal.label}</small>
           </div>
           <div className={actionAssessment.status === "review" ? "score-fix" : "score-good"}>
             <span>Action</span>
@@ -549,21 +633,24 @@ function CoachMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
           </div>
         </div>
 
-        {!rangeComplete && (
-          <div className="correction-card">
-            <span className="review-label">Fix your range</span>
-            {missed.length > 0 && <p><strong>Add:</strong> {missed.map((item) => `${item.label} (${item.examples})`).join("; ")}.</p>}
-            {unlikely.length > 0 && <p><strong>Remove:</strong> {unlikely.map((item) => item.label).join(", ")}. These hands usually folded before the river.</p>}
-          </div>
-        )}
+        {!reasoningAligned && <div className="correction-list">
+          {!rangeMatches && <div><span>Range</span><strong>{correctRange.label}</strong><p>{scenario.dominantRangeExplanation}</p></div>}
+          {!handMatches && <div><span>Hero&apos;s hand</span><strong>{correctHandPosition.label}</strong><p>{scenario.handPositionExplanation}</p></div>}
+          {!goalMatches && <div><span>Goal</span><strong>{correctGoal.label}</strong><p>{scenario.goalExplanation}</p></div>}
+        </div>}
 
         <div className="review-section">
-          <span className="review-label">How a coach reads the line</span>
-          <ol className="line-story">{scenario.rangeStory.map((item) => <li key={item}>{item}</li>)}</ol>
-          <div className={`cap-verdict ${strengthMatches ? "cap-matched" : "cap-correction"}`}>
-            <strong>{strengthMatches ? "Your cap read matched:" : "Coach correction:"} {scenario.strengthAnswer}</strong>
-            <p>{scenario.strengthExplanation}</p>
+          <span className="review-label">The decision in one chain</span>
+          <div className="decision-chain">
+            <div><span>Range</span><p>{correctRange.label}</p></div>
+            <b aria-hidden="true">→</b>
+            <div><span>Hand</span><p>{correctHandPosition.label}</p></div>
+            <b aria-hidden="true">→</b>
+            <div><span>Goal</span><p>{correctGoal.label}</p></div>
+            <b aria-hidden="true">→</b>
+            <div><span>Action</span><p>{coachAction.label}</p></div>
           </div>
+          <p className="chain-explanation">{scenario.goalExplanation}</p>
         </div>
 
         <div className="review-section action-review">
@@ -583,13 +670,8 @@ function CoachMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
         </div>
 
         <details className="details-block full-review-details">
-          <summary>Show the full range breakdown</summary>
-          <div className="range-summary">
-            {included.length > 0 && <div><span>You included</span><div className="summary-chips">{included.map((item) => <span className="chip chip-good" key={item.id}>{item.label}</span>)}</div></div>}
-            {missed.length > 0 && <div><span>You missed</span><div className="summary-chips">{missed.map((item) => <span className="chip chip-missed" key={item.id}>{item.label}</span>)}</div></div>}
-            {unlikely.length > 0 && <div><span>Unlikely here</span><div className="summary-chips">{unlikely.map((item) => <span className="chip chip-muted" key={item.id}>{item.label}</span>)}</div></div>}
-          </div>
-          <div className="range-detail-list">{expected.map((item) => <div key={item.id}><strong>{item.label}</strong><span>{item.examples}</span><p>{item.coachNote}</p></div>)}</div>
+          <summary>Show how the action changed Villain&apos;s range</summary>
+          <ol className="line-story">{scenario.rangeStory.map((item) => <li key={item}>{item}</li>)}</ol>
         </details>
 
         <details className="details-block full-review-details">
@@ -612,40 +694,40 @@ function CoachMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
     );
   }
 
-  const stepNumber = step === "range" ? 1 : step === "strength" ? 2 : 3;
+  const stepNumber = step === "range" ? 1 : step === "hand" ? 2 : step === "goal" ? 3 : 4;
 
   return (
     <section className="work-card coach-view">
-      <div className="progress-block" aria-label={`Step ${stepNumber} of 3`}>
-        <div><span style={{ width: `${stepNumber * 33.333}%` }} /></div>
-        <p>Step {stepNumber} of 3</p>
+      <div className="progress-block" aria-label={`Step ${stepNumber} of 4`}>
+        <div><span style={{ width: `${stepNumber * 25}%` }} /></div>
+        <p>Step {stepNumber} of 4</p>
       </div>
 
       {step === "range" && (
         <>
-          <span className="section-kicker">Build Villain&apos;s range</span>
-          <h2>{scenario.rangePrompt}</h2>
-          <p className="lead-copy">Select every reasonable group. Include discounted strong hands when they remain possible.</p>
-          <div className="choice-list range-choice-list">
-            {scenario.rangeOptions.map((option) => (
-              <button key={option.id} className={selectedRange.includes(option.id) ? "selected" : ""} onClick={() => toggleRange(option.id)} aria-pressed={selectedRange.includes(option.id)}>
-                <span className="checkbox-mark" aria-hidden="true">{selectedRange.includes(option.id) ? "✓" : ""}</span>
-                <span><strong>{option.label}</strong><small>{option.examples}</small></span>
+          <span className="section-kicker">1 · Villain&apos;s range</span>
+          <h2>What is most of Villain&apos;s range?</h2>
+          <p className="lead-copy">Choose the main shape. You are not checking every hand that might be possible.</p>
+          <div className="choice-list strength-choice-list">
+            {scenario.dominantRangeOptions.map((option) => (
+              <button key={option.id} className={rangeChoice === option.id ? "selected" : ""} onClick={() => setRangeChoice(option.id)} aria-pressed={rangeChoice === option.id}>
+                <span><strong>{option.label}</strong><small>{option.detail}</small></span>
+                <span className="radio-dot" aria-hidden="true" />
               </button>
             ))}
           </div>
-          <button className="primary-button" disabled={!selectedRange.length} onClick={() => goToStep("strength")}>Continue <span aria-hidden="true">→</span></button>
+          <button className="primary-button" disabled={!rangeChoice} onClick={() => goToStep("hand")}>Continue <span aria-hidden="true">→</span></button>
         </>
       )}
 
-      {step === "strength" && (
+      {step === "hand" && (
         <>
-          <span className="section-kicker">Judge the top of Villain&apos;s range</span>
-          <h2>Can Villain still have the strongest hands?</h2>
-          <p className="lead-copy">Choose the best description. This is a confidence judgment, not absolute certainty.</p>
+          <span className="section-kicker">2 · Hero&apos;s actual hand</span>
+          <h2>How does {scenario.hero.join(" ")} perform against that range?</h2>
+          <p className="lead-copy">Compare your hand with the range you just chose.</p>
           <div className="choice-list strength-choice-list">
-            {strengthOptions.map((option) => (
-              <button key={option.id} className={strength === option.id ? "selected" : ""} onClick={() => setStrength(option.id)} aria-pressed={strength === option.id}>
+            {scenario.handPositionOptions.map((option) => (
+              <button key={option.id} className={handPosition === option.id ? "selected" : ""} onClick={() => setHandPosition(option.id)} aria-pressed={handPosition === option.id}>
                 <span><strong>{option.label}</strong><small>{option.detail}</small></span>
                 <span className="radio-dot" aria-hidden="true" />
               </button>
@@ -653,16 +735,36 @@ function CoachMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
           </div>
           <div className="button-row">
             <button className="secondary-button" onClick={() => goToStep("range")}>Back</button>
-            <button className="primary-button" disabled={!strength} onClick={() => goToStep("action")}>Continue <span aria-hidden="true">→</span></button>
+            <button className="primary-button" disabled={!handPosition} onClick={() => goToStep("goal")}>Continue <span aria-hidden="true">→</span></button>
+          </div>
+        </>
+      )}
+
+      {step === "goal" && (
+        <>
+          <span className="section-kicker">3 · Your goal</span>
+          <h2>What are you trying to accomplish?</h2>
+          <p className="lead-copy">Name the job before choosing the poker action.</p>
+          <div className="choice-list strength-choice-list">
+            {scenario.goalOptions.map((option) => (
+              <button key={option.id} className={goal === option.id ? "selected" : ""} onClick={() => setGoal(option.id)} aria-pressed={goal === option.id}>
+                <span><strong>{option.label}</strong><small>{option.detail}</small></span>
+                <span className="radio-dot" aria-hidden="true" />
+              </button>
+            ))}
+          </div>
+          <div className="button-row">
+            <button className="secondary-button" onClick={() => goToStep("hand")}>Back</button>
+            <button className="primary-button" disabled={!goal} onClick={() => goToStep("action")}>Continue <span aria-hidden="true">→</span></button>
           </div>
         </>
       )}
 
       {step === "action" && (
         <>
-          <span className="section-kicker">Choose Hero&apos;s action</span>
+          <span className="section-kicker">4 · Choose the action</span>
           <h2>What should you do with {scenario.hero.join(" ")}?</h2>
-          <p className="lead-copy">Choose the action that follows from your estimate of Villain&apos;s range.</p>
+          <p className="lead-copy">Choose the action that serves the goal you just named.</p>
           <div className="choice-list action-choice-list">
             {scenario.actionOptions.map((option) => (
               <button key={option.id} className={action === option.id ? "selected" : ""} onClick={() => setAction(option.id)} aria-pressed={action === option.id}>
@@ -672,7 +774,7 @@ function CoachMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
             ))}
           </div>
           <div className="button-row">
-            <button className="secondary-button" onClick={() => goToStep("strength")}>Back</button>
+            <button className="secondary-button" onClick={() => goToStep("goal")}>Back</button>
             <button className="primary-button" disabled={!action} onClick={() => goToStep("review")}>Review my reasoning</button>
           </div>
         </>
@@ -693,7 +795,7 @@ export default function Home() {
   const modeCopy = useMemo(() => ({
     learn: "Learn",
     quick: "Quick decision",
-    coach: "Thinking coach",
+    coach: "Guided hand",
   }), []);
 
   const changeMode = (nextMode: Mode) => {

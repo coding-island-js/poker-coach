@@ -113,3 +113,34 @@ The review made learners read the full range breakdown before they could tell wh
 - The first screen now says the action matched and the range needs correction, then names the additions and removal.
 - Verified the $150 answer is graded as a reasonable higher-burden exploit rather than simply wrong.
 - Verified the revised result at desktop and 375-pixel mobile widths with no horizontal overflow.
+
+## Phase 6 — replace range checklists with decisions
+
+### Problem found in player testing
+
+Selecting every plausible hand group rewarded “check all.” The learner could not tell which part of the range mattered most or how to connect the range to Hero's actual hand and action.
+
+### New mental model
+
+1. **Range:** What is most of Villain's range?
+2. **Hand:** How does Hero's actual hand perform against it?
+3. **Goal:** Get called by worse, make better fold, realize equity, or control the pot?
+4. **Action:** Choose the play and size that serves that goal.
+
+Range advantage and hand strength are intentionally separated. A stronger overall range can support more frequent aggression, but each actual hand still needs a role such as value, bluff, draw, bluff-catcher, or showdown.
+
+### Changes
+
+- Replaced multi-select range checkboxes with one dominant-range judgment.
+- Added explicit Hero-hand and goal steps before the action.
+- Renamed Thinking Coach to Guided Hand.
+- Added a four-part result card and a visible Range → Hand → Goal → Action chain.
+- Wrong answers now show one coach correction per broken link in the chain.
+- Moved exact combination breakdowns out of the beginner path.
+
+### Gate tests
+
+- Selected two different range answers and verified only one remains selected.
+- Submitted an intentionally wrong range, hand comparison, goal, and action; all four corrections appeared independently.
+- Submitted the complete intended chain; all four decisions reported Matched.
+- Verified desktop and 375-pixel mobile layouts with no horizontal overflow.
