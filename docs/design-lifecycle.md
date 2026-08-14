@@ -205,3 +205,33 @@ The learner had to open a disclosure to see the betting history even though the 
 - Verified the full street history remains visible at 375 pixels and on desktop.
 - Verified the player evidence does not appear in Question 1 and appears before the goal and action decisions.
 - Verified all layouts have no horizontal overflow, and the production build, rendered-page tests, and lint checks pass.
+
+## Phase 9 — teach the decision, then name the theory
+
+### Coach-and-trainee review
+
+- **Beginner trainee:** could often identify the intended option from answer wording without understanding the poker. Re-reading definitions also interrupted the decision.
+- **Poker coach:** confirmed that the essential chain is likely opponent hands → what the actual hand beats → value or bluff target → action and size. Bluff representation matters later, but it cannot make an otherwise unprofitable bluff work.
+- **UX review:** recommended immediate feedback, one compact result, corrected reasoning carried into the next question, and a second hand to test whether the lesson transfers.
+
+### Changes
+
+- Reduced Learn mode to four plain-language questions and one table-ready rule.
+- Replaced clue-bearing answer descriptions with short, neutral choices.
+- Added immediate one-sentence feedback after each choice.
+- Carry the coach's corrected foundation forward so an early mistake does not corrupt the remaining questions.
+- Keep the complete street-by-street history visible before Question 1. Later questions scroll to a compact sticky reminder while the full history remains available above.
+- Introduce the observed river-fold sample only when it can change the purpose or action.
+- Removed the graded bluff-story question. A short, ungraded believability check now appears only after the learner chooses a bluffing goal.
+- Grade the strategic category separately from exact sizing. Results say “matches this authored example” or “defensible alternative,” never that an unverified size is objectively correct.
+- Removed the numeric score and duplicate decision chain from results. The learner now sees one verdict, four comparison rows, and one takeaway.
+- Added a river value-bet transfer hand with fewer clues to test application rather than recall.
+- Moved jargon, cap terminology, and sizing math behind post-decision disclosure.
+
+### Gate tests
+
+- Verified the full bluff lesson, including immediate feedback and the $150 defensible-alternative result.
+- Verified the coherent check branch does not appear as a broken reasoning link.
+- Completed the transfer hand and confirmed the learner must identify a value target rather than repeat the bluff pattern.
+- Verified no horizontal overflow at 375 pixels and 1280 pixels.
+- Verified the production build, rendered-page tests, and lint checks pass.

@@ -31,12 +31,13 @@ test("server-renders the complete Range Coach workspace", async () => {
   assert.match(html, /You · Hero/);
   assert.match(html, /Complete hand history/);
   assert.match(html, /Opponent/);
-  assert.match(html, /Use the betting history to decide what your bet must accomplish/);
+  assert.match(html, /Every poker decision in four questions/);
+  assert.match(html, /A weaker hand calls/);
   assert.doesNotMatch(html, /codex-preview/i);
   assert.doesNotMatch(html, /react-loading-skeleton/);
 });
 
-test("keeps coaching language explicit and removes the disposable preview", async () => {
+test("teaches decisions before terminology and includes a transfer hand", async () => {
   const [css, page, layout, packageJson] = await Promise.all([
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
@@ -44,29 +45,32 @@ test("keeps coaching language explicit and removes the disposable preview", asyn
     readFile(new URL("../package.json", import.meta.url), "utf8"),
   ]);
 
-  assert.match(page, /After the complete action, what does the opponent hold most often/);
-  assert.match(page, /Choose the center of the range/);
-  assert.match(page, /If you check, what does A♣ 5♣ beat/);
-  assert.match(page, /What should your next action accomplish/);
-  assert.match(page, /What strong hands could you credibly have after taking this line/);
-  assert.match(page, /Build the pot/);
-  assert.match(page, /charge draws/i);
-  assert.match(page, /Small sample: this opponent folded to 3 of 4 comparable river bets/);
-  assert.match(page, /Use this small sample as evidence, not certainty/);
-  assert.match(page, /Good read\. Your.*is plausible, not proven/s);
+  assert.match(page, /What type of hand do they have most often/);
+  assert.match(page, /Choose the biggest group/);
+  assert.match(page, /If both players show their cards now, what can your ace-five beat/);
+  assert.match(page, /If you bet, which better hands are you trying to make fold/);
+  assert.match(page, /A weaker hand calls = value\. A better hand folds = bluff/);
+  assert.match(page, /In four similar river spots, this opponent folded three times to a large bet/);
+  assert.match(page, /Why a large bluff may look believable/);
+  assert.match(page, /Your reasoning was sound\. The exact size is uncertain/);
   assert.match(page, /Defensible alternative/);
   assert.match(page, /First place to fix/);
-  assert.match(page, /checks alone do not prove a cap/i);
+  assert.match(page, /Repeated checks make very strong hands less likely, not impossible/);
   assert.match(page, /Hand history: the opponent called the flop/);
-  assert.match(page, /Overbet \$150/);
-  assert.match(page, /\$150 must work about 62% of the time/);
-  assert.match(page, /Why this answer/);
+  assert.match(page, /Bet \$150/);
+  assert.match(page, /a \$100 bluff into \$92 needs about 52% folds/);
+  assert.match(page, /More detail about this hand/);
   assert.match(page, /When the play changes/);
+  assert.match(page, /Transfer: river value/);
+  assert.match(page, /Fewer clues are provided\. Apply the same four questions/);
+  assert.match(page, /inline-feedback/);
+  assert.match(page, /Coach foundation carried forward/);
   assert.match(page, /exact action awaits solver and expert review/i);
-  assert.doesNotMatch(page, /Could you overbet bigger|The decision in one chain|checkbox-mark|Select every reasonable|2\/4 key groups|story holds together|classification response/i);
+  assert.doesNotMatch(page, /credibilityOptions|correctSteps|resultSummary|label: "Overbet|Could you overbet bigger|The decision in one chain|checkbox-mark|Select every reasonable|2\/4 key groups|story holds together|classification response/i);
   assert.match(css, /mobile-context-strip/);
   assert.match(css, /street-timeline/);
-  assert.match(css, /range-buckets/);
+  assert.match(css, /coach-mini-context/);
+  assert.match(css, /inline-feedback/);
   assert.match(css, /answer-review-list/);
   assert.match(layout, /Range Coach/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);

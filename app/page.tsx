@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 
 type Mode = "learn" | "quick" | "coach";
-type CoachStep = "range" | "hand" | "goal" | "story" | "action" | "review";
+type CoachStep = "range" | "hand" | "goal" | "action" | "review";
 
 type StreetHistory = {
   street: string;
@@ -66,6 +66,7 @@ type Scenario = {
   dominantRangeAnswer: string;
   dominantRangeExplanation: string;
   rangeBuckets: { label: string; detail: string }[];
+  rangeQuestion: string;
   handPrompt: string;
   handPositionOptions: ThoughtOption[];
   handPositionAnswer: string;
@@ -73,10 +74,10 @@ type Scenario = {
   goalOptions: ThoughtOption[];
   goalAnswer: string;
   goalExplanation: string;
-  credibilityPrompt?: string;
-  credibilityOptions?: ThoughtOption[];
-  credibilityAnswer?: string;
-  credibilityExplanation?: string;
+  goalPrompt: string;
+  actionHelp: string;
+  miniSummary: string;
+  transfer?: boolean;
   strengthAnswer: "Mostly capped" | "Unclear" | "Uncapped";
   strengthExplanation: string;
   actionOptions: ActionOption[];
@@ -115,8 +116,8 @@ const scenarios: Scenario[] = [
       { street: "River", board: ["Q♠"], actions: ["Opponent checks.", "Action is on you."] },
     ],
     decisionFact: "Big Blind called the flop, then checked the turn and river.",
-    observedEvidence: "Small sample: this opponent folded to 3 of 4 comparable river bets of at least 75% of the pot.",
-    takeaway: "Do not bluff missed draws you already beat. Bet only if better pairs fold often enough; checks alone do not prove a cap.",
+    observedEvidence: "In four similar river spots, this opponent folded three times to a large bet. That is useful evidence, but still a small sample.",
+    takeaway: "Do not bluff hands with no pair that you already beat. Bluff only when enough better one-pair hands can fold. Repeated checks make very strong hands less likely, not impossible.",
     lessonTitle: "Use the betting history to decide what your bet must accomplish.",
     lessonDefinition:
       "Start with what happened in the hand. Estimate what the opponent can hold, compare your actual hand with those hands, and then decide whether betting would build value or make a better hand fold.",
@@ -142,48 +143,45 @@ const scenarios: Scenario[] = [
       "Observed evidence: a small sample of large river folds supports considering an exploit, but does not prove it.",
     ],
     dominantRangeOptions: [
-      { id: "pairs", label: "Mostly one-pair hands", detail: "Kx, 8x, and 99–JJ; plus some missed 65s/54s and rare traps." },
-      { id: "air", label: "Mostly missed draws and air", detail: "Very few made hands reach the river." },
-      { id: "strong", label: "Many sets and two-pair hands", detail: "Villain often slow-played a very strong hand." },
+      { id: "pairs", label: "Mostly one-pair hands", detail: "" },
+      { id: "air", label: "Mostly hands with no pair", detail: "" },
+      { id: "strong", label: "Mostly very strong hands", detail: "" },
     ],
     dominantRangeAnswer: "pairs",
-    dominantRangeExplanation: "The flop call keeps many one-pair hands. Missed backdoor draws and occasional strong hands remain, so the checks do not prove weakness.",
+    dominantRangeExplanation: "The flop call keeps many one-pair hands. Some hands with no pair and occasional strong hands remain, so the checks do not prove weakness.",
     rangeBuckets: [
-      { label: "Most often", detail: "Kx, 8x, and 99–JJ" },
-      { label: "Sometimes", detail: "Missed 65s and 54s" },
-      { label: "Still possible", detail: "Sets and two pair" },
+      { label: "Most often", detail: "One pair: a king, an eight, or a pocket pair" },
+      { label: "Sometimes", detail: "A hand with no pair that missed" },
+      { label: "Still possible", detail: "Two pair or three of a kind" },
     ],
-    handPrompt: "If you check, what does A♣ 5♣ beat?",
+    rangeQuestion: "The opponent called $25 on the flop, then checked the turn and river. What type of hand do they have most often?",
+    handPrompt: "If both players show their cards now, what can your ace-five beat?",
     handPositionOptions: [
-      { id: "ahead", label: "One-pair hands", detail: "Kx, 8x, and pocket pairs." },
-      { id: "mixed", label: "Unpaired missed draws", detail: "A♣5♣ loses to every pair but can beat hands such as missed 65s." },
-      { id: "value", label: "Nothing", detail: "This would mean ace-high has no showdown value." },
+      { id: "ahead", label: "One-pair hands too", detail: "" },
+      { id: "mixed", label: "Only some hands with no pair", detail: "" },
+      { id: "value", label: "None of the opponent's hands", detail: "" },
     ],
     handPositionAnswer: "mixed",
-    handPositionExplanation: "A♣5♣ loses to every pair. It can still beat unpaired missed draws, so it is not pure air.",
+    handPositionExplanation: "Ace-five loses to every pair. It can still beat some missed hands with no pair, so checking can win sometimes.",
     goalOptions: [
-      { id: "value", label: "Build the pot for value", detail: "Choose this only if weaker hands can call." },
-      { id: "bluff", label: "Make better one-pair hands fold", detail: "A successful bluff must fold hands that currently beat A♣5♣." },
-      { id: "showdown", label: "Check and take the showdown", detail: "Keep your chance of beating a missed draw." },
+      { id: "bluff", label: "One-pair hands—especially an eight or pocket nines through jacks", detail: "" },
+      { id: "misses", label: "Hands with no pair that already missed", detail: "" },
+      { id: "strong", label: "Two pair or three of a kind", detail: "" },
+      { id: "showdown", label: "I would rather check and see who wins", detail: "" },
     ],
     goalAnswer: "bluff",
-    goalExplanation: "The observed river folds support trying to make better one-pair hands fold. Without that evidence, checking the ace-high showdown value is reasonable.",
-    credibilityPrompt: "What strong hands could you credibly have after taking this line?",
-    credibilityOptions: [
-      { id: "credible", label: "KQ, QQ, and some slow-played strong hands", detail: "These hands can raise preflop, bet the flop, check the turn, and bet the river." },
-      { id: "none", label: "No strong hands", detail: "Checking the turn removes every strong hand from your range." },
-      { id: "any", label: "Any two cards", detail: "A large bet can represent strength regardless of the earlier action." },
-    ],
-    credibilityAnswer: "credible",
-    credibilityExplanation: "Your earlier actions can credibly lead to KQ, QQ, and some slow-played strong hands. That makes the bluff believable, but it does not guarantee that the opponent folds.",
+    goalExplanation: "You already beat many missed hands, while two pair and three of a kind usually call. The useful bluff target is a better one-pair hand. Without the folding clue, checking is reasonable.",
+    goalPrompt: "If you bet, which better hands are you trying to make fold?",
+    actionHelp: "The pot is $92. A bet larger than $92 is more than the pot (an overbet).",
+    miniSummary: "River · Pot $92 · You have ace-high and act last. The opponent called the flop, then checked twice.",
     strengthAnswer: "Unclear",
     strengthExplanation:
       "The opponent can still hold strong hands. The line looks one-pair-heavy, but the checks alone do not prove that the strongest hands are absent.",
     actionOptions: [
-      { id: "check", label: "Check behind", detail: "Keep your ace-high showdown value." },
-      { id: "half", label: "Bet $50", detail: "54% pot · may not pressure enough one-pair hands." },
-      { id: "large", label: "Overbet $100", detail: "109% pot · the default exploit in this lesson." },
-      { id: "huge", label: "Overbet $150", detail: "163% pot · a higher-risk exploit if Villain overfolds." },
+      { id: "check", label: "Check", detail: "" },
+      { id: "half", label: "Bet $50", detail: "" },
+      { id: "large", label: "Bet $100", detail: "" },
+      { id: "huge", label: "Bet $150", detail: "" },
     ],
     actionAnswer: "large",
     actionGrade: "Reasonable exploit—not a universal rule",
@@ -252,8 +250,8 @@ const scenarios: Scenario[] = [
       "Turn result: the range is wide, but its strongest hands remain—so there is not enough evidence to call it capped.",
     ],
     dominantRangeOptions: [
-      { id: "mixed", label: "A mix of pairs, draws, and bluffs", detail: "The small lead is wide, but strong hands still remain." },
-      { id: "bluffs", label: "Mostly bluffs", detail: "The small size proves weakness." },
+      { id: "mixed", label: "A mix of pairs, unfinished hands, and hands with no pair", detail: "The small lead is wide, but strong hands still remain." },
+      { id: "bluffs", label: "Mostly hands with no pair", detail: "The small size proves weakness." },
       { id: "nuts", label: "Mostly two pair and sets", detail: "The lead is heavily value-weighted." },
     ],
     dominantRangeAnswer: "mixed",
@@ -263,11 +261,12 @@ const scenarios: Scenario[] = [
       { label: "Sometimes", detail: "Slow-played Ax" },
       { label: "Still possible", detail: "Two pair and sets" },
     ],
+    rangeQuestion: "After both players checked the flop and the opponent made a small turn bet, what do they have most often?",
     handPrompt: "What does Q♠ J♥ have right now?",
     handPositionOptions: [
       { id: "value", label: "You have a strong made hand", detail: "QJ is ahead and wants value." },
-      { id: "draw", label: "You have a draw with little showdown value", detail: "QJ has a gutshot and may improve to a straight." },
-      { id: "dead", label: "You are drawing dead", detail: "No river can improve the hand." },
+      { id: "draw", label: "You are usually behind, but a ten makes a straight", detail: "QJ has a gutshot and may improve to a straight." },
+      { id: "dead", label: "No river card can help you", detail: "No river can improve the hand." },
     ],
     handPositionAnswer: "draw",
     handPositionExplanation: "QJ is usually behind made hands, but a ten completes a straight and position helps Hero realize that equity.",
@@ -278,6 +277,9 @@ const scenarios: Scenario[] = [
     ],
     goalAnswer: "realize",
     goalExplanation: "Calling preserves weaker bets, uses position, and gives the gutshot a chance to improve without inflating the pot.",
+    goalPrompt: "What should your next action accomplish?",
+    actionHelp: "You can fold, call 2.4 big blinds to see the river, or raise and build a larger pot.",
+    miniSummary: "Turn · Pot 7.8 big blinds · You have queen-jack and act last. The opponent made a small bet.",
     strengthAnswer: "Unclear",
     strengthExplanation:
       "Villain's range is wide, but the flop check preserves enough strong Ax, two pair, and sets that we cannot confidently call the range capped.",
@@ -365,11 +367,12 @@ const scenarios: Scenario[] = [
       { label: "Sometimes", detail: "Trapped AA or KK" },
       { label: "Still possible", detail: "Straights, sets, and two pair" },
     ],
+    rangeQuestion: "After the opponent called before the flop and called again on the flop, what can they still have on this turn?",
     handPrompt: "What does Q♥ Q♦ beat right now?",
     handPositionOptions: [
-      { id: "nuts", label: "You have the nuts", detail: "QQ is effectively unbeatable." },
+      { id: "nuts", label: "You have the strongest possible hand", detail: "QQ is effectively unbeatable." },
       { id: "onepair", label: "You have a strong but vulnerable one-pair hand", detail: "QQ beats many hands but loses to the top of the opponent's range." },
-      { id: "bluff", label: "You have only a bluff", detail: "QQ has no showdown value." },
+      { id: "bluff", label: "Your pair cannot win if you check", detail: "QQ has no showdown value." },
     ],
     handPositionAnswer: "onepair",
     handPositionExplanation: "QQ is often ahead, but it is not strong enough to ignore straights, sets, two pair, and raises.",
@@ -380,6 +383,9 @@ const scenarios: Scenario[] = [
     ],
     goalAnswer: "control",
     goalExplanation: "Checking respects Villain's uncapped range, protects Hero's checks, and keeps weaker hands and bluffs available.",
+    goalPrompt: "What should your next action accomplish?",
+    actionHelp: "You can check, make a smaller bet, or make a very large bet. Ask which weaker hands would continue.",
+    miniSummary: "Turn · Pot $485 · You have a pair of queens. The opponent called before the flop and on the flop.",
     strengthAnswer: "Uncapped",
     strengthExplanation:
       "Villain can credibly hold a straight, sets, two pair, and trapped overpairs. The strongest part of the range is fully present.",
@@ -405,13 +411,108 @@ const scenarios: Scenario[] = [
       "Why is 98 suited more important on this turn than it was on the flop?",
     ],
   },
+  {
+    id: "transfer-value",
+    shortTitle: "Transfer: river value",
+    format: "Live cash · $1/$3",
+    street: "River",
+    difficulty: "Transfer practice",
+    heroPosition: "Button — acts last after the flop",
+    villainPosition: "Big Blind",
+    opponent: "Unknown opponent",
+    pot: "$61",
+    effective: "$360",
+    hero: ["A♠", "Q♦"],
+    board: ["Q♣", "7♥", "3♣", "2♠", "2♦"],
+    action: [
+      "You raise to $12 on the Button. The opponent calls from the Big Blind.",
+      "The opponent checks the flop. You bet $18. The opponent calls.",
+      "Both players check the turn.",
+      "The opponent checks the river. It is your turn.",
+    ],
+    streetHistory: [
+      { street: "Preflop", actions: ["You (Button) raise to $12.", "Opponent (Big Blind) calls."] },
+      { street: "Flop", board: ["Q♣", "7♥", "3♣"], actions: ["Opponent checks.", "You bet $18.", "Opponent calls."] },
+      { street: "Turn", board: ["2♠"], actions: ["Opponent checks.", "You check."] },
+      { street: "River", board: ["2♦"], actions: ["Opponent checks.", "Action is on you."] },
+    ],
+    decisionFact: "The opponent called one flop bet, then checked the turn and river.",
+    takeaway: "Build the pot when weaker hands can call. A bet is for value when you expect to be called by a hand you beat.",
+    lessonTitle: "Use the same four questions on a new hand.",
+    lessonDefinition: "This hand removes most of the teaching hints so you can test whether the decision method transfers.",
+    lessonWhy: "Top pair with the best kicker can be called by weaker queens and other pairs.",
+    lessonChecks: ["Estimate the opponent's most common hands.", "Decide what your hand beats.", "Name the weaker hands that can call."],
+    rangePrompt: "What can the opponent reach the river with?",
+    rangeOptions: [
+      { id: "queens", label: "Weaker queens", examples: "QJ, QT, Q9", coachNote: "A queen can call the flop and check later streets." },
+      { id: "pairs", label: "Other pairs", examples: "A seven or pocket pairs", coachNote: "These hands can call once and try to reach the river." },
+      { id: "misses", label: "Missed hands", examples: "Missed clubs and straight draws", coachNote: "Some draws miss the river." },
+      { id: "strong", label: "A few strong hands", examples: "Trips or a full house", coachNote: "Strong hands remain possible but are not the largest group." },
+    ],
+    rangeAnswer: ["queens", "pairs", "misses", "strong"],
+    rangeStory: [
+      "The flop call keeps weaker queens, other pairs, and some draws.",
+      "The later checks keep many medium-strength hands in the range.",
+      "A few very strong hands remain possible, but they are not the largest group.",
+    ],
+    dominantRangeOptions: [
+      { id: "pairs", label: "Mostly one-pair hands", detail: "" },
+      { id: "air", label: "Mostly hands with no pair", detail: "" },
+      { id: "strong", label: "Mostly very strong hands", detail: "" },
+    ],
+    dominantRangeAnswer: "pairs",
+    dominantRangeExplanation: "Most often, the opponent has one pair: a weaker queen, a seven, or a pocket pair. Some missed hands and a few strong hands remain.",
+    rangeBuckets: [
+      { label: "Most often", detail: "A weaker queen, a seven, or a pocket pair" },
+      { label: "Sometimes", detail: "A hand with no pair that missed" },
+      { label: "Still possible", detail: "Three of a kind or a full house" },
+    ],
+    rangeQuestion: "The opponent called $18 on the flop, then checked the turn and river. What type of hand do they have most often?",
+    handPrompt: "If both players show their cards now, what can your ace-queen beat?",
+    handPositionOptions: [
+      { id: "value", label: "Many weaker one-pair hands", detail: "" },
+      { id: "misses", label: "Only hands with no pair", detail: "" },
+      { id: "none", label: "None of the opponent's hands", detail: "" },
+    ],
+    handPositionAnswer: "value",
+    handPositionExplanation: "Your pair of queens with an ace kicker beats weaker queens, a pair of sevens, and many pocket pairs.",
+    goalOptions: [
+      { id: "value", label: "A weaker queen or another pair calls", detail: "" },
+      { id: "bluff", label: "A stronger hand folds", detail: "" },
+      { id: "check", label: "Nothing—I would rather check", detail: "" },
+    ],
+    goalAnswer: "value",
+    goalExplanation: "This is a value bet: you want a weaker queen or another pair to call with a hand you beat.",
+    goalPrompt: "If you bet, what do you want to happen?",
+    actionHelp: "The pot is $61. Choose a size that weaker one-pair hands may still call.",
+    miniSummary: "River · Pot $61 · You have a pair of queens with an ace kicker and act last. The opponent called the flop, then checked twice.",
+    transfer: true,
+    strengthAnswer: "Unclear",
+    strengthExplanation: "Very strong hands remain possible, but the opponent's range contains many more one-pair hands.",
+    actionOptions: [
+      { id: "check", label: "Check", detail: "" },
+      { id: "small", label: "Bet $20", detail: "" },
+      { id: "medium", label: "Bet $40", detail: "" },
+      { id: "large", label: "Bet $75", detail: "" },
+    ],
+    actionAnswer: "medium",
+    actionGrade: "Value bet example; exact size is unverified",
+    actionExplanation: "A medium bet can be called by weaker queens and other pairs. The value-betting idea is the lesson; the exact $40 size is not solver-verified.",
+    evidence: [
+      "The opponent called the flop with many one-pair hands and draws.",
+      "Your ace-queen beats many of those one-pair hands.",
+      "A value bet works when weaker hands call often enough.",
+    ],
+    reversal: "Check more often if the opponent calls the flop with very few weaker pairs or raises river bets aggressively.",
+    questions: ["Which weaker queens can call?", "Would a much larger bet lose too many weaker callers?", "Which river cards would make value betting harder?"],
+  },
 ];
 
 function assessAction(scenario: Scenario, actionId: string): ActionAssessment {
   if (actionId === scenario.actionAnswer) {
     return {
       status: "matched",
-      label: "Correct",
+      label: "Matches example",
       explanation: scenario.actionExplanation,
     };
   }
@@ -430,7 +531,15 @@ function assessAction(scenario: Scenario, actionId: string): ActionAssessment {
       status: "reasonable",
       label: "Defensible alternative",
       explanation:
-        "Checking keeps the showdown value of ace-high and avoids overreacting to a small sample. It passes on the possible exploit suggested by the observed folds.",
+        "Checking keeps your chance to beat a missed hand without risking more money. It passes on the possible bluff suggested by the observed folds.",
+    };
+  }
+
+  if (scenario.id === "transfer-value" && actionId === "small") {
+    return {
+      status: "reasonable",
+      label: "Defensible alternative",
+      explanation: "A smaller value bet may receive more calls from weaker pairs. The value-betting idea matters more than the exact authored size.",
     };
   }
 
@@ -439,7 +548,7 @@ function assessAction(scenario: Scenario, actionId: string): ActionAssessment {
       status: "review",
       label: "Needs work",
       explanation:
-        "A $50 bet may fold missed draws that ace-high already beats while failing to pressure enough Kx and 8x. If the goal is to fold out better one-pair hands, the size must credibly threaten those hands.",
+        "A $50 bet may fold hands with no pair that ace-high already beats while failing to pressure a pair of eights or a pocket pair. If the goal is to fold a better one-pair hand, the bet must feel costly enough to call.",
     };
   }
 
@@ -459,6 +568,15 @@ function moveToWorkArea() {
     const workArea = document.querySelector(".work-area");
     if (!workArea) return;
     const top = workArea.getBoundingClientRect().top + window.scrollY - 88;
+    window.scrollTo({ top, behavior: "smooth" });
+  });
+}
+
+function moveToQuestion() {
+  window.requestAnimationFrame(() => {
+    const question = document.querySelector(".coach-view");
+    if (!question) return;
+    const top = question.getBoundingClientRect().top + window.scrollY - 88;
     window.scrollTo({ top, behavior: "smooth" });
   });
 }
@@ -534,44 +652,26 @@ function HandContext({ scenario }: { scenario: Scenario }) {
   );
 }
 
-function LearnMode({ scenario, onPractice }: { scenario: Scenario; onPractice: () => void }) {
+function LearnMode({ onPractice }: { scenario: Scenario; onPractice: () => void }) {
   return (
     <section className="work-card learn-view">
-      <span className="section-kicker">Learn the idea</span>
-      <h2>{scenario.lessonTitle}</h2>
-      <p className="lead-copy">{scenario.lessonDefinition}</p>
+      <span className="section-kicker">The beginner method</span>
+      <h2>Every poker decision in four questions.</h2>
+      <p className="lead-copy">Use the information on the table. You do not need to memorize poker vocabulary before making the decision.</p>
 
       <div className="thought-framework">
-        <div><span>1</span><p><strong>Estimate their hands</strong> Use every action to decide what the opponent holds most often.</p></div>
-        <div><span>2</span><p><strong>Compare your hand</strong> Ask what your actual cards beat if you check or call.</p></div>
-        <div><span>3</span><p><strong>Give the bet a purpose</strong> Build the pot with weaker callers or bluff better hands that can fold.</p></div>
-        <div><span>4</span><p><strong>Choose the play</strong> Pick the action and size that can accomplish that purpose.</p></div>
+        <div><span>1</span><p><strong>What does the opponent have most often?</strong></p></div>
+        <div><span>2</span><p><strong>What can my hand beat right now?</strong></p></div>
+        <div><span>3</span><p><strong>If I bet, will a weaker hand call or will a better hand fold?</strong></p></div>
+        <div><span>4</span><p><strong>Which action and size does that job?</strong></p></div>
       </div>
 
       <div className="simple-rule">
-        <strong>What a bet can accomplish</strong>
-        <p><b>Build the pot:</b> bet when weaker hands or draws can continue.</p>
-        <p><b>Bluff:</b> bet when enough better hands can fold.</p>
-        <p><b>See the next card or showdown:</b> check or call when betting would mostly keep stronger hands and lose weaker ones.</p>
-        <p><b>Flop and turn:</b> a bet can also charge draws. On the river, there is no next card—the bet is value or a bluff.</p>
-      </div>
-
-      <details className="details-block">
-        <summary>Poker term: capped and uncapped</summary>
-        <div className="definition-grid nested-definition">
-          <div><span className="definition-word">Mostly capped</span><p>The earlier actions make the opponent&apos;s very strongest hands less likely, but not impossible.</p></div>
-          <div><span className="definition-word">Uncapped</span><p>The opponent&apos;s earlier actions can still lead naturally to the strongest hands.</p></div>
-        </div>
-      </details>
-
-      <div className="lesson-callout">
-        <span>Why it matters in this hand</span>
-        <p>{scenario.lessonWhy}</p>
-      </div>
-
-      <div className="checklist-block">
-        <h3>Questions to ask at the table</h3>
-        <ol>{scenario.lessonChecks.map((item) => <li key={item}>{item}</li>)}</ol>
+        <strong>The rule to carry to the table</strong>
+        <p><b>A weaker hand calls</b> → bet to build value.</p>
+        <p><b>A better hand folds</b> → bluff.</p>
+        <p><b>Neither is likely</b> → checking or folding is often better.</p>
+        <p>On the flop or turn, a bet can also make a drawing hand pay to see the next card.</p>
       </div>
 
       <button className="primary-button" onClick={onPractice}>Practice this hand <span aria-hidden="true">→</span></button>
@@ -629,10 +729,11 @@ function QuickMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
       <span className="section-kicker">Quick decision</span>
       <h2>What should you do?</h2>
       <p className="lead-copy">Choose first. The coach&apos;s answer and reasoning stay hidden until you submit.</p>
+      <p className="decision-definition">{scenario.actionHelp}</p>
       <div className="choice-list action-choice-list">
         {scenario.actionOptions.map((option) => (
           <button key={option.id} className={choice === option.id ? "selected" : ""} onClick={() => setChoice(option.id)} aria-pressed={choice === option.id}>
-            <span><strong>{option.label}</strong><small>{option.detail}</small></span>
+            <span><strong>{option.label}</strong></span>
             <span className="radio-dot" aria-hidden="true" />
           </button>
         ))}
@@ -647,238 +748,167 @@ function CoachMode({ scenario, onNext }: { scenario: Scenario; onNext: () => voi
   const [rangeChoice, setRangeChoice] = useState("");
   const [handPosition, setHandPosition] = useState("");
   const [goal, setGoal] = useState("");
-  const [credibility, setCredibility] = useState("");
   const [action, setAction] = useState("");
 
   const selectedRange = scenario.dominantRangeOptions.find((option) => option.id === rangeChoice)!;
   const selectedHandPosition = scenario.handPositionOptions.find((option) => option.id === handPosition)!;
   const selectedGoal = scenario.goalOptions.find((option) => option.id === goal)!;
-  const selectedCredibility = scenario.credibilityOptions?.find((option) => option.id === credibility);
   const correctRange = scenario.dominantRangeOptions.find((option) => option.id === scenario.dominantRangeAnswer)!;
   const correctHandPosition = scenario.handPositionOptions.find((option) => option.id === scenario.handPositionAnswer)!;
   const correctGoal = scenario.goalOptions.find((option) => option.id === scenario.goalAnswer)!;
-  const correctCredibility = scenario.credibilityOptions?.find((option) => option.id === scenario.credibilityAnswer);
   const rangeMatches = rangeChoice === scenario.dominantRangeAnswer;
   const handMatches = handPosition === scenario.handPositionAnswer;
   const goalMatches = goal === scenario.goalAnswer;
-  const credibilityMatches = !scenario.credibilityOptions || credibility === scenario.credibilityAnswer;
+  const goalAlternative = scenario.id === "river-pressure" && goal === "showdown";
+  const goalSound = goalMatches || goalAlternative;
   const playerAction = scenario.actionOptions.find((option) => option.id === action)!;
   const coachAction = scenario.actionOptions.find((option) => option.id === scenario.actionAnswer)!;
-  const actionAssessment = assessAction(scenario, action);
-  const reasoningAligned = rangeMatches && handMatches && goalMatches && credibilityMatches;
-
+  const baseActionAssessment = assessAction(scenario, action);
+  const actionContradictsPlan = scenario.id === "river-pressure" && ((goal === "showdown" && action !== "check") || (goal === "bluff" && action === "check"));
+  const actionAssessment: ActionAssessment = actionContradictsPlan
+    ? { status: "review", label: "Does not match your plan", explanation: "Your final action should match the purpose you chose. Check preserves your chance to beat a missed hand; a bluff must use a bet." }
+    : baseActionAssessment;
   const goToStep = (nextStep: CoachStep) => {
     setStep(nextStep);
-    moveToWorkArea();
+    moveToQuestion();
   };
 
   if (step === "review") {
     const firstFix = !rangeMatches
       ? { label: "Opponent's likely hands", answer: correctRange.label, explanation: scenario.dominantRangeExplanation }
       : !handMatches
-        ? { label: "Your hand", answer: correctHandPosition.label, explanation: scenario.handPositionExplanation }
-        : !goalMatches
-          ? { label: "Goal", answer: correctGoal.label, explanation: scenario.goalExplanation }
-          : !credibilityMatches && correctCredibility
-            ? { label: "Bluff story", answer: correctCredibility.label, explanation: scenario.credibilityExplanation ?? "Your previous actions must support the strength you represent." }
+        ? { label: "What your hand beats", answer: correctHandPosition.label, explanation: scenario.handPositionExplanation }
+        : !goalSound
+          ? { label: scenario.id === "river-pressure" ? "Bet target" : "Purpose", answer: correctGoal.label, explanation: scenario.goalExplanation }
           : actionAssessment.status === "review"
             ? { label: "Action", answer: coachAction.label, explanation: actionAssessment.explanation }
             : null;
-    const gradedSteps = [rangeMatches, handMatches, goalMatches, ...(scenario.credibilityOptions ? [credibilityMatches] : []), actionAssessment.status === "matched"];
-    const correctSteps = gradedSteps.filter(Boolean).length;
-    const resultHeadline = reasoningAligned && actionAssessment.status === "reasonable"
-      ? `Good read. Your ${playerAction.label} is plausible, not proven.`
-      : reasoningAligned && actionAssessment.status === "matched"
-        ? "Good read. Your action matches the lesson."
-        : `Fix ${firstFix?.label.toLowerCase()} first.`;
-    const resultSummary = `${correctSteps} correct${actionAssessment.status === "reasonable" ? " · 1 defensible alternative" : firstFix ? " · review the first broken link" : ""}`;
+    const resultHeadline = firstFix
+      ? `Fix this first: ${firstFix.label.toLowerCase()}.`
+      : goalAlternative && action === "check"
+        ? "Your reasoning is coherent. Checking is a defensible alternative."
+        : actionAssessment.status === "reasonable"
+          ? "Your reasoning was sound. The exact size is uncertain."
+          : "Your reasoning was sound. This action matches the authored example.";
 
     return (
       <section className="work-card review-view" aria-live="polite">
-        <div className="review-heading">
-          <div>
-            <span className="section-kicker">{resultSummary}</span>
-            <h2>{resultHeadline}</h2>
-          </div>
-        </div>
+        <div className="review-heading"><div><span className="section-kicker">Coach review</span><h2>{resultHeadline}</h2></div></div>
 
-        <div className="answer-review-list" aria-label="Your answers and coach feedback">
+        <div className="answer-review-list" aria-label="Your reasoning and coach feedback">
           <div className={`answer-review-row ${rangeMatches ? "row-correct" : "row-fix"}`}>
             <span className="row-status">{rangeMatches ? "✓" : "!"}</span>
-            <div><span>Opponent&apos;s likely hands</span><strong>{selectedRange.label}</strong>{!rangeMatches && <small>Coach: {correctRange.label}</small>}</div>
-            <b>{rangeMatches ? "Correct" : "Needs work"}</b>
+            <div><span>Opponent most often</span><strong>{selectedRange.label}</strong>{!rangeMatches && <small>Coach foundation: {correctRange.label}</small>}</div>
+            <b>{rangeMatches ? "Sound" : "Needs work"}</b>
           </div>
           <div className={`answer-review-row ${handMatches ? "row-correct" : "row-fix"}`}>
             <span className="row-status">{handMatches ? "✓" : "!"}</span>
-            <div><span>Your hand</span><strong>{selectedHandPosition.label}</strong>{!handMatches && <small>Coach: {correctHandPosition.label}</small>}</div>
-            <b>{handMatches ? "Correct" : "Needs work"}</b>
+            <div><span>Your hand beats</span><strong>{selectedHandPosition.label}</strong>{!handMatches && <small>Coach foundation: {correctHandPosition.label}</small>}</div>
+            <b>{handMatches ? "Sound" : "Needs work"}</b>
           </div>
-          <div className={`answer-review-row ${goalMatches ? "row-correct" : "row-fix"}`}>
-            <span className="row-status">{goalMatches ? "✓" : "!"}</span>
-            <div><span>Goal</span><strong>{selectedGoal.label}</strong>{!goalMatches && <small>Coach: {correctGoal.label}</small>}</div>
-            <b>{goalMatches ? "Correct" : "Needs work"}</b>
+          <div className={`answer-review-row ${goalMatches ? "row-correct" : goalAlternative ? "row-alternative" : "row-fix"}`}>
+            <span className="row-status">{goalMatches ? "✓" : goalAlternative ? "△" : "!"}</span>
+            <div><span>{scenario.id === "river-pressure" ? "Bet target" : "Purpose"}</span><strong>{selectedGoal.label}</strong>{!goalSound && <small>Coach foundation: {correctGoal.label}</small>}</div>
+            <b>{goalMatches ? "Sound" : goalAlternative ? "Coherent alternative" : "Needs work"}</b>
           </div>
-          {scenario.credibilityOptions && selectedCredibility && correctCredibility && (
-            <div className={`answer-review-row ${credibilityMatches ? "row-correct" : "row-fix"}`}>
-              <span className="row-status">{credibilityMatches ? "✓" : "!"}</span>
-              <div><span>Bluff story</span><strong>{selectedCredibility.label}</strong>{!credibilityMatches && <small>Coach: {correctCredibility.label}</small>}</div>
-              <b>{credibilityMatches ? "Correct" : "Needs work"}</b>
-            </div>
-          )}
           <div className={`answer-review-row ${actionAssessment.status === "matched" ? "row-correct" : actionAssessment.status === "reasonable" ? "row-alternative" : "row-fix"}`}>
             <span className="row-status">{actionAssessment.status === "matched" ? "✓" : actionAssessment.status === "reasonable" ? "△" : "!"}</span>
-            <div><span>Action &amp; size</span><strong>{playerAction.label}</strong>{actionAssessment.status !== "matched" && <small>Lesson baseline: {coachAction.label}</small>}</div>
+            <div><span>Action and size</span><strong>{playerAction.label}</strong>{actionAssessment.status !== "matched" && <small>Authored example: {coachAction.label}</small>}</div>
             <b>{actionAssessment.label}</b>
           </div>
         </div>
 
-        {firstFix && <div className="first-fix"><span>First place to fix</span><strong>{firstFix.label}: {firstFix.answer}</strong><p>{firstFix.explanation}</p></div>}
-
-        {!firstFix && actionAssessment.status === "reasonable" && <div className="alternative-note"><span>Why the extra size needs more evidence</span><p>{actionAssessment.explanation}</p>{scenario.id === "river-pressure" && <p><strong>$150 must work about 62% of the time.</strong> Use it only when the extra $50 makes meaningfully more pairs fold than $100.</p>}</div>}
-
-        {!firstFix && actionAssessment.status === "matched" && <div className="alternative-note"><span>Why it works in this lesson</span><p>{actionAssessment.explanation}</p></div>}
+        {firstFix && <div className="first-fix"><span>First place to fix</span><strong>{firstFix.answer}</strong><p>{firstFix.explanation}</p></div>}
+        {!firstFix && <div className="alternative-note"><span>What the coach can and cannot claim</span><p>{actionAssessment.explanation}</p></div>}
 
         <div className="takeaway-card"><span>Takeaway</span><p>{scenario.takeaway}</p></div>
 
         <details className="details-block full-review-details">
-          <summary>Why this answer</summary>
+          <summary>More detail about this hand</summary>
           <ol className="line-story">{scenario.rangeStory.map((item) => <li key={item}>{item}</li>)}</ol>
-          {scenario.id === "river-pressure" && <p><strong>Bluff target:</strong> 8x and 99–JJ, plus weak Kx only if the overfold read is strong. A5 already beats many missed draws.</p>}
+          {scenario.id === "river-pressure" && <p><strong>Useful bluff target:</strong> a pair of eights or pocket nines through jacks. You already beat many hands with no pair, while two pair and three of a kind usually call.</p>}
         </details>
-
-        <details className="details-block full-review-details">
-          <summary>When the play changes</summary>
-          <ul>{scenario.evidence.map((item) => <li key={item}>{item}</li>)}</ul>
-          <p><strong>Change the play when:</strong> {scenario.reversal}</p>
-        </details>
-
-        <details className="details-block full-review-details"><summary>Advanced coach question</summary><p>{scenario.questions[0]}</p></details>
+        {scenario.id === "river-pressure" && (
+          <details className="details-block full-review-details">
+            <summary>Poker terms after the decision</summary>
+            <p><strong>Range:</strong> all reasonable hands the opponent may hold, weighted by how likely they are.</p>
+            <p><strong>Overbet:</strong> a bet larger than the pot.</p>
+            <p><strong>Mostly capped:</strong> very strong hands are less common, but still possible.</p>
+            <p><strong>Showdown value:</strong> your hand can still win sometimes if you check.</p>
+            <p><strong>Sizing math:</strong> a $100 bluff into $92 needs about 52% folds; $150 needs about 62%. Exact sizing remains unverified.</p>
+          </details>
+        )}
+        <details className="details-block full-review-details"><summary>When the play changes</summary><p>{scenario.reversal}</p></details>
 
         <div className="button-row">
-          <button className="primary-button" onClick={onNext}>Next hand <span aria-hidden="true">→</span></button>
+          <button className="primary-button" onClick={onNext}>{scenario.transfer ? "Start over" : "Next hand"} <span aria-hidden="true">→</span></button>
           <button className="secondary-button" onClick={() => goToStep("range")}>Try again</button>
         </div>
       </section>
     );
   }
 
-  const totalSteps = scenario.credibilityOptions ? 5 : 4;
-  const stepNumber = step === "range" ? 1 : step === "hand" ? 2 : step === "goal" ? 3 : step === "story" ? 4 : totalSteps;
+  const stepNumber = step === "range" ? 1 : step === "hand" ? 2 : step === "goal" ? 3 : 4;
+  const correctedRangeLabel = correctRange.label;
+  const correctedHandLabel = correctHandPosition.label;
 
   return (
     <section className="work-card coach-view">
-      <div className="progress-block" aria-label={`Step ${stepNumber} of ${totalSteps}`}>
-        <div><span style={{ width: `${(stepNumber / totalSteps) * 100}%` }} /></div>
-        <p>Step {stepNumber} of {totalSteps}</p>
-      </div>
-      {step === "hand" && (
-        <div className={`range-check ${rangeMatches ? "range-check-correct" : "range-check-fix"}`}>
-          <div><span>Range check</span><strong>{rangeMatches ? "Good foundation" : `Adjust toward: ${correctRange.label}`}</strong></div>
-          <div className="range-buckets">
-            {scenario.rangeBuckets.map((bucket) => <p key={bucket.label}><b>{bucket.label}</b><span>{bucket.detail}</span></p>)}
-          </div>
-          <small>Very strong hands can remain possible even when they are not the center of the range.</small>
-        </div>
-      )}
-      {step !== "range" && step !== "hand" && <div className="thinking-breadcrumb"><span>Your reasoning so far</span><p>{selectedRange?.label} <b>→</b> {selectedHandPosition?.label}{step !== "goal" && <> <b>→</b> {selectedGoal?.label}</>}{step === "action" && selectedCredibility && <> <b>→</b> {selectedCredibility.label}</>}</p></div>}
-      {scenario.observedEvidence && (step === "goal" || step === "story" || step === "action") && (
-        <div className="observed-evidence"><span>Observed at this table</span><p>{scenario.observedEvidence}</p><small>Use this small sample as evidence, not certainty.</small></div>
-      )}
+      <div className="coach-mini-context"><span>{scenario.transfer ? "Transfer hand" : "Keep these facts with you"}</span><p>{scenario.miniSummary}</p>{scenario.transfer && <small>Fewer clues are provided. Apply the same four questions.</small>}</div>
+      <div className="progress-block" aria-label={`Step ${stepNumber} of 4`}><div><span style={{ width: `${stepNumber * 25}%` }} /></div><p>Step {stepNumber} of 4</p></div>
+
+      {step !== "range" && <div className="thinking-breadcrumb"><span>Coach foundation carried forward</span><p>{correctedRangeLabel}{step !== "hand" && <> <b>→</b> {correctedHandLabel}</>}{step === "action" && <> <b>→</b> {goalAlternative ? selectedGoal.label : correctGoal.label}</>}</p></div>}
+      {scenario.observedEvidence && (step === "goal" || step === "action") && <div className="observed-evidence"><span>Opponent clue</span><p>{scenario.observedEvidence}</p></div>}
 
       {step === "range" && (
         <>
           <span className="section-kicker">1 · Opponent&apos;s likely hands</span>
-          <h2>After the complete action, what does the opponent hold most often?</h2>
-          <p className="lead-copy">Choose the center of the range—not every hand that remains possible.</p>
+          <h2>{scenario.rangeQuestion}</h2>
+          <p className="lead-copy">{scenario.transfer ? "Choose the biggest group." : "The opponent's likely hands are sometimes called their range. Choose the biggest group, not every possibility."}</p>
           <div className="choice-list strength-choice-list">
-            {scenario.dominantRangeOptions.map((option) => (
-              <button key={option.id} className={rangeChoice === option.id ? "selected" : ""} onClick={() => setRangeChoice(option.id)} aria-pressed={rangeChoice === option.id}>
-                <span><strong>{option.label}</strong><small>{option.detail}</small></span>
-                <span className="radio-dot" aria-hidden="true" />
-              </button>
-            ))}
+            {scenario.dominantRangeOptions.map((option) => <button key={option.id} className={rangeChoice === option.id ? "selected" : ""} onClick={() => setRangeChoice(option.id)} aria-pressed={rangeChoice === option.id}><span><strong>{option.label}</strong></span><span className="radio-dot" aria-hidden="true" /></button>)}
           </div>
+          {rangeChoice && <div className={`inline-feedback ${rangeMatches ? "feedback-sound" : "feedback-fix"}`}><strong>{rangeMatches ? "Most likely: one pair." : `Use this foundation: ${correctRange.label}.`}</strong><p>{scenario.dominantRangeExplanation}</p></div>}
           <button className="primary-button" disabled={!rangeChoice} onClick={() => goToStep("hand")}>Continue <span aria-hidden="true">→</span></button>
         </>
       )}
 
       {step === "hand" && (
         <>
-          <span className="section-kicker">2 · Your actual hand</span>
+          <span className="section-kicker">2 · What your hand beats</span>
           <h2>{scenario.handPrompt}</h2>
-          <p className="lead-copy">Use your real cards—not the strong hands your betting line might represent.</p>
+          <p className="lead-copy">{scenario.id === "river-pressure" ? "A pair beats ace-high. Ace-high can beat a lower hand with no pair." : "Compare your actual cards with the opponent's likely hands."}</p>
           <div className="choice-list strength-choice-list">
-            {scenario.handPositionOptions.map((option) => (
-              <button key={option.id} className={handPosition === option.id ? "selected" : ""} onClick={() => setHandPosition(option.id)} aria-pressed={handPosition === option.id}>
-                <span><strong>{option.label}</strong><small>{option.detail}</small></span>
-                <span className="radio-dot" aria-hidden="true" />
-              </button>
-            ))}
+            {scenario.handPositionOptions.map((option) => <button key={option.id} className={handPosition === option.id ? "selected" : ""} onClick={() => setHandPosition(option.id)} aria-pressed={handPosition === option.id}><span><strong>{option.label}</strong></span><span className="radio-dot" aria-hidden="true" /></button>)}
           </div>
-          <div className="button-row">
-            <button className="secondary-button" onClick={() => goToStep("range")}>Back</button>
-            <button className="primary-button" disabled={!handPosition} onClick={() => goToStep("goal")}>Continue <span aria-hidden="true">→</span></button>
-          </div>
+          {handPosition && <div className={`inline-feedback ${handMatches ? "feedback-sound" : "feedback-fix"}`}><strong>{handMatches ? "That comparison works." : `Use this foundation: ${correctHandPosition.label}.`}</strong><p>{scenario.handPositionExplanation}</p></div>}
+          <div className="button-row"><button className="secondary-button" onClick={() => goToStep("range")}>Back</button><button className="primary-button" disabled={!handPosition} onClick={() => goToStep("goal")}>Continue <span aria-hidden="true">→</span></button></div>
         </>
       )}
 
       {step === "goal" && (
         <>
-          <span className="section-kicker">3 · The action&apos;s job</span>
-          <h2>What should your next action accomplish?</h2>
-          <p className="lead-copy">Build a pot with weaker callers, make better hands fold, or continue without raising.</p>
+          <span className="section-kicker">3 · What the bet must accomplish</span>
+          <h2>{scenario.goalPrompt}</h2>
+          <p className="lead-copy">A weaker hand calls = value. A better hand folds = bluff.</p>
           <div className="choice-list strength-choice-list">
-            {scenario.goalOptions.map((option) => (
-              <button key={option.id} className={goal === option.id ? "selected" : ""} onClick={() => setGoal(option.id)} aria-pressed={goal === option.id}>
-                <span><strong>{option.label}</strong><small>{option.detail}</small></span>
-                <span className="radio-dot" aria-hidden="true" />
-              </button>
-            ))}
+            {scenario.goalOptions.map((option) => <button key={option.id} className={goal === option.id ? "selected" : ""} onClick={() => setGoal(option.id)} aria-pressed={goal === option.id}><span><strong>{option.label}</strong></span><span className="radio-dot" aria-hidden="true" /></button>)}
           </div>
-          <div className="button-row">
-            <button className="secondary-button" onClick={() => goToStep("hand")}>Back</button>
-            <button className="primary-button" disabled={!goal} onClick={() => goToStep(scenario.credibilityOptions ? "story" : "action")}>Continue <span aria-hidden="true">→</span></button>
-          </div>
-        </>
-      )}
-
-      {step === "story" && scenario.credibilityOptions && (
-        <>
-          <span className="section-kicker">4 · Is the bluff believable?</span>
-          <h2>{scenario.credibilityPrompt}</h2>
-          <p className="lead-copy">Your previous actions limit the strong hands you can credibly represent. A believable story still needs an opponent who will fold.</p>
-          <div className="choice-list strength-choice-list">
-            {scenario.credibilityOptions.map((option) => (
-              <button key={option.id} className={credibility === option.id ? "selected" : ""} onClick={() => setCredibility(option.id)} aria-pressed={credibility === option.id}>
-                <span><strong>{option.label}</strong><small>{option.detail}</small></span>
-                <span className="radio-dot" aria-hidden="true" />
-              </button>
-            ))}
-          </div>
-          <div className="button-row">
-            <button className="secondary-button" onClick={() => goToStep("goal")}>Back</button>
-            <button className="primary-button" disabled={!credibility} onClick={() => goToStep("action")}>Continue <span aria-hidden="true">→</span></button>
-          </div>
+          {goal && <div className={`inline-feedback ${goalSound ? "feedback-sound" : "feedback-fix"}`}><strong>{goalMatches ? "That gives the bet a clear job." : goalAlternative ? "Checking is a coherent alternative." : `Use this foundation: ${correctGoal.label}.`}</strong><p>{goalAlternative ? "Checking keeps your chance to beat a missed hand. If you do bet, the useful target is a better one-pair hand." : scenario.goalExplanation}</p></div>}
+          <div className="button-row"><button className="secondary-button" onClick={() => goToStep("hand")}>Back</button><button className="primary-button" disabled={!goal} onClick={() => goToStep("action")}>Continue <span aria-hidden="true">→</span></button></div>
         </>
       )}
 
       {step === "action" && (
         <>
-          <span className="section-kicker">{totalSteps} · Choose the action</span>
-          <h2>What should you do with {scenario.hero.join(" ")}?</h2>
-          <p className="lead-copy">Choose the action that serves the goal you just named.</p>
+          <span className="section-kicker">4 · Choose the action</span>
+          <h2>What should you do?</h2>
+          <p className="decision-definition">{scenario.actionHelp}</p>
+          {scenario.id === "river-pressure" && goal === "bluff" && <div className="belief-note"><span>Why a large bluff may look believable</span><p>The opponent cannot see your ace-five. Your earlier actions could also fit a hand that improved to two pair or three of a kind on the queen river. This helps the story, but it does not guarantee a fold.</p></div>}
           <div className="choice-list action-choice-list">
-            {scenario.actionOptions.map((option) => (
-              <button key={option.id} className={action === option.id ? "selected" : ""} onClick={() => setAction(option.id)} aria-pressed={action === option.id}>
-                <span><strong>{option.label}</strong><small>{option.detail}</small></span>
-                <span className="radio-dot" aria-hidden="true" />
-              </button>
-            ))}
+            {scenario.actionOptions.map((option) => <button key={option.id} className={action === option.id ? "selected" : ""} onClick={() => setAction(option.id)} aria-pressed={action === option.id}><span><strong>{option.label}</strong></span><span className="radio-dot" aria-hidden="true" /></button>)}
           </div>
-          <div className="button-row">
-            <button className="secondary-button" onClick={() => goToStep(scenario.credibilityOptions ? "story" : "goal")}>Back</button>
-            <button className="primary-button" disabled={!action} onClick={() => goToStep("review")}>Review my reasoning</button>
-          </div>
+          <div className="button-row"><button className="secondary-button" onClick={() => goToStep("goal")}>Back</button><button className="primary-button" disabled={!action} onClick={() => goToStep("review")}>Review my reasoning</button></div>
         </>
       )}
     </section>
