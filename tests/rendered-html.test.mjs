@@ -17,25 +17,27 @@ async function render() {
   );
 }
 
-test("server-renders the coaching curriculum", async () => {
+test("server-renders the skill-first training home", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
   assert.match(html, /<title>Range Coach/);
-  assert.match(html, /How much coaching do you want/);
-  assert.match(html, /Beginner-friendly/);
-  assert.match(html, /Table practice/);
-  assert.match(html, /Deep analysis/);
-  assert.match(html, /Value: which weaker hands will call/);
-  assert.match(html, /The four-question habit/);
-  assert.doesNotMatch(html, /Choose a hand|Practice mode|scenario-tabs/);
+  assert.match(html, /Build one poker habit until it works at table speed/);
+  assert.match(html, /Start training/);
+  assert.match(html, /Coach me/);
+  assert.match(html, /Table speed/);
+  assert.match(html, /Value betting/);
+  assert.match(html, /Bluff or check/);
+  assert.match(html, /Calling a small bet/);
+  assert.match(html, /Strong hands remain/);
+  assert.doesNotMatch(html, /How much coaching do you want|Beginner-friendly|Choose a hand|Practice mode|scenario-tabs/);
   assert.doesNotMatch(html, /codex-preview/i);
   assert.doesNotMatch(html, /react-loading-skeleton/);
 });
 
-test("uses progressive coaching levels and preserves poker correctness", async () => {
+test("uses one range-plan-action loop and preserves poker correctness", async () => {
   const [css, page, layout, packageJson] = await Promise.all([
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
@@ -62,21 +64,22 @@ test("uses progressive coaching levels and preserves poker correctness", async (
   assert.match(page, /Paired river decision/);
   assert.match(page, /Fewer clues are provided\. Apply the same four questions/);
   assert.match(page, /inline-feedback/);
-  assert.match(page, /How much coaching do you want/);
-  assert.match(page, /Beginner-friendly/);
-  assert.match(page, /Teach each step and correct the foundation/);
-  assert.match(page, /Let me reason through the hand/);
-  assert.match(page, /Show assumptions, alternatives, math/);
-  assert.match(page, /guided: \[3, 0\]/);
+  assert.match(page, /Train the decision, not the vocabulary/);
+  assert.match(page, /Read Villain&apos;s likely hands/);
+  assert.match(page, /What does Villain have most often/);
+  assert.match(page, /Against that range, what is Hero trying to accomplish/);
+  assert.match(page, /Which action and size does that job/);
+  assert.match(page, /Feedback after each choice/);
+  assert.match(page, /Three decisions, then review/);
   assert.match(page, /Complete hand history/);
-  assert.match(page, /Read the full hand once/);
-  assert.match(page, /CompactContext/);
-  assert.match(page, /A weaker hand calls/);
-  assert.match(page, /A better hand folds/);
-  assert.match(page, /The call price is worth it/);
-  assert.match(page, /Avoid building a bigger pot/);
-  assert.match(page, /Concept analysis only\. No solver-backed mix/);
-  assert.match(page, /Uncapped.*strongest hands still fit the line/s);
+  assert.match(page, /range-bucket-strip/);
+  assert.match(page, /Fix the range read first/);
+  assert.match(page, /Your action and plan contradict each other/);
+  assert.match(page, /Take to the table/);
+  assert.match(page, /Review deeply/);
+  assert.match(page, /Why this answer/);
+  assert.match(page, /What to strengthen next/);
+  assert.match(page, /Uncapped means strong hands remain—not that Villain is ahead/);
   assert.match(page, /Check answer/);
   assert.match(page, /Retry from memory/);
   assert.match(page, /disabled=\{rangeChecked\}/);
@@ -90,9 +93,11 @@ test("uses progressive coaching levels and preserves poker correctness", async (
   assert.doesNotMatch(page, /shortTitle: "A river bluff target"|shortTitle: "The false cap"|shortTitle: "Transfer: river value"/);
   assert.match(page, /exact action awaits solver and expert review/i);
   assert.doesNotMatch(page, /credibilityOptions|correctSteps|resultSummary|label: "Overbet|Could you overbet bigger|The decision in one chain|checkbox-mark|Select every reasonable|2\/4 key groups|story holds together|classification response/i);
-  assert.match(css, /support-options/);
-  assert.match(css, /compact-context/);
-  assert.match(css, /analysis-grid/);
+  assert.match(css, /resume-training/);
+  assert.match(css, /pace-control/);
+  assert.match(css, /training-history/);
+  assert.match(css, /training-choices/);
+  assert.match(css, /result-chain/);
   assert.match(css, /--accent: #176b5b/);
   assert.match(css, /street-timeline/);
   assert.match(css, /coach-mini-context/);

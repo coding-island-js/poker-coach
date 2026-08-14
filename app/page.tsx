@@ -3,7 +3,8 @@
 import { useState } from "react";
 
 type SupportLevel = "guided" | "table" | "deep";
-type AppView = "curriculum" | "setup" | "lesson";
+type TrainingView = "home" | "trainer";
+type TrainingPace = "coach" | "table";
 type CoachStep = "range" | "hand" | "goal" | "action" | "review";
 
 type StreetHistory = {
@@ -1198,40 +1199,162 @@ function CurriculumHome({ selected, onSelect, onContinue }: { selected: SupportL
   );
 }
 
-export default function Home() {
-  const [level, setLevel] = useState<SupportLevel>("guided");
-  const [view, setView] = useState<AppView>("curriculum");
-  const [lessonPosition, setLessonPosition] = useState(0);
-  const scenarioIndex = curriculum[level][lessonPosition];
-  const scenario = scenarios[scenarioIndex];
-  const lessonCount = curriculum[level].length;
+// Legacy v10 flows remain only as authored-content references during scenario migration.
+void curriculum;
+void LessonSetup;
+void GuidedLesson;
+void TablePractice;
+void DeepAnalysis;
+void CurriculumHome;
 
-  const startLevel = () => { setLessonPosition(0); setView("setup"); window.scrollTo({ top: 0 }); };
-  const nextLesson = () => {
-    if (lessonPosition + 1 >= lessonCount) { setView("curriculum"); setLessonPosition(0); }
-    else { setLessonPosition(lessonPosition + 1); setView("setup"); }
+type TrainingLesson = { scenarioIndex: number; module: string; skill: string; goal: string; cue: string };
+type TrainingAttempt = { lesson: number; range: boolean; plan: boolean; action: boolean };
+
+const trainingLessons: TrainingLesson[] = [
+  { scenarioIndex: 3, module: "Foundations", skill: "Value betting", goal: "Learn when weaker hands can call.", cue: "Value bet when enough weaker hands can call. Choose a size those hands will still pay." },
+  { scenarioIndex: 0, module: "Foundations", skill: "Bluff or check", goal: "Name the better hands your bluff must fold.", cue: "Do not bluff missed hands you already beat. Bluff only when better pairs fold often enough." },
+  { scenarioIndex: 1, module: "Price and draws", skill: "Calling a small bet", goal: "Connect the price with your chance to improve.", cue: "Facing a bet, compare the call price with how often you can improve or already win." },
+  { scenarioIndex: 2, module: "Range reading", skill: "Strong hands remain", goal: "Separate the top of a range from its average strength.", cue: "Uncapped means strong hands remain—not that Villain is ahead. Plan for a raise before betting." },
+];
+
+function TrainingHistory({ scenario }: { scenario: Scenario }) {
+  return (
+    <div className="training-history" aria-label="Complete hand history">
+      {scenario.streetHistory.map((street) => (
+        <div key={street.street}><strong>{street.street}{street.board ? ` · ${street.board.join(" ")}` : ""}</strong><span>{street.actions.join(" ")}</span></div>
+      ))}
+    </div>
+  );
+}
+
+function TrainingContext({ scenario, showHistory = false }: { scenario: Scenario; showHistory?: boolean }) {
+  return (
+    <section className="training-context" aria-label="Current poker hand">
+      <div className="training-cards">
+        <p><span>You</span><strong>{scenario.hero.join(" ")}</strong></p>
+        <p><span>Board</span><strong>{scenario.board.join(" ")}</strong></p>
+        <p><span>Pot</span><strong>{scenario.pot}</strong></p>
+      </div>
+      <p className="training-clue"><strong>{scenario.street}:</strong> {scenario.decisionFact} You act now.</p>
+      {showHistory && <TrainingHistory scenario={scenario} />}
+    </section>
+  );
+}
+
+function TrainingHome({ pace, setPace, completed, attempts, onStart }: { pace: TrainingPace; setPace: (pace: TrainingPace) => void; completed: Set<number>; attempts: TrainingAttempt[]; onStart: (lesson: number) => void }) {
+  const nextLesson = trainingLessons.findIndex((_, index) => !completed.has(index));
+  const recommended = nextLesson === -1 ? 0 : nextLesson;
+  const dimensions = [{ key: "range" as const, label: "Range read" }, { key: "plan" as const, label: "Plan" }, { key: "action" as const, label: "Action" }];
+  return (
+    <div className="training-home" id="main-workspace">
+      <section className="training-hero"><p className="eyebrow">Train the decision, not the vocabulary</p><h1>Build one poker habit until it works at table speed.</h1><p>Read Villain&apos;s likely hands, choose what your hand is trying to accomplish, then make the play.</p></section>
+      <section className="resume-training">
+        <div className="resume-copy"><span>{completed.size} of {trainingLessons.length} skills complete</span><h2>{completed.size === trainingLessons.length ? "Run the session again" : `Continue: ${trainingLessons[recommended].skill}`}</h2><p>{trainingLessons[recommended].goal} · About 2 minutes</p></div>
+        <button className="primary-button" onClick={() => onStart(recommended)}>{completed.size === 0 ? "Start training" : "Continue training"} →</button>
+      </section>
+      <section className="pace-control" aria-labelledby="pace-title">
+        <div><span id="pace-title">Training pace</span><small>Change the feedback, not the skill.</small></div>
+        <div role="radiogroup" aria-label="Training pace">
+          <button role="radio" aria-checked={pace === "coach"} className={pace === "coach" ? "active" : ""} onClick={() => setPace("coach")}><strong>Coach me</strong><span>Feedback after each choice</span></button>
+          <button role="radio" aria-checked={pace === "table"} className={pace === "table" ? "active" : ""} onClick={() => setPace("table")}><strong>Table speed</strong><span>Three decisions, then review</span></button>
+        </div>
+      </section>
+      <section className="training-path" aria-labelledby="path-title">
+        <div className="section-heading"><span>Training path</span><h2 id="path-title">Four skills. One decision habit.</h2></div>
+        <div className="lesson-list">{trainingLessons.map((lesson, index) => <button key={lesson.skill} onClick={() => onStart(index)}><span className={`lesson-number ${completed.has(index) ? "complete" : ""}`}>{completed.has(index) ? "✓" : index + 1}</span><span><small>{lesson.module}</small><strong>{lesson.skill}</strong><p>{lesson.goal}</p></span><b>Start →</b></button>)}</div>
+      </section>
+      {attempts.length > 0 && <section className="session-progress"><div className="section-heading"><span>This session</span><h2>What to strengthen next</h2></div><div>{dimensions.map((dimension) => { const correct = attempts.filter((attempt) => attempt[dimension.key]).length; return <p key={dimension.key}><strong>{dimension.label}</strong><span>{correct} of {attempts.length}</span><b>{correct === attempts.length ? "Solid" : "Keep training"}</b></p>; })}</div></section>}
+    </div>
+  );
+}
+
+function TrainingQuestion({ label, question, options, selected, locked, onSelect }: { label: string; question: string; options: ThoughtOption[] | ActionOption[]; selected: string; locked: boolean; onSelect: (id: string) => void }) {
+  return <section className="training-question"><p className="step-label">{label}</p><h2>{question}</h2><div className="training-choices">{options.map((option) => <button key={option.id} disabled={locked} aria-pressed={selected === option.id} className={selected === option.id ? "selected" : ""} onClick={() => onSelect(option.id)}><strong>{option.label}</strong><span className="radio-dot" aria-hidden="true" /></button>)}</div></section>;
+}
+
+function TrainingResult({ scenario, lesson, lessonIndex, range, plan, action, onNext, onRetry }: { scenario: Scenario; lesson: TrainingLesson; lessonIndex: number; range: string; plan: string; action: string; onNext: (attempt: TrainingAttempt) => void; onRetry: () => void }) {
+  const [deep, setDeep] = useState(false);
+  const rangeSound = range === scenario.dominantRangeAnswer;
+  const planSound = plan === scenario.goalAnswer || isGoalAlternative(scenario, plan);
+  const assessment = assessAction(scenario, action);
+  const coherent = actionMatchesGoal(scenario, plan, action);
+  const actionSound = coherent && assessment.status !== "review";
+  const rangeChoice = scenario.dominantRangeOptions.find((option) => option.id === range);
+  const planChoice = scenario.goalOptions.find((option) => option.id === plan);
+  const actionChoice = scenario.actionOptions.find((option) => option.id === action);
+  const correctRange = scenario.dominantRangeOptions.find((option) => option.id === scenario.dominantRangeAnswer)!;
+  const correctPlan = scenario.goalOptions.find((option) => option.id === scenario.goalAnswer)!;
+  const coachAction = scenario.actionOptions.find((option) => option.id === scenario.actionAnswer)!;
+  const headline = !rangeSound ? "Fix the range read first." : !planSound ? "Fix the plan first." : !coherent ? "Your action and plan contradict each other." : actionSound ? "Good plan." : "Revisit the action.";
+  if (deep) return <section className="trainer-card deep-review"><button className="back-link" onClick={() => setDeep(false)}>← Result</button><p className="lesson-meta">Deep review · {lesson.skill}</p><h1>Why this decision changes</h1><div className="deep-review-grid"><section><span>Range assumption</span><p>{scenario.strengthExplanation}</p></section><section><span>Action comparison</span><p>{assessment.explanation}</p><p><strong>Coach comparison:</strong> {coachAction.label}</p></section><section><span>Confidence</span><p>{scenario.coachConfidence}</p></section><section><span>Change course when</span><p>{scenario.reversal}</p></section></div>{scenario.id === "river-pressure" && <p className="key-math"><strong>Key math:</strong> $50 needs about 35% folds, $100 about 52%, and $150 about 62%.</p>}</section>;
+  return (
+    <section className="trainer-card training-result" aria-live="polite">
+      <p className="lesson-meta">Result · {lesson.skill}</p><h1>{headline}</h1>
+      <p className="result-summary">{!rangeSound ? scenario.dominantRangeExplanation : !planSound ? `${scenario.handPositionExplanation} ${scenario.goalExplanation}` : !coherent ? "Choose an action that performs the job in your plan." : assessment.explanation}</p>
+      <div className="result-chain">
+        <p className={rangeSound ? "sound" : "fix"}><span>{rangeSound ? "✓" : "!"}</span><b>Range</b><strong>{rangeChoice?.label}</strong>{!rangeSound && <small>Use instead: {correctRange.label}</small>}</p>
+        <p className={planSound ? "sound" : "fix"}><span>{planSound ? "✓" : "!"}</span><b>Plan</b><strong>{planChoice?.label}</strong>{!planSound && <small>Use instead: {correctPlan.label}</small>}</p>
+        <p className={actionSound ? "sound" : !coherent || assessment.status === "review" ? "fix" : "alternative"}><span>{actionSound ? "✓" : !coherent ? "!" : "△"}</span><b>Action</b><strong>{actionChoice?.label}</strong>{!actionSound && <small>Coach comparison: {coachAction.label}</small>}</p>
+      </div>
+      <div className="table-cue"><span>Take to the table</span><p>{lesson.cue}</p></div>
+      <div className="result-buttons"><button className="primary-button" onClick={() => onNext({ lesson: lessonIndex, range: rangeSound, plan: planSound, action: actionSound })}>Next hand →</button><button className="secondary-button" onClick={onRetry}>Retry</button></div>
+      <div className="result-links"><button onClick={() => setDeep(true)}>Review deeply</button></div>
+      <details className="why-answer"><summary>Why this answer</summary><ul><li><strong>Range:</strong> {scenario.dominantRangeExplanation}</li><li><strong>Plan:</strong> {scenario.goalExplanation}</li><li><strong>Changes when:</strong> {scenario.reversal}</li></ul></details>
+    </section>
+  );
+}
+
+function TrainingHand({ scenario, lesson, lessonNumber, pace, onComplete, onExit }: { scenario: Scenario; lesson: TrainingLesson; lessonNumber: number; pace: TrainingPace; onComplete: (attempt: TrainingAttempt) => void; onExit: () => void }) {
+  const [step, setStep] = useState(0);
+  const [range, setRange] = useState("");
+  const [plan, setPlan] = useState("");
+  const [action, setAction] = useState("");
+  const [locked, setLocked] = useState(false);
+  const [review, setReview] = useState(false);
+  const correctRange = scenario.dominantRangeOptions.find((option) => option.id === scenario.dominantRangeAnswer)!;
+  const correctPlan = scenario.goalOptions.find((option) => option.id === scenario.goalAnswer)!;
+  const currentChoice = [range, plan, action][step];
+  const reset = () => { setStep(0); setRange(""); setPlan(""); setAction(""); setLocked(false); setReview(false); window.scrollTo({ top: 0 }); };
+  const choose = (value: string) => { if (locked) return; if (step === 0) setRange(value); if (step === 1) setPlan(value); if (step === 2) setAction(value); setLocked(true); };
+  const next = () => { if (step === 2) setReview(true); else { setStep(step + 1); setLocked(false); } window.scrollTo({ top: 0 }); };
+  if (review) return <TrainingResult scenario={scenario} lesson={lesson} lessonIndex={lessonNumber - 1} range={range} plan={plan} action={action} onNext={onComplete} onRetry={reset} />;
+  if (pace === "table") return <section className="trainer-card table-speed"><div className="trainer-topline"><button className="back-link" onClick={onExit}>← Training</button><span>Hand {lessonNumber} of {trainingLessons.length}</span></div><div className="skill-banner"><span>{lesson.module}</span><h1>{lesson.skill}</h1><p>{lesson.goal}</p></div><TrainingContext scenario={scenario} showHistory /><TrainingQuestion label="1 · Range" question="What does Villain have most often?" options={scenario.dominantRangeOptions} selected={range} locked={false} onSelect={setRange} /><TrainingQuestion label="2 · Plan" question="Against that range, what is Hero trying to accomplish?" options={scenario.goalOptions} selected={plan} locked={false} onSelect={setPlan} /><TrainingQuestion label="3 · Action" question="Which action and size does that job?" options={scenario.actionOptions} selected={action} locked={false} onSelect={setAction} /><button className="primary-button full-button" disabled={!range || !plan || !action} onClick={() => { setReview(true); window.scrollTo({ top: 0 }); }}>Review the hand</button></section>;
+  const selectedRangeSound = range === scenario.dominantRangeAnswer;
+  const selectedPlanSound = plan === scenario.goalAnswer || isGoalAlternative(scenario, plan);
+  const feedback = step === 0 ? { sound: selectedRangeSound, title: selectedRangeSound ? scenario.rangeFeedbackTitle : `Use instead: ${correctRange.label}`, body: scenario.dominantRangeExplanation } : step === 1 ? { sound: selectedPlanSound, title: selectedPlanSound ? "That plan fits." : `Use instead: ${correctPlan.label}`, body: `${scenario.handPositionExplanation} ${scenario.goalExplanation}` } : { sound: assessAction(scenario, action).status !== "review" && actionMatchesGoal(scenario, plan, action), title: "Decision recorded.", body: assessAction(scenario, action).explanation };
+  const questions = ["What does Villain have most often?", "Against that range, what is Hero trying to accomplish?", "Which action and size does that job?"];
+  const options = [scenario.dominantRangeOptions, scenario.goalOptions, scenario.actionOptions][step];
+  return <section className="trainer-card coached-hand"><div className="trainer-topline"><button className="back-link" onClick={onExit}>← Training</button><span>Hand {lessonNumber} of {trainingLessons.length} · Step {step + 1} of 3</span></div><div className="skill-banner"><span>{lesson.module} · Today&apos;s skill</span><h1>{lesson.skill}</h1><p>{lesson.goal}</p></div><TrainingContext scenario={scenario} showHistory={step === 0} /><TrainingQuestion label={`${step + 1} · ${["Range", "Plan", "Action"][step]}`} question={questions[step]} options={options} selected={currentChoice} locked={locked} onSelect={choose} />{locked && <div className={`fast-feedback ${feedback.sound ? "sound" : "fix"}`}><strong>{feedback.sound ? "✓ " : "→ "}{feedback.title}</strong><p>{feedback.body}</p>{step === 0 && <div className="range-bucket-strip">{scenario.rangeBuckets.map((bucket) => <span key={bucket.label}><b>{bucket.label}</b>{bucket.detail}</span>)}</div>}</div>}<button className="primary-button full-button" disabled={!locked} onClick={next}>{step === 2 ? "See result" : "Next"} →</button></section>;
+}
+
+export default function Home() {
+  const [view, setView] = useState<TrainingView>("home");
+  const [pace, setPace] = useState<TrainingPace>("coach");
+  const [lessonPosition, setLessonPosition] = useState(0);
+  const [completed, setCompleted] = useState<Set<number>>(new Set());
+  const [attempts, setAttempts] = useState<TrainingAttempt[]>([]);
+  const lesson = trainingLessons[lessonPosition];
+  const scenario = scenarios[lesson.scenarioIndex];
+  const start = (lessonIndex: number) => { setLessonPosition(lessonIndex); setView("trainer"); window.scrollTo({ top: 0 }); };
+  const complete = (attempt: TrainingAttempt) => {
+    setCompleted((current) => new Set(current).add(lessonPosition));
+    setAttempts((current) => [...current, attempt]);
+    if (lessonPosition < trainingLessons.length - 1) setLessonPosition(lessonPosition + 1);
+    else setView("home");
     window.scrollTo({ top: 0 });
   };
 
   return (
     <main className="app-shell">
       <header className="app-header simple-header">
-        <button className="brand brand-button" onClick={() => setView("curriculum")} aria-label="Range Coach curriculum"><span className="brand-mark">RC</span><span>Range Coach</span></button>
+        <button className="brand brand-button" onClick={() => setView("home")} aria-label="Range Coach training home"><span className="brand-mark">RC</span><span>Range Coach</span></button>
         <span className="study-only">Study only · not for live hands</span>
       </header>
 
-      {view === "curriculum" && <CurriculumHome selected={level} onSelect={(next) => { setLevel(next); setLessonPosition(0); }} onContinue={startLevel} />}
-      {view === "setup" && <LessonSetup scenario={scenario} level={level} lessonNumber={lessonPosition + 1} lessonCount={lessonCount} onStart={() => { setView("lesson"); window.scrollTo({ top: 0 }); }} onBack={() => setView("curriculum")} />}
-      {view === "lesson" && (
-        <div className="active-lesson" id="main-workspace">
-          <button className="back-link lesson-back" onClick={() => setView("setup")}>← Full hand</button>
-          {level === "guided" && <GuidedLesson key={`${level}-${scenario.id}-${lessonPosition}`} scenario={scenario} onNext={nextLesson} lessonNumber={lessonPosition + 1} lessonCount={lessonCount} />}
-          {level === "table" && <TablePractice key={`${level}-${scenario.id}-${lessonPosition}`} scenario={scenario} onNext={nextLesson} lessonNumber={lessonPosition + 1} lessonCount={lessonCount} />}
-          {level === "deep" && <DeepAnalysis key={`${level}-${scenario.id}-${lessonPosition}`} scenario={scenario} onNext={nextLesson} lessonNumber={lessonPosition + 1} lessonCount={lessonCount} />}
-        </div>
-      )}
+      {view === "home" && <TrainingHome pace={pace} setPace={setPace} completed={completed} attempts={attempts} onStart={start} />}
+      {view === "trainer" && <div className="trainer-shell" id="main-workspace"><TrainingHand key={`${lessonPosition}-${pace}`} scenario={scenario} lesson={lesson} lessonNumber={lessonPosition + 1} pace={pace} onComplete={complete} onExit={() => { setView("home"); window.scrollTo({ top: 0 }); }} /></div>}
 
-      <footer className="app-footer"><p>Authored educational prototype. Exact actions and frequencies are not solver-verified.</p><p>Adults 18+ · No real-money play</p></footer>
+      <footer className="app-footer"><p>Educational training. Exact actions and frequencies are not solver-verified.</p><p>Adults 18+ · No real-money play</p></footer>
     </main>
   );
 }

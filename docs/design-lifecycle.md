@@ -300,3 +300,38 @@ The learner had to open a disclosure to see the betting history even though the 
 - Confirmed the full hand history is present before Question 1 and the lesson itself has only one compact context reminder.
 - Confirmed Deep analysis does not claim solver-backed frequencies and Intermediate teaches uncapped only after the decision.
 - Passed the production build, rendered-page regression tests, and lint checks.
+
+## Phase 12 — one fast habit, organized by poker skill
+
+### Full UX, coach, and trainee review
+
+- **UX review:** the product looked cleaner but still made the learner choose an interface mode before showing what skill they would gain. A coached hand required about 13 taps and repeated the setup before the first decision.
+- **Beginner trainee:** needed one short question at a time, immediate plain-language coaching, and one memorable takeaway rather than several collapsed explanations.
+- **Intermediate trainee:** needed the same reasoning chain at table speed, a corrected answer after a miss, and fewer remedial screens.
+- **Advanced trainee:** needed action-and-reason coherence, assumptions, uncertainty, and math on demand rather than a long fixed report labeled advanced.
+- **Poker coach:** confirmed that the transferable habit is range → plan → action, that concrete hand buckets should precede capped/uncapped terminology, and that exact unverified sizing must not count as objective mastery.
+
+### Changes
+
+- Reorganized the home around poker skills and progress instead of Guided, Table, and Deep as separate curricula.
+- Added one explicit promise: estimate likely hands, choose the bet's job, and take the action that performs that job.
+- Made the primary path one tap from the home screen and removed the separate hand-setup page.
+- Reduced every hand to three decisions: Range, Plan, and Action.
+- Coached pace now uses select → one-line feedback → Next, reaching a result in six taps instead of roughly thirteen.
+- Table-speed practice puts the same three decisions on one page and reaches review in four taps.
+- Kept the complete compact hand history visible before the first decision; later coached steps retain only the decision-critical context.
+- Added visible Most often / Sometimes / Still possible range buckets after the first coached answer.
+- Replaced the repeated result stack with one verdict, one corrected three-row chain, one table cue, and one optional Why disclosure.
+- Moved deeper assumptions, comparison, confidence, reversal, and sizing math into one focused review reached from the result.
+- Added action-plan coherence checking so a correct-looking action with a contradictory reason cannot pass.
+- Added progress by skill and reasoning link while keeping exact unverified bet sizes outside objective mastery claims.
+- Kept capped/uncapped out of the beginner decision path. The intermediate cue first says what remains concretely, then introduces the theory label and its limit.
+
+### Gate tests
+
+- Completed the coached value hand in six decisions and verified that feedback, range buckets, result chain, and table cue remain understandable without opening details.
+- Completed the table-speed path in four decisions and verified the full history and all three reasoning questions stay in one continuous flow.
+- Tested an action that contradicted its stated plan and verified the result identifies the contradiction before comparing actions.
+- Opened the focused deep review and confirmed it exposes assumptions and uncertainty without pretending the authored spot is solver-verified.
+- Verified the phone home, coached question, coached result, and table-speed practice at 375 pixels with no horizontal overflow.
+- Passed lint, the production build, and rendered-page regression tests.
