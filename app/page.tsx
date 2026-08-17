@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { baseHands, leakLabels, twinFor, v2Hands, type Confidence, type ReasoningLink, type V2Hand } from "./v2-data";
 
 type SupportLevel = "guided" | "table" | "deep";
 type TrainingView = "home" | "trainer";
@@ -1355,7 +1356,7 @@ function TrainingHand({ scenario, lesson, lessonNumber, pace, onComplete, onExit
   return <section className="trainer-card coached-hand"><div className="trainer-topline"><button className="back-link" onClick={onExit}>← Training</button><span>Hand {lessonNumber} of {trainingLessons.length} · Step {step + 1} of 3</span></div><div className="skill-banner"><span>{lesson.module} · Today&apos;s skill</span><h1>{lesson.skill}</h1><p>{lesson.goal}</p></div><TrainingContext scenario={scenario} showHistory={step === 0} /><TrainingQuestion label={`${step + 1} · ${["Range", "Plan", "Action"][step]}`} question={questions[step]} options={options} selected={currentChoice} locked={locked} onSelect={choose} />{locked && <div className={`fast-feedback ${feedback.sound ? "sound" : "fix"}`}><strong>{feedback.sound ? "✓ " : "→ "}{feedback.title}</strong><p>{feedback.body}</p>{step === 0 && <div className="range-bucket-strip">{scenario.rangeBuckets.map((bucket) => <span key={bucket.label}><b>{bucket.label}</b>{bucket.detail}</span>)}</div>}</div>}<button className="primary-button full-button" disabled={!locked} onClick={next}>{step === 2 ? "See result" : "Next"} →</button></section>;
 }
 
-export default function Home() {
+function LegacyTrainingHome() {
   const [view, setView] = useState<TrainingView>("home");
   const [pace, setPace] = useState<TrainingPace>("coach");
   const [lessonPosition, setLessonPosition] = useState(0);
@@ -1385,4 +1386,224 @@ export default function Home() {
       <footer className="app-footer"><p>Educational training. Exact actions and frequencies are not solver-verified.</p><p>Adults 18+ · No real-money play</p></footer>
     </main>
   );
+}
+
+void LegacyTrainingHome;
+
+type V2Answers = { range: string; plan: string; action: string };
+type V2Attempt = {
+  id: string;
+  scenarioId: string;
+  familyId: string;
+  kind: "base" | "twin";
+  leak: V2Hand["leak"];
+  createdAt: number;
+  answers: V2Answers;
+  confidence: Confidence;
+  links: Record<ReasoningLink, boolean>;
+  firstBroken: ReasoningLink | null;
+  passed: boolean;
+  scheduledRetestAt?: number;
+  scenarioVersion: 1;
+  taxonomyVersion: 1;
+  evaluatorVersion: 1;
+  parentAttemptId?: string;
+};
+type V2Draft = { scenarioId: string; step: ReasoningLink | "confidence"; answers: V2Answers };
+type V2Profile = { schemaVersion: 2; localLearnerId: string; attempts: V2Attempt[]; draft?: V2Draft };
+type V2Screen = "home" | "hand";
+
+const PROFILE_KEY = "range-coach-v2-profile";
+const EMPTY_PROFILE: V2Profile = { schemaVersion: 2, localLearnerId: "", attempts: [] };
+const V2_BOOT_TIME = Date.now();
+const linkLabels: Record<ReasoningLink, string> = { range: "Range", plan: "Plan", action: "Action" };
+const confidenceLabels: Record<Confidence, string> = { guessing: "Guessing", somewhat: "Somewhat sure", very: "Very sure" };
+const scrollAfterPaint = () => window.requestAnimationFrame(() => window.scrollTo({ top: 0 }));
+
+function gradeHand(hand: V2Hand, answers: V2Answers) {
+  const links = {
+    range: hand.range.correctIds.includes(answers.range),
+    plan: hand.plan.correctIds.includes(answers.plan),
+    action: hand.action.correctIds.includes(answers.action),
+  };
+  const firstBroken = (["range", "plan", "action"] as ReasoningLink[]).find((link) => !links[link]) ?? null;
+  return { links, firstBroken, passed: !firstBroken };
+}
+
+function selectedLabel(hand: V2Hand, link: ReasoningLink, id: string) {
+  return hand[link].options.find((option) => option.id === id)?.label ?? "No answer";
+}
+
+function correctLabel(hand: V2Hand, link: ReasoningLink) {
+  const ids = hand[link].correctIds;
+  return hand[link].options.filter((option) => ids.includes(option.id)).map((option) => option.label).join(" or ");
+}
+
+function HandHistoryV2({ hand }: { hand: V2Hand }) {
+  return <div className="v2-history" aria-label="Complete hand history">{hand.history.map((street) => <div className="v2-street" key={street.street}><strong>{street.street}</strong><span>{street.actions.join(" ")}</span></div>)}</div>;
+}
+
+function HandContextV2({ hand, full = false }: { hand: V2Hand; full?: boolean }) {
+  return <section className="v2-context" aria-label="Current hand">
+    {hand.changedFact && <div className="changed-fact"><span>Only change</span><strong>{hand.changedFact.replace(/^Only /, "")}</strong></div>}
+    <div className="v2-decision"><span>{hand.street}</span><strong>{hand.decisionNow}</strong><b>Pot {hand.pot}</b></div>
+    <div className="v2-table-state">
+      <div><span>You · {hand.heroPosition}</span><p>{hand.hero.map((card) => <PlayingCard key={card} card={card} />)}</p></div>
+      <div><span>Board</span><p>{hand.board.map((card) => <PlayingCard key={card} card={card} />)}</p></div>
+      <div className="v2-opponent"><span>Opponent</span><strong>{hand.opponentPosition}</strong></div>
+    </div>
+    <p className="v2-line"><span>What matters now</span><strong>{hand.decisionFact}</strong></p>
+    {full ? <HandHistoryV2 hand={hand} /> : <details className="inline-history"><summary>Full action</summary><HandHistoryV2 hand={hand} /></details>}
+  </section>;
+}
+
+function V2Choice({ option, selected, onChoose }: { option: { id: string; label: string }; selected: boolean; onChoose: () => void }) {
+  return <button className={selected ? "selected" : ""} aria-pressed={selected} onClick={onChoose}><strong>{option.label}</strong><span className="radio-dot" aria-hidden="true" /></button>;
+}
+
+function V2QuestionScreen({ hand, step, answers, onChoose, onExit }: { hand: V2Hand; step: ReasoningLink; answers: V2Answers; onChoose: (id: string) => void; onExit: () => void }) {
+  const stepNumber = step === "range" ? 1 : step === "plan" ? 2 : 3;
+  const question = hand[step];
+  return <section className="trainer-card v2-hand-card">
+    <div className="trainer-topline"><button className="back-link" onClick={onExit}>← Dashboard</button><span>{hand.kind === "twin" ? "Changed-hand test" : hand.module} · {stepNumber} of 4</span></div>
+    <div className="v2-skill-head"><p>{hand.kind === "twin" ? "Apply the correction" : hand.module}</p><h1>{hand.title}</h1><span>{hand.objective}</span></div>
+    <HandContextV2 hand={hand} full />
+    <section className="training-question v2-question"><p className="step-label">{stepNumber} · {linkLabels[step]}</p><h2>{question.prompt}</h2>{step === "range" && <p className="question-helper">Choose the largest group or the statement best supported by the actions.</p>}<div className="training-choices">{question.options.map((option) => <V2Choice key={option.id} option={option} selected={answers[step] === option.id} onChoose={() => onChoose(option.id)} />)}</div></section>
+    <p className="auto-advance-note">Your first choice is recorded. Feedback comes after confidence.</p>
+  </section>;
+}
+
+function ConfidenceScreen({ value, onChoose, onExit }: { value: Confidence | ""; onChoose: (value: Confidence) => void; onExit: () => void }) {
+  const choices: { id: Confidence; title: string; note: string }[] = [
+    { id: "guessing", title: "Guessing", note: "I chose without a clear reason" },
+    { id: "somewhat", title: "Somewhat sure", note: "I can explain part of the chain" },
+    { id: "very", title: "Very sure", note: "I would use this thought at the table" },
+  ];
+  return <section className="trainer-card confidence-screen"><div className="trainer-topline"><button className="back-link" onClick={onExit}>← Dashboard</button><span>4 of 4 · Before feedback</span></div><div className="confidence-prompt"><p className="step-label">Confidence</p><h1>How sure were you?</h1><p>This helps separate a learned decision from a lucky answer.</p></div><div className="confidence-choices">{choices.map((choice) => <button key={choice.id} className={value === choice.id ? "selected" : ""} onClick={() => onChoose(choice.id)}><strong>{choice.title}</strong><span>{choice.note}</span></button>)}</div><p className="confidence-note">Your answers are locked. Coaching appears after this choice.</p></section>;
+}
+
+function RangeReveal({ hand }: { hand: V2Hand }) {
+  return <div className="v2-buckets">{hand.rangeBuckets.map((bucket) => <div key={bucket.label}><span>{bucket.label}</span><strong>{bucket.detail}</strong></div>)}</div>;
+}
+
+function V2Result({ hand, attempt, onTwin, onNext, onRetry, onHome }: { hand: V2Hand; attempt: V2Attempt; onTwin: () => void; onNext: () => void; onRetry: () => void; onHome: () => void }) {
+  const broken = attempt.firstBroken;
+  const transfer = hand.kind === "twin";
+  const title = attempt.passed ? (transfer ? "Transfer passed" : "Your decision chain holds") : `Fix ${linkLabels[broken!].toLowerCase()} first`;
+  const summary = attempt.passed ? (transfer ? "You applied the idea after one important fact changed." : "Range, plan, and action support one another.") : hand[broken!].explanation;
+  return <section className="trainer-card v2-result" aria-live="polite">
+    <div className="trainer-topline"><button className="back-link" onClick={onHome}>← Dashboard</button><span>{transfer ? "Changed-hand result" : "Diagnostic result"}</span></div>
+    <div className={`v2-verdict ${attempt.passed ? "sound" : "fix"}`}><span aria-hidden="true">{attempt.passed ? "✓" : "1"}</span><div><p>{attempt.passed ? "Reasoning connected" : "First weak link found"}</p><h1>{title}</h1><small>Confidence: {confidenceLabels[attempt.confidence]}</small></div></div>
+    <p className="v2-result-summary">{summary}</p>
+    <div className="v2-chain" aria-label="Range plan action review">{(["range", "plan", "action"] as ReasoningLink[]).map((link, index) => { const sound = attempt.links[link]; return <div className={sound ? "sound" : broken === link ? "fix" : "downstream"} key={link}><span>{index + 1}</span><p><small>{linkLabels[link]}</small><strong>{selectedLabel(hand, link, attempt.answers[link])}</strong>{!sound && <em>Use: {correctLabel(hand, link)}</em>}</p><b>{sound ? "✓" : broken === link ? "Fix first" : "Review"}</b></div>; })}</div>
+    <div className="v2-table-cue"><span>Take to the table</span><p>{hand.cue}</p></div>
+    <div className="v2-result-actions">{!transfer && twinFor(hand.id) && <button className="primary-button" onClick={onTwin}>Test it in a changed hand →</button>}{transfer && <button className="primary-button" onClick={onNext}>Next diagnostic hand →</button>}<button className="retry-link" onClick={onRetry}>Retry from memory</button></div>
+    <details className="v2-why"><summary>Why this answer</summary><div><section><h2>Likely hands</h2><RangeReveal hand={hand} /><p>{hand.range.explanation}</p></section><section><h2>Baseline</h2><p>{hand.baseline}</p>{hand.exploit && <><h2>Player adjustment</h2><p>{hand.exploit}</p></>}<h2>Change course when</h2><p>{hand.reversal}</p></section><section className="provenance"><h2>Coach confidence</h2><p>Concept: reviewed internally. Exact action mix and sizing: provisional.</p><small>{hand.sourceNote}</small></section></div></details>
+    {!transfer && <p className="retest-note">A fresh retest is scheduled for 7 days from now on this device.</p>}
+  </section>;
+}
+
+function DiagnosticHand({ hand, draft, onDraft, onRecord, onOpen, onNext, onHome }: { hand: V2Hand; draft?: V2Draft; onDraft: (draft?: V2Draft) => void; onRecord: (attempt: V2Attempt) => void; onOpen: (hand: V2Hand) => void; onNext: () => void; onHome: () => void }) {
+  const matchingDraft = draft?.scenarioId === hand.id ? draft : undefined;
+  const [step, setStep] = useState<ReasoningLink | "confidence" | "result">(matchingDraft?.step ?? "range");
+  const [answers, setAnswers] = useState<V2Answers>(matchingDraft?.answers ?? { range: "", plan: "", action: "" });
+  const [confidence, setConfidence] = useState<Confidence | "">("");
+  const [attempt, setAttempt] = useState<V2Attempt | null>(null);
+  const reset = () => { const empty = { range: "", plan: "", action: "" }; setStep("range"); setAnswers(empty); setConfidence(""); setAttempt(null); onDraft({ scenarioId: hand.id, step: "range", answers: empty }); scrollAfterPaint(); };
+  const choose = (id: string) => {
+    if (step === "confidence" || step === "result") return;
+    const nextAnswers = { ...answers, [step]: id };
+    setAnswers(nextAnswers);
+    const nextStep = step === "range" ? "plan" : step === "plan" ? "action" : "confidence";
+    onDraft({ scenarioId: hand.id, step: nextStep, answers: nextAnswers });
+    window.setTimeout(() => { setStep(nextStep); scrollAfterPaint(); }, 180);
+  };
+  const chooseConfidence = (value: Confidence) => {
+    setConfidence(value);
+    const grade = gradeHand(hand, answers);
+    const submittedAt = Date.now();
+    const nextAttempt: V2Attempt = { id: `${hand.id}-${submittedAt}`, scenarioId: hand.id, familyId: hand.familyId, kind: hand.kind, leak: hand.leak, createdAt: submittedAt, answers, confidence: value, ...grade, scheduledRetestAt: hand.kind === "base" ? submittedAt + 7 * 24 * 60 * 60 * 1000 : undefined, scenarioVersion: hand.version, taxonomyVersion: 1, evaluatorVersion: 1 };
+    setAttempt(nextAttempt);
+    onDraft(undefined);
+    onRecord(nextAttempt);
+    window.setTimeout(() => { setStep("result"); scrollAfterPaint(); }, 180);
+  };
+  if (step === "result" && attempt) return <V2Result hand={hand} attempt={attempt} onTwin={() => { const twin = twinFor(hand.id); if (twin) onOpen(twin); }} onNext={onNext} onRetry={reset} onHome={onHome} />;
+  if (step === "confidence") return <ConfidenceScreen value={confidence} onChoose={chooseConfidence} onExit={onHome} />;
+  return <V2QuestionScreen hand={hand} step={step} answers={answers} onChoose={choose} onExit={onHome} />;
+}
+
+function weaknessSummary(attempts: V2Attempt[]) {
+  const counts: Record<ReasoningLink, { total: number; sound: number }> = { range: { total: 0, sound: 0 }, plan: { total: 0, sound: 0 }, action: { total: 0, sound: 0 } };
+  attempts.filter((attempt) => attempt.kind === "base").forEach((attempt) => (["range", "plan", "action"] as ReasoningLink[]).forEach((link) => { counts[link].total += 1; if (attempt.links[link]) counts[link].sound += 1; }));
+  const ranked = (["range", "plan", "action"] as ReasoningLink[]).filter((link) => counts[link].total && counts[link].sound < counts[link].total).sort((a, b) => counts[a].sound / counts[a].total - counts[b].sound / counts[b].total);
+  return { counts, weakest: ranked[0] ?? null };
+}
+
+function nextAdaptiveHand(profile: V2Profile) {
+  const attempts = profile.attempts;
+  if (profile.draft) {
+    const drafted = v2Hands.find((hand) => hand.id === profile.draft?.scenarioId);
+    if (drafted) return { hand: drafted, reason: "Resume your saved first attempt" };
+  }
+  const due = attempts.filter((attempt) => attempt.kind === "base" && attempt.scheduledRetestAt && attempt.scheduledRetestAt <= V2_BOOT_TIME).sort((a, b) => (a.scheduledRetestAt ?? 0) - (b.scheduledRetestAt ?? 0))[0];
+  if (due) return { hand: twinFor(due.scenarioId) ?? baseHands.find((hand) => hand.id === due.scenarioId) ?? baseHands[0], reason: "A 7-day transfer retest is due" };
+  const latestUntransferred = attempts.filter((attempt) => attempt.kind === "base" && !attempts.some((other) => other.kind === "twin" && other.familyId === attempt.familyId && other.createdAt > attempt.createdAt)).at(-1);
+  if (latestUntransferred) {
+    const twin = twinFor(latestUntransferred.scenarioId);
+    if (twin) return { hand: twin, reason: "Finish the changed-hand transfer test" };
+  }
+  const attempted = new Set(attempts.filter((attempt) => attempt.kind === "base").map((attempt) => attempt.scenarioId));
+  const unseen = baseHands.find((hand) => !attempted.has(hand.id));
+  if (unseen) return { hand: unseen, reason: "Build coverage across all six reasoning leaks" };
+  const failures = attempts.filter((attempt) => attempt.kind === "base" && attempt.firstBroken).reverse();
+  const reinforcement = baseHands.find((hand) => hand.leak === failures[0]?.leak) ?? baseHands[0];
+  return { hand: reinforcement, reason: failures[0] ? `Strengthen: ${leakLabels[failures[0].leak]}` : "Reinforce the full decision chain" };
+}
+
+function V2Dashboard({ profile, hydrated, storageAvailable, onStart, onReset }: { profile: V2Profile; hydrated: boolean; storageAvailable: boolean; onStart: (hand: V2Hand) => void; onReset: () => void }) {
+  const attempts = profile.attempts;
+  const bases = attempts.filter((attempt) => attempt.kind === "base");
+  const twins = attempts.filter((attempt) => attempt.kind === "twin");
+  const uniqueBases = new Set(bases.map((attempt) => attempt.scenarioId)).size;
+  const transferPass = twins.filter((attempt) => attempt.passed).length;
+  const { counts, weakest } = weaknessSummary(attempts);
+  const recommendation = nextAdaptiveHand(profile);
+  const next = recommendation.hand;
+  const dueRetests = bases.filter((attempt) => attempt.scheduledRetestAt && attempt.scheduledRetestAt <= V2_BOOT_TIME).length;
+  return <div className="v2-dashboard" id="main-workspace">
+    <section className="v2-hero"><p className="eyebrow">Range Coach V2 · Reasoning diagnostic</p><h1>Find the first weak link. Fix it. Prove it transfers.</h1><p>Train one repeatable habit: estimate likely hands → choose the plan → make the action fit.</p></section>
+    <section className="v2-resume"><div><span>{uniqueBases} of {baseHands.length} diagnostic hands seen</span><h2>{bases.length || profile.draft ? `Next: ${next.title}` : "Start your reasoning diagnostic"}</h2><p>{bases.length || profile.draft ? recommendation.reason : next.objective} · About 90 seconds</p></div><button className="primary-button" onClick={() => onStart(next)}>{bases.length || profile.draft ? "Continue" : "Start diagnostic"} →</button></section>
+    <div className="v2-dashboard-grid">
+      <section className="profile-card"><div className="section-heading"><span>Your learner profile</span><h2>{bases.length ? (weakest ? `First focus: ${linkLabels[weakest]}` : "No recurring weak link yet") : "Built from first attempts"}</h2></div>{bases.length ? <div className="link-meters">{(["range", "plan", "action"] as ReasoningLink[]).map((link) => { const stat = counts[link]; const score = stat.total ? Math.round(stat.sound / stat.total * 100) : 0; return <div key={link}><p><strong>{linkLabels[link]}</strong><span>{stat.sound}/{stat.total}</span></p><i><b style={{ width: `${score}%` }} /></i></div>; })}</div> : <p className="empty-profile">Your dashboard will show where your reasoning first breaks—not just whether the final button matched.</p>}<small>{!hydrated ? "Loading saved profile…" : storageAvailable ? "Saved on this browser and device" : "Device storage unavailable · progress lasts this session"}</small></section>
+      <section className="transfer-card"><span>Transfer, not memorization</span><strong>{twins.length ? `${transferPass} of ${twins.length} changed hands passed` : "Changed-hand tests unlock after each result"}</strong><p>Each test changes one fact so you have to rebuild the decision.</p>{dueRetests > 0 ? <b>{dueRetests} spaced retest{dueRetests === 1 ? "" : "s"} due</b> : <b>Retests return after 7 days</b>}</section>
+    </div>
+    <section className="v2-leaks"><div className="section-heading"><span>What V2 diagnoses</span><h2>Six common reasoning leaks</h2></div><div>{Object.entries(leakLabels).map(([key, label]) => { const seen = bases.filter((attempt) => attempt.leak === key).length; return <button key={key} onClick={() => onStart(baseHands.find((hand) => hand.leak === key) ?? baseHands[0])}><span>{seen ? "✓" : "·"}</span><strong>{label}</strong><small>{seen ? `${seen} attempt${seen === 1 ? "" : "s"}` : "Not tested"}</small></button>; })}</div></section>
+    <section className="v2-boundary"><div><strong>What the coach knows</strong><p>General principles and authored hand logic are reviewed internally. Exact frequencies, solver mixes, and unique bet sizes are not claimed.</p></div><button onClick={onReset} disabled={!attempts.length}>Clear saved profile</button></section>
+  </div>;
+}
+
+export default function Home() {
+  const [screen, setScreen] = useState<V2Screen>("home");
+  const [activeHand, setActiveHand] = useState<V2Hand>(baseHands[0]);
+  const [profile, setProfile] = useState<V2Profile>(EMPTY_PROFILE);
+  const [hydrated, setHydrated] = useState(false);
+  const [storageAvailable, setStorageAvailable] = useState(true);
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      try { const raw = window.localStorage.getItem(PROFILE_KEY); if (raw) { const saved = JSON.parse(raw) as V2Profile; if (saved.schemaVersion === 2 && Array.isArray(saved.attempts)) setProfile({ ...EMPTY_PROFILE, ...saved }); } } catch { setStorageAvailable(false); }
+      setHydrated(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+  useEffect(() => { if (!hydrated || !storageAvailable) return; try { window.localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); } catch { window.setTimeout(() => setStorageAvailable(false), 0); } }, [profile, hydrated, storageAvailable]);
+  const openHand = (hand: V2Hand) => { setActiveHand(hand); setScreen("hand"); scrollAfterPaint(); };
+  const record = (attempt: V2Attempt) => setProfile((current) => {
+    const parent = attempt.kind === "twin" ? [...current.attempts].reverse().find((candidate) => candidate.kind === "base" && candidate.familyId === attempt.familyId) : undefined;
+    return { ...current, localLearnerId: current.localLearnerId || window.crypto.randomUUID(), draft: undefined, attempts: [...current.attempts, { ...attempt, parentAttemptId: parent?.id }] };
+  });
+  const saveDraft = (draft?: V2Draft) => setProfile((current) => ({ ...current, draft }));
+  const home = () => { setScreen("home"); scrollAfterPaint(); };
+  const reset = () => { if (window.confirm("Permanently clear the Range Coach profile saved on this device? This local progress cannot be recovered.")) setProfile(EMPTY_PROFILE); };
+  return <main className="app-shell v2-shell"><header className="app-header simple-header"><button className="brand brand-button" onClick={home} aria-label="Range Coach V2 dashboard"><span className="brand-mark">RC</span><span>Range Coach</span></button><span className="study-only">Study only · not for live hands</span></header>{screen === "home" ? <V2Dashboard profile={profile} hydrated={hydrated} storageAvailable={storageAvailable} onStart={openHand} onReset={reset} /> : <div className="trainer-shell" id="main-workspace"><DiagnosticHand key={activeHand.id} hand={activeHand} draft={profile.draft} onDraft={saveDraft} onRecord={record} onOpen={openHand} onNext={() => openHand(nextAdaptiveHand(profile).hand)} onHome={home} /></div>}<footer className="app-footer"><p>Educational training. Authored examples are not solver-verified.</p><p>Adults 18+ · No real-money play</p></footer></main>;
 }
