@@ -8,11 +8,14 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "node tools/verify-content.mjs",
+    "build": "node tools/stamp-assets.mjs && node tools/verify-content.mjs",
     "test": "node --test tests/",
     "serve": "node tools/serve.mjs",
     "generate": "node tools/generate-hands.mjs --hands 26000 --rollouts 250 --out work/candidates.json",
     "curate": "node tools/curate.mjs --in work/candidates.json --out public/hands.json --count 100",
     "content": "npm run generate && npm run curate && npm run build"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0"
   }
 }

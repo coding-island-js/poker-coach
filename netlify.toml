@@ -2,6 +2,7 @@
 [build]
   publish = "public"
   command = "npm run build"
+  functions = "netlify/functions"
 
 [build.environment]
   NODE_VERSION = "22"
@@ -18,12 +19,22 @@
   [headers.values]
     Cache-Control = "public, max-age=300, must-revalidate"
 
+# The app is a handful of unversioned files with no build step, so a long cache
+# would strand users on an old copy after every deploy. ETags make the
+# revalidation a cheap 304.
+# Exact paths, not "/*.js": that glob does not match and Netlify's 4-hour
+# default for static assets wins, which strands users on a stale app after a
+# deploy.
 [[headers]]
-  for = "/*.css"
+  for = "/style.css"
   [headers.values]
-    Cache-Control = "public, max-age=3600"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
-  for = "/*.js"
+  for = "/app.js"
   [headers.values]
-    Cache-Control = "public, max-age=3600"
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["@neondatabase/serverless"]

@@ -41,6 +41,31 @@ npm run content    # all three
 checkout at `../poker-sim`, and is a **build-time dependency only** — nothing from it ships
 to the browser.
 
+## Accounts
+
+Google OAuth and magic-link sign-in over Neon Postgres, as Netlify Functions:
+
+```
+GET  /api/me                     who is signed in, + leak profile and calibration
+POST /api/logout
+GET  /api/auth/google            -> Google consent -> /api/auth/google/callback
+POST /api/auth/magic  { email }  emails a single-use link
+GET  /api/auth/verify?token=     spends it and starts a session
+POST /api/sync  { attempts }     uploads local progress, idempotent
+```
+
+Progress is always written to `localStorage` first and uploaded afterwards, so the app keeps
+working signed-out, offline, or when the API is down. Uploads are idempotent on the attempt's
+client id, so the whole backlog can be re-sent safely the first time someone signs in.
+
+Magic-link tokens are stored only as HMACs and are single-use with a 20-minute life. Session
+cookies are HttpOnly, Secure, SameSite=Lax and signed, so a forged cookie is rejected before
+the database is touched.
+
+```bash
+node tools/migrate.mjs   # applies db/schema.sql, idempotent, safe on every deploy
+```
+
 ## Running it
 
 ```bash
@@ -80,7 +105,9 @@ solver, does not claim GTO frequencies, and says so.
 
 ```
 public/          the shipped app - index.html, style.css, app.js, hands.json
-tools/           the content pipeline (generate -> curate -> verify) + a static server
+tools/           the content pipeline (generate -> curate -> verify), migrate, static server
+db/              schema.sql - users, sessions, login_tokens, attempts + two views
+netlify/         functions: auth, session, sync
 tests/           unit tests for counting and selection
 docs/            product research and requirements from the original build
 ```

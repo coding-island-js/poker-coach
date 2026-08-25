@@ -215,3 +215,25 @@ details.history summary { cursor: pointer; font-size: 14px; color: var(--ink-2);
   .feedback { animation: rise .18s ease-out; }
   @keyframes rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 }
+
+/* ---------------------------------------------------------------- account */
+.notice {
+  border: 1px solid #b6d8cb; background: var(--felt-soft); color: var(--felt-dark);
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; font-size: 14.5px;
+}
+.google-button { margin-top: 4px; text-decoration: none; }
+.or-line {
+  display: flex; align-items: center; gap: 10px;
+  margin: 14px 0; color: var(--ink-3); font-size: 13px;
+}
+.or-line::before, .or-line::after {
+  content: ""; flex: 1; height: 1px; background: var(--line);
+}
+.email-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.email-row .ghost { flex: 0 0 auto; }
+.email-input {
+  flex: 1 1 190px; min-height: 44px; padding: 10px 13px;
+  border: 1px solid var(--line); border-radius: 9px; background: var(--surface);
+  color: var(--ink); font: inherit; font-size: 15px;
+}
+.email-input:focus { outline: 2px solid var(--felt); outline-offset: 1px; border-color: var(--felt); }

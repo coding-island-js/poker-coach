@@ -215,6 +215,8 @@ function scrollToFeedback() {
 // ----------------------------------------------------------------- progress
 function record(hand) {
   profile.attempts.push({
+    // Stable id so uploading the same attempt twice cannot double-count it.
+    id: (crypto.randomUUID?.() ?? `${hand.id}-${Date.now()}-${Math.round(performance.now())}`),
     handId: hand.id,
     leak: hand.leak,
     read: view.answers.read,
@@ -226,6 +228,101 @@ function record(hand) {
   });
   profile.lastHand = view.handIndex;
   save();
+  syncSoon();
+}
+
+// ------------------------------------------------------------------ account
+// Progress is always written locally first and uploaded afterwards, so the app
+// keeps working signed-out, offline, or when the API is down.
+let account = { signedIn: false };
+let syncTimer = null;
+
+async function loadAccount() {
+  try {
+    const response = await fetch("/api/me", { credentials: "same-origin" });
+    if (!response.ok) return;
+    account = await response.json();
+    if (account.signedIn) syncNow();
+  } catch { /* stay anonymous */ }
+}
+
+function syncSoon() {
+  if (!account.signedIn) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(syncNow, 1200);
+}
+
+async function syncNow() {
+  if (!account.signedIn || !profile.attempts.length) return;
+  try {
+    const response = await fetch("/api/sync", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ attempts: profile.attempts.slice(-500) }),
+    });
+    if (!response.ok) return;
+    const result = await response.json();
+    account.totals = result.totals;
+    if (view.screen === "progress") render();
+  } catch { /* try again next time */ }
+}
+
+async function signOut() {
+  try { await fetch("/api/logout", { method: "POST", credentials: "same-origin" }); } catch { /* ignore */ }
+  account = { signedIn: false };
+  render();
+}
+
+async function requestMagicLink(email, statusNode) {
+  statusNode.textContent = "Sending…";
+  try {
+    const response = await fetch("/api/auth/magic", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+    const result = await response.json().catch(() => ({}));
+    statusNode.textContent = response.ok && result.ok
+      ? "Check your email — the link works once and lasts 20 minutes."
+      : "Could not send that. Check the address and try again.";
+  } catch {
+    statusNode.textContent = "Could not reach the server. Try again in a moment.";
+  }
+}
+
+function accountCard() {
+  if (account.signedIn) {
+    const totals = account.totals ?? {};
+    return el("section", { class: "card" },
+      el("p", { class: "eyebrow" }, "Account"),
+      el("h2", {}, account.user?.name || account.user?.email || "Signed in"),
+      el("p", { class: "small muted" },
+        `Progress is saved to your account${totals.attempts ? ` — ${totals.attempts} attempts across ${totals.hands} hands.` : "."}`),
+      el("button", { class: "linkish", onclick: signOut }, "Sign out"));
+  }
+
+  const status = el("p", { class: "small muted", "aria-live": "polite" }, "");
+  const input = el("input", {
+    type: "email", class: "email-input", placeholder: "you@example.com",
+    "aria-label": "Email address", autocomplete: "email",
+  });
+  const send = () => {
+    const email = input.value.trim();
+    if (!email.includes("@")) { status.textContent = "That does not look like an email address."; return; }
+    requestMagicLink(email, status);
+  };
+  input.addEventListener("keydown", (event) => { if (event.key === "Enter") send(); });
+
+  return el("section", { class: "card" },
+    el("p", { class: "eyebrow" }, "Keep your progress"),
+    el("h2", {}, "Save it to an account"),
+    el("p", { class: "small muted" },
+      "Right now your progress lives only in this browser. Sign in and it follows you to any device."),
+    el("a", { class: "primary google-button", href: "/api/auth/google" }, "Continue with Google"),
+    el("p", { class: "or-line" }, "or"),
+    el("div", { class: "email-row" }, input, el("button", { class: "ghost", onclick: send }, "Email me a link")),
+    status);
 }
 
 function resetHand() {
@@ -267,6 +364,8 @@ function progressScreen() {
 
   return el("div", {},
     el("h1", {}, "Your progress"),
+    view.notice ? el("div", { class: "notice", role: "status" }, view.notice) : null,
+    accountCard(),
     attempts.length === 0
       ? el("div", { class: "card empty" },
           el("p", {}, "Nothing yet. Play a few hands and this fills in — which link in your thinking breaks first, and how often being sure means being right."),
@@ -328,13 +427,33 @@ document.getElementById("home-link").addEventListener("click", () => {
   scrollTop();
 });
 
+// A sign-in round trip comes back as ?signin=... - say what happened, then
+// tidy the URL so a refresh does not repeat the message.
+function signinNotice() {
+  const status = new URL(window.location.href).searchParams.get("signin");
+  if (!status) return null;
+  window.history.replaceState({}, "", window.location.pathname);
+  const messages = {
+    ok: "You're signed in. Your progress will sync from now on.",
+    expired: "That link had already been used or had expired. Send yourself a new one.",
+    cancelled: "Sign-in cancelled — nothing changed.",
+    badstate: "That sign-in attempt did not look like it started here. Try again.",
+    nocode: "Google did not send anything back. Try again.",
+    failed: "Google sign-in did not complete. Try again.",
+  };
+  return messages[status] ?? null;
+}
+
 fetch("hands.json")
   .then((response) => response.json())
   .then((data) => {
     content = data;
     // Resume where they left off rather than restarting at hand one.
     view.handIndex = Math.min(profile.lastHand ?? 0, content.hands.length - 1);
+    const notice = signinNotice();
+    if (notice) { view.screen = "progress"; view.notice = notice; }
     render();
+    loadAccount();
   })
   .catch(() => {
     main.replaceChildren(el("div", { class: "card empty" }, "Could not load the hands. Refresh to try again."));
