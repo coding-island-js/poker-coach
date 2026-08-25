@@ -11,8 +11,10 @@ export default async (request) => {
     return json({ ok: true }, { headers: { "set-cookie": cookieHeader(null, { clear: true }) } });
   }
 
+  const googleEnabled = process.env.GOOGLE_SIGNIN_ENABLED === "true";
+
   const user = await currentUser(request);
-  if (!user) return json({ signedIn: false });
+  if (!user) return json({ signedIn: false, googleEnabled });
 
   const [leaks, calibration, totals] = await Promise.all([
     sql`select leak, attempts, clean, read_missed, action_missed
@@ -26,6 +28,7 @@ export default async (request) => {
 
   return json({
     signedIn: true,
+    googleEnabled,
     user: { email: user.email, name: user.display_name },
     totals: totals[0],
     leaks,

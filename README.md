@@ -43,12 +43,16 @@ to the browser.
 
 ## Accounts
 
-Google OAuth and magic-link sign-in over Neon Postgres, as Netlify Functions:
+Magic-link sign-in over Neon Postgres, as Netlify Functions. Google OAuth is written and
+deployed but **gated off** (`GOOGLE_SIGNIN_ENABLED`), because the shared OAuth client has no
+redirect URI registered for this site — a live button that fails at Google is worse than none.
+To turn on: register `https://pokercoach.withmagic.ai/api/auth/google/callback` on the client
+in GCP project `1093236447839`, then set the flag.
 
 ```
 GET  /api/me                     who is signed in, + leak profile and calibration
 POST /api/logout
-GET  /api/auth/google            -> Google consent -> /api/auth/google/callback
+GET  /api/auth/google            deferred - 503 unless GOOGLE_SIGNIN_ENABLED=true
 POST /api/auth/magic  { email }  emails a single-use link
 GET  /api/auth/verify?token=     spends it and starts a session
 POST /api/sync  { attempts }     uploads local progress, idempotent
@@ -93,6 +97,16 @@ The app labels every claim with where it came from, and the content gate enforce
 
 Nothing may be upgraded from one tier to a stronger one. In particular this is **not** a
 solver, does not claim GTO frequencies, and says so.
+
+## Deploying
+
+```bash
+netlify deploy --prod --skip-functions-cache
+```
+
+**The flag is not optional when a function changed.** Netlify reuses a functions cache and will
+happily report a successful deploy while serving the previous code — "Deploying functions from
+cache", then "CDN requesting 0 files and 0 functions".
 
 ## Known limits
 

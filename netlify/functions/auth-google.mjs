@@ -7,6 +7,14 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookieHeader, startSession, upsertUser, siteOrigin, json } from "./_lib/auth.mjs";
 
+// Deferred to a later version. The credentials exist, but the OAuth client has
+// no redirect URI for this site registered, so the flow would fail at Google
+// with redirect_uri_mismatch. Gated explicitly rather than left as a live button
+// that errors. To turn on: register
+//   https://pokercoach.withmagic.ai/api/auth/google/callback
+// on the client in GCP project 1093236447839, then set GOOGLE_SIGNIN_ENABLED=true.
+export const googleEnabled = process.env.GOOGLE_SIGNIN_ENABLED === "true";
+
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const SECRET = process.env.SESSION_SECRET_POKERCOACH ?? process.env.SESSION_SECRET;
@@ -38,6 +46,7 @@ export default async (request) => {
   const url = new URL(request.url);
   const home = siteOrigin(request);
 
+  if (!googleEnabled) return json({ error: "google_signin_disabled" }, { status: 503 });
   if (!CLIENT_ID || !CLIENT_SECRET) {
     return json({ error: "google_not_configured" }, { status: 503 });
   }

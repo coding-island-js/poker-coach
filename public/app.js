@@ -318,10 +318,12 @@ function accountCard() {
     el("p", { class: "eyebrow" }, "Keep your progress"),
     el("h2", {}, "Save it to an account"),
     el("p", { class: "small muted" },
-      "Right now your progress lives only in this browser. Sign in and it follows you to any device."),
-    el("a", { class: "primary google-button", href: "/api/auth/google" }, "Continue with Google"),
-    el("p", { class: "or-line" }, "or"),
-    el("div", { class: "email-row" }, input, el("button", { class: "ghost", onclick: send }, "Email me a link")),
+      "Right now your progress lives only in this browser. Get a sign-in link by email and it follows you to any device."),
+    // The Google button appears only when the server confirms that flow works.
+    // A live button that fails at Google is worse than no button.
+    account.googleEnabled ? el("a", { class: "primary google-button", href: "/api/auth/google" }, "Continue with Google") : null,
+    account.googleEnabled ? el("p", { class: "or-line" }, "or") : null,
+    el("div", { class: "email-row" }, input, el("button", { class: "primary send-link", onclick: send }, "Email me a sign-in link")),
     status);
 }
 

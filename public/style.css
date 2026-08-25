@@ -237,3 +237,7 @@ details.history summary { cursor: pointer; font-size: 14px; color: var(--ink-2);
   color: var(--ink); font: inherit; font-size: 15px;
 }
 .email-input:focus { outline: 2px solid var(--felt); outline-offset: 1px; border-color: var(--felt); }
+
+/* Email-only sign-in: the button sits beside the field, so it should not
+   stretch to full width the way .primary does elsewhere. */
+.send-link { width: auto; flex: 0 0 auto; min-height: 44px; padding: 12px 18px; font-size: 15px; }
