@@ -7,6 +7,7 @@
 //
 //   node tools/curate.mjs --in work/candidates.json --out public/hands.json --count 100
 import { readFile, writeFile, mkdir } from "node:fs/promises";
+import { showdownSplit, plausibleRange } from "./lib/engine.mjs";
 import { dirname, basename } from "node:path";
 
 const argv = process.argv.slice(2);
@@ -118,6 +119,61 @@ function takeawayFor({ facing, bestIsBet, standingNow, beats, total, losesPct })
     : `${count} hands beat you — but you still beat his misses. Checking wins those; bluffing into him does not.`;
 }
 
+const RANK_ORDER = "23456789TJQKA";
+const rankOf = (code) => RANK_ORDER.indexOf(code[0] === "1" ? "T" : code[0]);
+
+/**
+ * What the hero actually holds, in the words a player would use.
+ *
+ * Titles were being built from standing + facing alone, which is nine
+ * combinations for a hundred hands - one of them used thirty-one times. The
+ * hand itself is the thing that makes a spot memorable.
+ */
+function describeHero(heroCodes, boardCodes) {
+  const cards = [...heroCodes, ...boardCodes];
+  const ranks = cards.map(rankOf);
+  const suits = cards.map((c) => c[1]);
+  const heroRanks = heroCodes.map(rankOf);
+  const boardRanks = boardCodes.map(rankOf);
+
+  const counts = {};
+  for (const r of ranks) counts[r] = (counts[r] ?? 0) + 1;
+  const suitCounts = {};
+  for (const s of suits) suitCounts[s] = (suitCounts[s] ?? 0) + 1;
+  const flushSuit = Object.keys(suitCounts).find((s) => suitCounts[s] >= 5);
+
+  const unique = [...new Set(ranks)].sort((a, b) => a - b);
+  let straight = false;
+  for (let i = 0; i + 4 < unique.length + 1; i += 1) {
+    const window = unique.slice(i, i + 5);
+    if (window.length === 5 && window[4] - window[0] === 4) straight = true;
+  }
+  const groups = Object.values(counts).sort((a, b) => b - a);
+
+  if (flushSuit && heroCodes.some((c) => c[1] === flushSuit)) return "a flush";
+  if (groups[0] === 4) return "quads";
+  if (groups[0] === 3 && groups[1] >= 2) return "a full house";
+  if (straight) return "a straight";
+  if (groups[0] === 3) {
+    return heroRanks[0] === heroRanks[1] ? "a set" : "trips";
+  }
+  if (groups[0] === 2 && groups[1] === 2) return "two pair";
+  if (groups[0] === 2) {
+    const pairedRank = Number(Object.keys(counts).find((r) => counts[r] === 2));
+    const topBoard = Math.max(...boardRanks);
+    if (heroRanks[0] === heroRanks[1]) {
+      return heroRanks[0] > topBoard ? "an overpair" : "a small pocket pair";
+    }
+    if (pairedRank === topBoard) return "top pair";
+    if (pairedRank === Math.min(...boardRanks)) return "bottom pair";
+    return "middle pair";
+  }
+  const high = Math.max(...heroRanks);
+  if (high === 12) return "ace high";
+  if (high === 11) return "king high";
+  return "no pair";
+}
+
 function titleFor({ facing, bestIsBet, standingNow }) {
   if (facing) {
     if (standingNow === "behind") return "A bet you have to price";
@@ -128,6 +184,30 @@ function titleFor({ facing, bestIsBet, standingNow }) {
   if (standingNow === "behind") return bestIsBet ? "Behind — so what can a bet do?" : "Behind, but not beaten yet";
   return bestIsBet ? "A coin flip, and a reason to bet" : "A coin flip — and no reason to bet";
 }
+
+/**
+ * A title naming what the hero holds and what just happened. Falls back to the
+ * standing-only phrasing if the hand cannot be described.
+ */
+function handTitle(candidate, shape) {
+  const hero = candidate.heroCodes ?? candidate.hero.map(toCode);
+  const board = candidate.boardCodes ?? candidate.board.map(toCode);
+  let held;
+  try { held = describeHero(hero, board); } catch { return titleFor(shape); }
+
+  const capital = held.charAt(0).toUpperCase() + held.slice(1);
+  if (shape.facing) {
+    return standingIsGood(shape.standingNow)
+      ? `${capital}, and he bets into you`
+      : `${capital} facing a bet`;
+  }
+  const checkedTwice = (candidate.villainChecks ?? 0) >= 2;
+  if (checkedTwice) return `${capital}, and he keeps checking`;
+  const actsFirst = candidate.heroPosition.includes("acts first");
+  return actsFirst ? `${capital}, first to act` : `${capital}, checked to you`;
+}
+
+const standingIsGood = (standingNow) => standingNow === "ahead";
 
 /** Board texture, used to keep the final hundred from all looking alike. */
 export function texture(boardCodes) {
@@ -181,9 +261,71 @@ export function select(candidates, count) {
   return chosen;
 }
 
+/**
+ * What is actually true at the moment of the decision.
+ *
+ * The generator derived this from `toCall === 0` alone, which is true both when
+ * the opponent checked TO you and when you are simply first to act - and it
+ * wrote "Opponent checks" for both. That put a piece of evidence into 76 of 100
+ * hands that had not happened, on the very screen that asks the learner to read
+ * the opponent's range from the evidence.
+ */
+function decisionLine(candidate) {
+  if (candidate.facingBet) return candidate.decisionNow;
+  const inPosition = !candidate.heroPosition.includes("acts first");
+  return inPosition
+    ? "Opponent checks. You act now."
+    : "You are first to act on the river.";
+}
+
+/**
+ * The timeline, always ending on the river so the story is complete. A river row
+ * is added when the street has no actions yet, because "the river came and it is
+ * on you" is itself the situation.
+ */
+function fullHistory(candidate) {
+  const history = candidate.history.map((street) => ({ ...street }));
+  const riverCard = candidate.board[4];
+  const riverRow = history.find((street) => street.street.startsWith("River"));
+  if (!riverRow) {
+    history.push({ street: `River · ${riverCard}`, actions: [decisionLine(candidate)] });
+  } else if (!candidate.facingBet && !riverRow.actions.length) {
+    riverRow.actions = [decisionLine(candidate)];
+  }
+  return history;
+}
+
 // ------------------------------------------------------------------- build
+const SUITS = { "♣": "c", "♦": "d", "♥": "h", "♠": "s" };
+const toCode = (pretty) => {
+  const suit = SUITS[pretty.slice(-1)];
+  const rank = pretty.slice(0, -1) === "10" ? "T" : pretty.slice(0, -1);
+  return `${rank}${suit}`;
+};
+
+/**
+ * A range that beats the hero never, or always, teaches nothing - the read
+ * question answers itself and the count is not a read at all. When the model
+ * collapses that far, recount against every holding he could be dealt.
+ */
+function usableShowdown(candidate) {
+  const shipped = candidate.showdown;
+  const degenerate = shipped.beats === 0 || shipped.beats === shipped.total;
+  // Heuristic counts are recomputed unconditionally, because the definition of
+  // the fallback range changed after the candidates were generated and stale
+  // counts would silently disagree with the cards on screen.
+  const stale = candidate.rangeSource !== "modelled";
+  if (!degenerate && !stale) return { split: shipped, source: candidate.rangeSource };
+
+  const hero = candidate.heroCodes ?? candidate.hero.map(toCode);
+  const board = candidate.boardCodes ?? candidate.board.map(toCode);
+  const split = showdownSplit({ heroCards: hero, board, holdings: plausibleRange(board, [...board, ...hero]) });
+  return { split, source: "heuristic" };
+}
+
 function toLesson(candidate, index) {
-  const beatsPct = candidate.showdown?.beatsPct ?? null;
+  const { split: showdown, source: rangeSource } = usableShowdown(candidate);
+  const beatsPct = showdown?.beatsPct ?? null;
   const standingNow = standing(beatsPct);
   const opts = candidate.options.slice().sort((a, b) => b.ev - a.ev);
   const bestEv = opts[0].ev;
@@ -196,8 +338,8 @@ function toLesson(candidate, index) {
     facing: candidate.facingBet,
     bestIsBet: opts[0].id.startsWith("bet") || opts[0].id.startsWith("raise"),
     standingNow,
-    beats: candidate.showdown.beats,
-    total: candidate.showdown.total,
+    beats: showdown.beats,
+    total: showdown.total,
     losesPct: Math.round(100 - (beatsPct ?? 0)),
   };
 
@@ -222,7 +364,7 @@ function toLesson(candidate, index) {
   for (const option of READ_OPTIONS) {
     readWhy[option.id] = option.id === standingNow
       ? READ_WHY[option.id]
-      : `Not quite. ${candidate.showdown.beats} of his ${candidate.showdown.total} possible hands beat you — ${pct(beatsPct)}.`;
+      : `Not quite. ${showdown.beats} of his ${showdown.total} possible hands beat you — ${pct(beatsPct)}.`;
   }
 
   // The generator's "is the hero weak" cut is at 50% while `standing()` calls
@@ -237,7 +379,7 @@ function toLesson(candidate, index) {
     sourceId: candidate.id,
     leak,
     leakLabel: LEAK_LABELS[leak] ?? leak,
-    title: titleFor(shape),
+    title: handTitle(candidate, shape),
     street: candidate.street,
     pot: candidate.pot,
     effective: candidate.effective,
@@ -245,8 +387,8 @@ function toLesson(candidate, index) {
     opponentNote: opponentNote(candidate.opponentArchetype),
     hero: candidate.hero,
     board: candidate.board,
-    decisionNow: candidate.decisionNow,
-    history: candidate.history,
+    decisionNow: decisionLine(candidate),
+    history: fullHistory(candidate),
 
     read: {
       prompt: "Against what he can have here, where does your hand stand?",
@@ -262,9 +404,9 @@ function toLesson(candidate, index) {
     },
 
     numbers: {
-      total: candidate.showdown.total,
-      beats: candidate.showdown.beats,
-      ties: candidate.showdown.ties,
+      total: showdown.total,
+      beats: showdown.beats,
+      ties: showdown.ties,
       beatsPct,
       rollouts: candidate.rollouts,
       evGap: candidate.evGap,
@@ -273,7 +415,7 @@ function toLesson(candidate, index) {
     // this player type folds is a model; the sentence at the end is written.
     evidence: {
       counting: "exact",
-      opponent: candidate.rangeSource === "modelled" ? "modelled" : "heuristic",
+      opponent: rangeSource === "modelled" ? "modelled" : "heuristic",
       coaching: "authored",
     },
     takeaway: takeawayFor(shape),
@@ -282,8 +424,17 @@ function toLesson(candidate, index) {
 
 async function main() {
   const raw = JSON.parse(await readFile(IN, "utf8"));
-  const chosen = select(raw.candidates, COUNT);
-  const lessons = chosen.map(toLesson);
+  // Over-select, then drop the hands whose read question answers itself - a
+  // hero holding the nuts, or drawing dead, has no range to read - and trim
+  // back to the target. h046 shipped as the nut flush against 990 combos, where
+  // "you beat 100% of what he can hold" is true and teaches nothing.
+  const chosen = select(raw.candidates, Math.round(COUNT * 1.4));
+  const lessons = chosen
+    .map(toLesson)
+    .filter((lesson) => lesson.numbers.beats > 0 && lesson.numbers.beats < lesson.numbers.total)
+    .slice(0, COUNT)
+    // Ids are assigned after filtering so the shipped set stays h001..hNNN.
+    .map((lesson, index) => ({ ...lesson, id: `h${String(index + 1).padStart(3, "0")}` }));
 
   const spread = {};
   for (const lesson of lessons) spread[lesson.leak] = (spread[lesson.leak] ?? 0) + 1;

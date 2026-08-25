@@ -194,10 +194,15 @@ export function showdownSplit({ heroCards, board, holdings }) {
 }
 
 export function plausibleRange(board, knownCards) {
-  return candidateCombos(knownCards)
-    .filter((cards) => {
-      const bucket = bucketOfHolding(cards, board);
-      return bucket !== null && bucket !== "air";
-    })
-    .map((cards) => ({ cards, weight: 1 }));
+  // Every holding he could still be dealt, weighted evenly.
+  //
+  // This used to drop "air", on the theory that a hand which missed everything
+  // would have folded. That made the fallback range strictly made-hands-only,
+  // and therefore GUARANTEED that any hero holding air lost to 100% of it -
+  // "717 of his 717 hands beat you" is not a read, it is a restatement of the
+  // filter. Eight of a hundred shipped hands were that tautology.
+  //
+  // Uniform overstates how weak he is, which the app labels honestly as a
+  // heuristic. Being a bit generous is recoverable; being circular is not.
+  return candidateCombos(knownCards).map((cards) => ({ cards, weight: 1 }));
 }

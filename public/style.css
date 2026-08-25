@@ -129,14 +129,25 @@ button { font-family: inherit; }
   background: var(--felt-soft); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;
   font-size: 15px; font-weight: 500;
 }
-.oppnote { font-size: 13.5px; color: var(--ink-2); margin-bottom: 12px; }
+.oppnote { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin: 12px 0 0; font-size: 13.5px; color: var(--ink-2); }
 .oppnote b { color: var(--ink); font-weight: 600; }
 
-details.history { border-top: 1px solid var(--line-soft); padding-top: 10px; }
-details.history summary { cursor: pointer; font-size: 14px; color: var(--ink-2); padding: 4px 0; }
-.street { display: flex; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line-soft); font-size: 14px; }
+/* The timeline is evidence, not an appendix - always visible, and laid out so
+   it can be scanned in a glance rather than read as prose. */
+.timeline { border-top: 1px solid var(--line-soft); margin-top: 12px; padding-top: 4px; }
+.street {
+  display: grid; grid-template-columns: minmax(84px, 30%) 1fr; gap: 12px;
+  padding: 8px 0; border-bottom: 1px solid var(--line-soft); font-size: 14px;
+}
 .street:last-child { border-bottom: 0; }
-.street b { flex: 0 0 34%; font-weight: 600; color: var(--ink-2); }
+.street b { font-weight: 600; color: var(--felt-dark); letter-spacing: -.01em; }
+.street:last-child b { color: var(--felt); }
+.street span { color: var(--ink-2); line-height: 1.45; }
+
+.oppnote .given {
+  font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--gold); background: var(--gold-soft); padding: 3px 7px; border-radius: 99px;
+}
 
 /* --------------------------------------------------------------- questions */
 .qprompt { font-size: 18px; font-weight: 600; margin: 4px 0 14px; line-height: 1.35; }

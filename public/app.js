@@ -68,15 +68,28 @@ function feltEl(hand) {
         el("div", { class: "cards" }, hand.board.map(cardEl)))));
 }
 
-function contextEl(hand) {
+function contextEl(hand, { step } = {}) {
   return el("section", { class: "card" },
     feltEl(hand),
     el("div", { class: "factline" }, hand.decisionNow),
-    el("p", { class: "oppnote" }, "Opponent: ", el("b", {}, hand.opponentNote)),
-    el("details", { class: "history" },
-      el("summary", {}, "Show the full hand"),
+    // The betting line IS the evidence for the read - hiding it behind a summary
+    // turned the first question into a guess. Shown always, formatted as a
+    // timeline so it can be scanned rather than read.
+    el("div", { class: "timeline", "aria-label": "How the hand played" },
       hand.history.map((street) =>
-        el("div", { class: "street" }, el("b", {}, street.street), el("span", {}, street.actions.join(" "))))));
+        el("div", { class: "street" },
+          el("b", {}, street.street),
+          el("span", {}, street.actions.join(" "))))),
+    // The opponent read is an ASSUMPTION handed to the learner, not something
+    // they worked out - so it appears only on the action step, where the answer
+    // can actually depend on it, and it is labelled as given rather than known.
+    // On the read step it is worse than useless: that question is pure
+    // combinatorics, and a personality label invites the exact habit this app
+    // calls a leak ("Treating a read as fact").
+    step === "action"
+      ? el("p", { class: "oppnote" },
+          el("span", { class: "given" }, "Assume"), " ", el("b", {}, hand.opponentNote))
+      : null);
 }
 
 function stepDots(active) {
@@ -117,7 +130,7 @@ function readStep(hand) {
   const wrap = el("div", {},
     el("div", { class: "spot-head" }, el("p", { class: "eyebrow" }, hand.leakLabel), stepDots(1)),
     el("h1", {}, hand.title),
-    contextEl(hand),
+    contextEl(hand, { step: "read" }),
     el("section", { class: "card" },
       el("p", { class: "qprompt" }, hand.read.prompt),
       el("div", { class: "choices" },
@@ -150,7 +163,7 @@ function actionStep(hand) {
   const wrap = el("div", {},
     el("div", { class: "spot-head" }, el("p", { class: "eyebrow" }, hand.leakLabel), stepDots(2)),
     el("h1", {}, hand.title),
-    contextEl(hand),
+    contextEl(hand, { step: "action" }),
     el("section", { class: "card" },
       el("p", { class: "qprompt" }, hand.action.prompt),
       el("div", { class: "choices" },

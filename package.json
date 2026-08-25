@@ -8,12 +8,13 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "node tools/stamp-assets.mjs && node tools/verify-content.mjs",
+    "build": "node tools/stamp-assets.mjs && node tools/verify-content.mjs && node tools/audit-hands.mjs",
     "test": "node --test tests/",
     "serve": "node tools/serve.mjs",
     "generate": "node tools/generate-hands.mjs --hands 26000 --rollouts 250 --out work/candidates.json",
     "curate": "node tools/curate.mjs --in work/candidates.json --out public/hands.json --count 100",
-    "content": "npm run generate && npm run curate && npm run build"
+    "content": "npm run generate && npm run curate && npm run build",
+    "audit": "node tools/audit-hands.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0"

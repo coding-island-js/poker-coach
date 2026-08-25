@@ -33,9 +33,15 @@ measurably worse than the best one.
 ```bash
 npm run generate   # deal ~30k hands, score river spots, write work/candidates.json
 npm run curate     # pick 100 varied instructive ones -> public/hands.json
-npm run build      # content gate: fails the build rather than shipping a broken lesson
-npm run content    # all three
+npm run audit      # re-derive every claim from the cards; fails on any disagreement
+npm run build      # stamp assets, content gate, audit
+npm run content    # all of it
 ```
+
+`npm run audit` is the one that matters. The content gate checks a hand is well *formed*; the
+audit checks it is *true* - it recounts the showdown from the cards, re-derives which answer
+should be correct, and fails if any sentence disagrees with the numbers under it. It also
+reports variety, so a hundred hands that are secretly ten hands cannot pass quietly.
 
 `tools/lib/engine.mjs` is the only file that knows `poker-sim`'s shape. It expects a sibling
 checkout at `../poker-sim`, and is a **build-time dependency only** — nothing from it ships
@@ -116,9 +122,10 @@ cache", then "CDN requesting 0 files and 0 functions".
   `removes-strength` never fires in generated river spots and `bluffs-showdown` is thin (3 of 100).
 - **Opponent modelling is calibrated to judgement, not live data**, because published live
   low-stakes data does not exist. See `poker-sim/docs/DECISIONS.md`.
-- **The fallback range is too strong.** About a third of hands use `plausibleRange`, which keeps
-  every holding that made a pair and drops all air, so the opponent reads stronger than reality
-  and the beats-you count is pessimistic. Labelled `opponent: heuristic` in the data.
+- **The fallback range is uniform.** About a third of hands use `plausibleRange`, which is every
+  holding the opponent could still be dealt, weighted evenly - so it overstates how weak he is.
+  It previously excluded "air", which was worse: any hero holding air then lost to 100% of the
+  range by construction. Labelled `opponent: heuristic` in the data.
 - **No accounts.** Progress is per-browser `localStorage`. Google + magic-link auth over Neon
   is the next step.
 

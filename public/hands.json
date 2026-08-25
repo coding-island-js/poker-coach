@@ -19,7 +19,7 @@
       "sourceId": "gen-23976",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "An overpair, and he keeps checking",
       "street": "River",
       "pot": "$60",
       "effective": "$103 behind",
@@ -36,7 +36,7 @@
         "9♦",
         "6♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -60,6 +60,12 @@
             "You check.",
             "Opponent checks."
           ]
+        },
+        {
+          "street": "River · 6♦",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -80,9 +86,9 @@
         ],
         "correctId": "mixed",
         "why": {
-          "ahead": "Not quite. 323 of his 732 possible hands beat you — 44%.",
+          "ahead": "Not quite. 323 of his 990 possible hands beat you — 33%.",
           "mixed": "His range splits close to evenly against your hand.",
-          "behind": "Not quite. 323 of his 732 possible hands beat you — 44%."
+          "behind": "Not quite. 323 of his 990 possible hands beat you — 33%."
         }
       },
       "action": {
@@ -118,10 +124,10 @@
         }
       },
       "numbers": {
-        "total": 732,
+        "total": 990,
         "beats": 323,
         "ties": 1,
-        "beatsPct": 44.1,
+        "beatsPct": 32.6,
         "rollouts": 250,
         "evGap": 60.5
       },
@@ -130,14 +136,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "323 of his 732 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "323 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
       "id": "h002",
       "sourceId": "gen-26407",
       "leak": "bluffs-showdown",
       "leakLabel": "Betting a hand that should check",
-      "title": "Behind, but not beaten yet",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$66",
       "effective": "$235 behind",
@@ -154,7 +160,7 @@
         "4♦",
         "A♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -177,6 +183,12 @@
             "You bet to $7.",
             "Opponent raises to $26.",
             "You call $19."
+          ]
+        },
+        {
+          "street": "River · A♥",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -254,7 +266,7 @@
       "sourceId": "gen-17346",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Ahead, but is a bet worth it?",
+      "title": "Trips, first to act",
       "street": "River",
       "pot": "$54",
       "effective": "$159 behind",
@@ -271,7 +283,7 @@
         "4♣",
         "Q♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -295,6 +307,12 @@
             "You check.",
             "Opponent bets to $13.",
             "You call $13."
+          ]
+        },
+        {
+          "street": "River · Q♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -372,7 +390,7 @@
       "sourceId": "gen-6863",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets into a hand you beat",
+      "title": "A flush, and he bets into you",
       "street": "River",
       "pot": "$43",
       "effective": "$330 behind",
@@ -502,7 +520,7 @@
       "sourceId": "gen-17059",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind, but not beaten yet",
+      "title": "Trips, first to act",
       "street": "River",
       "pot": "$37",
       "effective": "$118 behind",
@@ -519,7 +537,7 @@
         "7♦",
         "K♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -542,6 +560,12 @@
           "actions": [
             "You bet to $8.",
             "Opponent calls $8."
+          ]
+        },
+        {
+          "street": "River · K♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -619,7 +643,7 @@
       "sourceId": "gen-6026",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "Checked to you, and you're ahead",
+      "title": "Two pair, and he keeps checking",
       "street": "River",
       "pot": "$48",
       "effective": "$149 behind",
@@ -636,7 +660,7 @@
         "8♣",
         "5♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -659,6 +683,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 5♣",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -736,7 +766,7 @@
       "sourceId": "gen-11634",
       "leak": "bluffs-showdown",
       "leakLabel": "Betting a hand that should check",
-      "title": "Behind, but not beaten yet",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$56",
       "effective": "$151 behind",
@@ -753,7 +783,7 @@
         "5♦",
         "8♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -777,6 +807,12 @@
             "You bet to $5.",
             "Opponent raises to $21.",
             "You call $16."
+          ]
+        },
+        {
+          "street": "River · 8♣",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -854,7 +890,7 @@
       "sourceId": "gen-2636",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "A coin flip — and no reason to bet",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$39",
       "effective": "$125 behind",
@@ -871,7 +907,7 @@
         "6♥",
         "Q♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -894,6 +930,12 @@
           "actions": [
             "You bet to $8.",
             "Opponent calls $8."
+          ]
+        },
+        {
+          "street": "River · Q♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -971,7 +1013,7 @@
       "sourceId": "gen-11703",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets — and it's close",
+      "title": "A flush facing a bet",
       "street": "River",
       "pot": "$41",
       "effective": "$107 behind",
@@ -1101,7 +1143,7 @@
       "sourceId": "gen-252",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Ahead, but is a bet worth it?",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$43",
       "effective": "$188 behind",
@@ -1118,7 +1160,7 @@
         "9♦",
         "7♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -1141,6 +1183,12 @@
             "You check.",
             "Opponent bets to $13.",
             "You call $13."
+          ]
+        },
+        {
+          "street": "River · 7♣",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -1218,7 +1266,7 @@
       "sourceId": "gen-27624",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "A small pocket pair, first to act",
       "street": "River",
       "pot": "$174",
       "effective": "$81 behind",
@@ -1235,7 +1283,7 @@
         "7♥",
         "4♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -1258,6 +1306,12 @@
             "You bet to $32.",
             "Opponent calls $32."
           ]
+        },
+        {
+          "street": "River · 4♦",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -1278,9 +1332,9 @@
         ],
         "correctId": "mixed",
         "why": {
-          "ahead": "Not quite. 227 of his 630 possible hands beat you — 36%.",
+          "ahead": "Not quite. 227 of his 990 possible hands beat you — 23%.",
           "mixed": "His range splits close to evenly against your hand.",
-          "behind": "Not quite. 227 of his 630 possible hands beat you — 36%."
+          "behind": "Not quite. 227 of his 990 possible hands beat you — 23%."
         }
       },
       "action": {
@@ -1315,10 +1369,10 @@
         }
       },
       "numbers": {
-        "total": 630,
+        "total": 990,
         "beats": 227,
         "ties": 1,
-        "beatsPct": 36,
+        "beatsPct": 22.9,
         "rollouts": 250,
         "evGap": 174
       },
@@ -1327,14 +1381,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "227 of his 630 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "227 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
       "id": "h012",
       "sourceId": "gen-20663",
       "leak": "bluffs-showdown",
       "leakLabel": "Betting a hand that should check",
-      "title": "Behind, but not beaten yet",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$46",
       "effective": "$140 behind",
@@ -1351,7 +1405,7 @@
         "10♣",
         "7♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -1374,6 +1428,12 @@
             "You bet to $4.",
             "Opponent raises to $16.",
             "You call $12."
+          ]
+        },
+        {
+          "street": "River · 7♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -1451,7 +1511,7 @@
       "sourceId": "gen-18223",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "A coin flip — and no reason to bet",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$67",
       "effective": "$178 behind",
@@ -1468,7 +1528,7 @@
         "10♣",
         "9♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -1492,6 +1552,12 @@
             "You check.",
             "Opponent bets to $17.",
             "You call $17."
+          ]
+        },
+        {
+          "street": "River · 9♥",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -1569,7 +1635,7 @@
       "sourceId": "gen-2239",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets into a hand you beat",
+      "title": "Trips, and he bets into you",
       "street": "River",
       "pot": "$59",
       "effective": "$263 behind",
@@ -1637,8 +1703,8 @@
         "correctId": "ahead",
         "why": {
           "ahead": "Counting his possible hands, very few of them beat yours.",
-          "mixed": "Not quite. 0 of his 249 possible hands beat you — 0%.",
-          "behind": "Not quite. 0 of his 249 possible hands beat you — 0%."
+          "mixed": "Not quite. 50 of his 990 possible hands beat you — 5%.",
+          "behind": "Not quite. 50 of his 990 possible hands beat you — 5%."
         }
       },
       "action": {
@@ -1680,26 +1746,26 @@
         }
       },
       "numbers": {
-        "total": 249,
-        "beats": 0,
+        "total": 990,
+        "beats": 50,
         "ties": 3,
-        "beatsPct": 0,
+        "beatsPct": 5.1,
         "rollouts": 250,
         "evGap": 134.93
       },
       "evidence": {
         "counting": "exact",
-        "opponent": "modelled",
+        "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "You beat 100% of what he can hold. Price the call on that, not on how strong the bet looked."
+      "takeaway": "You beat 95% of what he can hold. Price the call on that, not on how strong the bet looked."
     },
     {
       "id": "h015",
       "sourceId": "gen-22275",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Ahead, but is a bet worth it?",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$62",
       "effective": "$118 behind",
@@ -1716,7 +1782,7 @@
         "A♣",
         "9♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -1740,6 +1806,12 @@
             "You check.",
             "Opponent bets to $16.",
             "You call $16."
+          ]
+        },
+        {
+          "street": "River · 9♣",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -1817,7 +1889,7 @@
       "sourceId": "gen-27280",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "Checked to you, and you're ahead",
+      "title": "Middle pair, first to act",
       "street": "River",
       "pot": "$47",
       "effective": "$109 behind",
@@ -1834,7 +1906,7 @@
         "6♣",
         "2♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -1857,6 +1929,12 @@
             "You check.",
             "Opponent bets to $6.",
             "You call $6."
+          ]
+        },
+        {
+          "street": "River · 2♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -1934,7 +2012,7 @@
       "sourceId": "gen-7134",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "A coin flip — and no reason to bet",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$66",
       "effective": "$260 behind",
@@ -1951,7 +2029,7 @@
         "K♦",
         "9♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -1974,6 +2052,12 @@
             "You bet to $7.",
             "Opponent raises to $26.",
             "You call $19."
+          ]
+        },
+        {
+          "street": "River · 9♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -2051,7 +2135,7 @@
       "sourceId": "gen-28341",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "A bet you have to price",
+      "title": "Ace high facing a bet",
       "street": "River",
       "pot": "$368",
       "effective": "$231 behind",
@@ -2177,7 +2261,7 @@
       "sourceId": "gen-5234",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "A coin flip — and no reason to bet",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$39",
       "effective": "$85 behind",
@@ -2194,7 +2278,7 @@
         "10♥",
         "J♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -2216,6 +2300,12 @@
           "actions": [
             "You bet to $11.",
             "Opponent calls $11."
+          ]
+        },
+        {
+          "street": "River · J♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -2293,7 +2383,7 @@
       "sourceId": "gen-28973",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "Middle pair, first to act",
       "street": "River",
       "pot": "$55",
       "effective": "$133 behind",
@@ -2310,7 +2400,7 @@
         "4♥",
         "10♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -2332,6 +2422,12 @@
           "actions": [
             "You bet to $13.",
             "Opponent calls $13."
+          ]
+        },
+        {
+          "street": "River · 10♥",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -2409,7 +2505,7 @@
       "sourceId": "gen-15948",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "No pair, first to act",
       "street": "River",
       "pot": "$50",
       "effective": "$78 behind",
@@ -2426,7 +2522,7 @@
         "5♦",
         "6♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -2449,6 +2545,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 6♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -2526,7 +2628,7 @@
       "sourceId": "gen-2308",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets — and it's close",
+      "title": "Middle pair facing a bet",
       "street": "River",
       "pot": "$115",
       "effective": "$80 behind",
@@ -2652,7 +2754,7 @@
       "sourceId": "gen-27003",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "King high, first to act",
       "street": "River",
       "pot": "$97",
       "effective": "$64 behind",
@@ -2669,7 +2771,7 @@
         "A♥",
         "8♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -2692,6 +2794,12 @@
             "You bet to $20.",
             "Opponent calls $20."
           ]
+        },
+        {
+          "street": "River · 8♣",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -2712,8 +2820,8 @@
         ],
         "correctId": "behind",
         "why": {
-          "ahead": "Not quite. 717 of his 717 possible hands beat you — 100%.",
-          "mixed": "Not quite. 717 of his 717 possible hands beat you — 100%.",
+          "ahead": "Not quite. 717 of his 990 possible hands beat you — 72%.",
+          "mixed": "Not quite. 717 of his 990 possible hands beat you — 72%.",
           "behind": "Most of the hands he can hold here are better than yours."
         }
       },
@@ -2749,10 +2857,10 @@
         }
       },
       "numbers": {
-        "total": 717,
+        "total": 990,
         "beats": 717,
-        "ties": 0,
-        "beatsPct": 100,
+        "ties": 9,
+        "beatsPct": 72.4,
         "rollouts": 250,
         "evGap": 102.38
       },
@@ -2761,14 +2869,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "717 of his 717 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "717 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
       "id": "h024",
       "sourceId": "gen-19834",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "Checked to you, and you're ahead",
+      "title": "A straight, first to act",
       "street": "River",
       "pot": "$196",
       "effective": "$17 behind",
@@ -2785,7 +2893,7 @@
         "5♦",
         "6♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -2809,6 +2917,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 6♥",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -2879,7 +2993,7 @@
       "sourceId": "gen-13420",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$39",
       "effective": "$94 behind",
@@ -2896,7 +3010,7 @@
         "A♦",
         "4♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -2918,6 +3032,12 @@
           "actions": [
             "You bet to $11.",
             "Opponent calls $11."
+          ]
+        },
+        {
+          "street": "River · 4♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -2995,7 +3115,7 @@
       "sourceId": "gen-28285",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets — and it's close",
+      "title": "Ace high facing a bet",
       "street": "River",
       "pot": "$52",
       "effective": "$95 behind",
@@ -3125,7 +3245,7 @@
       "sourceId": "gen-21362",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "A small pocket pair, first to act",
       "street": "River",
       "pot": "$236",
       "effective": "$39 behind",
@@ -3142,7 +3262,7 @@
         "4♦",
         "3♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -3167,6 +3287,12 @@
             "Opponent bets to $44.",
             "You call $44."
           ]
+        },
+        {
+          "street": "River · 3♣",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -3187,8 +3313,8 @@
         ],
         "correctId": "behind",
         "why": {
-          "ahead": "Not quite. 513 of his 790 possible hands beat you — 65%.",
-          "mixed": "Not quite. 513 of his 790 possible hands beat you — 65%.",
+          "ahead": "Not quite. 513 of his 990 possible hands beat you — 52%.",
+          "mixed": "Not quite. 513 of his 990 possible hands beat you — 52%.",
           "behind": "Most of the hands he can hold here are better than yours."
         }
       },
@@ -3225,10 +3351,10 @@
         }
       },
       "numbers": {
-        "total": 790,
+        "total": 990,
         "beats": 513,
         "ties": 1,
-        "beatsPct": 64.9,
+        "beatsPct": 51.8,
         "rollouts": 250,
         "evGap": 236.14
       },
@@ -3237,14 +3363,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "513 of his 790 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "513 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
       "id": "h028",
       "sourceId": "gen-3031",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "A small pocket pair, first to act",
       "street": "River",
       "pot": "$196",
       "effective": "$117 behind",
@@ -3261,7 +3387,7 @@
         "A♦",
         "3♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -3287,6 +3413,12 @@
             "Opponent bets to $29.",
             "You call $29."
           ]
+        },
+        {
+          "street": "River · 3♥",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -3307,9 +3439,9 @@
         ],
         "correctId": "mixed",
         "why": {
-          "ahead": "Not quite. 223 of his 614 possible hands beat you — 36%.",
+          "ahead": "Not quite. 223 of his 990 possible hands beat you — 23%.",
           "mixed": "His range splits close to evenly against your hand.",
-          "behind": "Not quite. 223 of his 614 possible hands beat you — 36%."
+          "behind": "Not quite. 223 of his 990 possible hands beat you — 23%."
         }
       },
       "action": {
@@ -3344,10 +3476,10 @@
         }
       },
       "numbers": {
-        "total": 614,
+        "total": 990,
         "beats": 223,
         "ties": 1,
-        "beatsPct": 36.3,
+        "beatsPct": 22.5,
         "rollouts": 250,
         "evGap": 114.6
       },
@@ -3356,14 +3488,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "223 of his 614 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "223 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
       "id": "h029",
       "sourceId": "gen-12689",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "Top pair, first to act",
       "street": "River",
       "pot": "$91",
       "effective": "$57 behind",
@@ -3380,7 +3512,7 @@
         "8♦",
         "A♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -3403,6 +3535,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · A♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -3480,7 +3618,7 @@
       "sourceId": "gen-25353",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "A bet you have to price",
+      "title": "Ace high facing a bet",
       "street": "River",
       "pot": "$48",
       "effective": "$303 behind",
@@ -3548,8 +3686,8 @@
         ],
         "correctId": "behind",
         "why": {
-          "ahead": "Not quite. 637 of his 637 possible hands beat you — 100%.",
-          "mixed": "Not quite. 637 of his 637 possible hands beat you — 100%.",
+          "ahead": "Not quite. 661 of his 990 possible hands beat you — 67%.",
+          "mixed": "Not quite. 661 of his 990 possible hands beat you — 67%.",
           "behind": "Most of the hands he can hold here are better than yours."
         }
       },
@@ -3593,10 +3731,10 @@
         }
       },
       "numbers": {
-        "total": 637,
-        "beats": 637,
-        "ties": 0,
-        "beatsPct": 100,
+        "total": 990,
+        "beats": 661,
+        "ties": 9,
+        "beatsPct": 66.8,
         "rollouts": 250,
         "evGap": 45.81
       },
@@ -3605,14 +3743,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "637 of his 637 hands beat you. Decide on that price before you call, not after."
+      "takeaway": "661 of his 990 hands beat you. Decide on that price before you call, not after."
     },
     {
       "id": "h031",
       "sourceId": "gen-14483",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "Top pair, first to act",
       "street": "River",
       "pot": "$148",
       "effective": "$59 behind",
@@ -3629,7 +3767,7 @@
         "2♦",
         "4♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -3652,6 +3790,12 @@
           "actions": [
             "You bet to $32.",
             "Opponent calls $32."
+          ]
+        },
+        {
+          "street": "River · 4♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -3729,7 +3873,7 @@
       "sourceId": "gen-13980",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "Top pair, first to act",
       "street": "River",
       "pot": "$163",
       "effective": "$97 behind",
@@ -3746,7 +3890,7 @@
         "J♥",
         "7♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -3768,6 +3912,12 @@
           "actions": [
             "You bet to $44.",
             "Opponent calls $44."
+          ]
+        },
+        {
+          "street": "River · 7♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -3845,7 +3995,7 @@
       "sourceId": "gen-23488",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "No pair, first to act",
       "street": "River",
       "pot": "$204",
       "effective": "$134 behind",
@@ -3862,7 +4012,7 @@
         "3♥",
         "5♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -3885,6 +4035,12 @@
             "You bet to $47.",
             "Opponent calls $47."
           ]
+        },
+        {
+          "street": "River · 5♠",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -3905,8 +4061,8 @@
         ],
         "correctId": "behind",
         "why": {
-          "ahead": "Not quite. 701 of his 701 possible hands beat you — 100%.",
-          "mixed": "Not quite. 701 of his 701 possible hands beat you — 100%.",
+          "ahead": "Not quite. 929 of his 990 possible hands beat you — 94%.",
+          "mixed": "Not quite. 929 of his 990 possible hands beat you — 94%.",
           "behind": "Most of the hands he can hold here are better than yours."
         }
       },
@@ -3942,10 +4098,10 @@
         }
       },
       "numbers": {
-        "total": 701,
-        "beats": 701,
-        "ties": 0,
-        "beatsPct": 100,
+        "total": 990,
+        "beats": 929,
+        "ties": 9,
+        "beatsPct": 93.8,
         "rollouts": 250,
         "evGap": 216.33
       },
@@ -3954,14 +4110,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "701 of his 701 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "929 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
       "id": "h034",
       "sourceId": "gen-10812",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets into a hand you beat",
+      "title": "Two pair facing a bet",
       "street": "River",
       "pot": "$82",
       "effective": "$91 behind",
@@ -4026,11 +4182,11 @@
             "label": "You lose to most of what he can have"
           }
         ],
-        "correctId": "ahead",
+        "correctId": "mixed",
         "why": {
-          "ahead": "Counting his possible hands, very few of them beat yours.",
-          "mixed": "Not quite. 0 of his 141 possible hands beat you — 0%.",
-          "behind": "Not quite. 0 of his 141 possible hands beat you — 0%."
+          "ahead": "Not quite. 237 of his 990 possible hands beat you — 24%.",
+          "mixed": "His range splits close to evenly against your hand.",
+          "behind": "Not quite. 237 of his 990 possible hands beat you — 24%."
         }
       },
       "action": {
@@ -4039,13 +4195,13 @@
           {
             "id": "raise-big",
             "label": "Raise to $91 (all in)",
-            "purpose": "charge him now that you're ahead",
+            "purpose": "charge the worse hands, and fold out the ones still live",
             "ev": 74.08
           },
           {
             "id": "raise",
             "label": "Raise to $73",
-            "purpose": "charge him now that you're ahead",
+            "purpose": "charge the worse hands, and fold out the ones still live",
             "ev": 61.54
           },
           {
@@ -4072,26 +4228,26 @@
         }
       },
       "numbers": {
-        "total": 141,
-        "beats": 0,
-        "ties": 65,
-        "beatsPct": 0,
+        "total": 990,
+        "beats": 237,
+        "ties": 114,
+        "beatsPct": 23.9,
         "rollouts": 250,
         "evGap": 74.08
       },
       "evidence": {
         "counting": "exact",
-        "opponent": "modelled",
+        "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "You beat 100% of what he can hold. Price the call on that, not on how strong the bet looked."
+      "takeaway": "You beat 76% of what he can hold. Price the call on that, not on how strong the bet looked."
     },
     {
       "id": "h035",
       "sourceId": "gen-20169",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "A small pocket pair, first to act",
       "street": "River",
       "pot": "$176",
       "effective": "$53 behind",
@@ -4108,7 +4264,7 @@
         "8♣",
         "3♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -4132,6 +4288,12 @@
             "You bet to $34.",
             "Opponent calls $34."
           ]
+        },
+        {
+          "street": "River · 3♠",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -4150,11 +4312,11 @@
             "label": "You lose to most of what he can have"
           }
         ],
-        "correctId": "behind",
+        "correctId": "mixed",
         "why": {
-          "ahead": "Not quite. 320 of his 619 possible hands beat you — 52%.",
-          "mixed": "Not quite. 320 of his 619 possible hands beat you — 52%.",
-          "behind": "Most of the hands he can hold here are better than yours."
+          "ahead": "Not quite. 320 of his 990 possible hands beat you — 32%.",
+          "mixed": "His range splits close to evenly against your hand.",
+          "behind": "Not quite. 320 of his 990 possible hands beat you — 32%."
         }
       },
       "action": {
@@ -4163,13 +4325,13 @@
           {
             "id": "bet-small",
             "label": "Bet $53 (all in)",
-            "purpose": "make a better hand fold",
+            "purpose": "charge the worse hands, and fold out the ones still live",
             "ev": 176
           },
           {
             "id": "check",
             "label": "Check",
-            "purpose": "keep the pot small and still win sometimes",
+            "purpose": "keep the pot small with a hand that isn't clearly ahead",
             "ev": 0
           }
         ],
@@ -4182,10 +4344,10 @@
         }
       },
       "numbers": {
-        "total": 619,
+        "total": 990,
         "beats": 320,
         "ties": 1,
-        "beatsPct": 51.7,
+        "beatsPct": 32.3,
         "rollouts": 250,
         "evGap": 176
       },
@@ -4194,14 +4356,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "320 of his 619 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "320 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
       "id": "h036",
       "sourceId": "gen-22628",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "A set, first to act",
       "street": "River",
       "pot": "$111",
       "effective": "$63 behind",
@@ -4218,7 +4380,7 @@
         "10♦",
         "7♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -4241,6 +4403,12 @@
             "You bet to $11.",
             "Opponent raises to $44.",
             "You call $33."
+          ]
+        },
+        {
+          "street": "River · 7♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -4319,7 +4487,7 @@
       "sourceId": "gen-14587",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$39",
       "effective": "$114 behind",
@@ -4336,7 +4504,7 @@
         "10♦",
         "8♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -4358,6 +4526,12 @@
           "actions": [
             "You bet to $10.",
             "Opponent calls $10."
+          ]
+        },
+        {
+          "street": "River · 8♥",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -4435,7 +4609,7 @@
       "sourceId": "gen-5655",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets — and it's close",
+      "title": "A small pocket pair facing a bet",
       "street": "River",
       "pot": "$74",
       "effective": "$106 behind",
@@ -4565,7 +4739,7 @@
       "sourceId": "gen-20359",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$126",
       "effective": "$44 behind",
@@ -4582,7 +4756,7 @@
         "J♥",
         "7♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -4605,6 +4779,12 @@
           "actions": [
             "You bet to $31.",
             "Opponent calls $31."
+          ]
+        },
+        {
+          "street": "River · 7♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -4683,7 +4863,7 @@
       "sourceId": "gen-19453",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "Middle pair, first to act",
       "street": "River",
       "pot": "$43",
       "effective": "$119 behind",
@@ -4700,7 +4880,7 @@
         "8♠",
         "J♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -4724,6 +4904,12 @@
             "You check.",
             "Opponent bets to $11.",
             "You call $11."
+          ]
+        },
+        {
+          "street": "River · J♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -4801,7 +4987,7 @@
       "sourceId": "gen-22621",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "Middle pair, and he keeps checking",
       "street": "River",
       "pot": "$37",
       "effective": "$144 behind",
@@ -4818,7 +5004,7 @@
         "7♣",
         "9♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -4841,6 +5027,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 9♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -4918,7 +5110,7 @@
       "sourceId": "gen-21912",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets into a hand you beat",
+      "title": "A full house, and he bets into you",
       "street": "River",
       "pot": "$92",
       "effective": "$168 behind",
@@ -5047,7 +5239,7 @@
       "sourceId": "gen-25624",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "A small pocket pair, first to act",
       "street": "River",
       "pot": "$126",
       "effective": "$100 behind",
@@ -5064,7 +5256,7 @@
         "K♣",
         "7♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -5088,6 +5280,12 @@
             "You bet to $28.",
             "Opponent calls $28."
           ]
+        },
+        {
+          "street": "River · 7♠",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -5106,11 +5304,11 @@
             "label": "You lose to most of what he can have"
           }
         ],
-        "correctId": "behind",
+        "correctId": "mixed",
         "why": {
-          "ahead": "Not quite. 245 of his 245 possible hands beat you — 100%.",
-          "mixed": "Not quite. 245 of his 245 possible hands beat you — 100%.",
-          "behind": "Most of the hands he can hold here are better than yours."
+          "ahead": "Not quite. 409 of his 990 possible hands beat you — 41%.",
+          "mixed": "His range splits close to evenly against your hand.",
+          "behind": "Not quite. 409 of his 990 possible hands beat you — 41%."
         }
       },
       "action": {
@@ -5119,19 +5317,19 @@
           {
             "id": "bet-small",
             "label": "Bet $42",
-            "purpose": "make a better hand fold",
+            "purpose": "charge the worse hands, and fold out the ones still live",
             "ev": 126
           },
           {
             "id": "bet-big",
             "label": "Bet $95",
-            "purpose": "make a better hand fold",
+            "purpose": "charge the worse hands, and fold out the ones still live",
             "ev": 126
           },
           {
             "id": "check",
             "label": "Check",
-            "purpose": "keep the pot small and still win sometimes",
+            "purpose": "keep the pot small with a hand that isn't clearly ahead",
             "ev": 0
           }
         ],
@@ -5146,26 +5344,26 @@
         }
       },
       "numbers": {
-        "total": 245,
-        "beats": 245,
-        "ties": 0,
-        "beatsPct": 100,
+        "total": 990,
+        "beats": 409,
+        "ties": 1,
+        "beatsPct": 41.3,
         "rollouts": 250,
         "evGap": 126
       },
       "evidence": {
         "counting": "exact",
-        "opponent": "modelled",
+        "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "245 of his 245 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "409 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
       "id": "h044",
       "sourceId": "gen-7110",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$123",
       "effective": "$43 behind",
@@ -5182,7 +5380,7 @@
         "4♣",
         "3♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -5204,6 +5402,12 @@
           "actions": [
             "You bet to $32.",
             "Opponent calls $32."
+          ]
+        },
+        {
+          "street": "River · 3♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -5282,7 +5486,7 @@
       "sourceId": "gen-22405",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "A small pocket pair, first to act",
       "street": "River",
       "pot": "$147",
       "effective": "$42 behind",
@@ -5299,7 +5503,7 @@
         "10♣",
         "K♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -5323,6 +5527,12 @@
             "You bet to $36.",
             "Opponent calls $36."
           ]
+        },
+        {
+          "street": "River · K♣",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -5341,11 +5551,11 @@
             "label": "You lose to most of what he can have"
           }
         ],
-        "correctId": "behind",
+        "correctId": "mixed",
         "why": {
-          "ahead": "Not quite. 342 of his 642 possible hands beat you — 53%.",
-          "mixed": "Not quite. 342 of his 642 possible hands beat you — 53%.",
-          "behind": "Most of the hands he can hold here are better than yours."
+          "ahead": "Not quite. 342 of his 990 possible hands beat you — 35%.",
+          "mixed": "His range splits close to evenly against your hand.",
+          "behind": "Not quite. 342 of his 990 possible hands beat you — 35%."
         }
       },
       "action": {
@@ -5354,13 +5564,13 @@
           {
             "id": "bet-small",
             "label": "Bet $42 (all in)",
-            "purpose": "make a better hand fold",
+            "purpose": "charge the worse hands, and fold out the ones still live",
             "ev": 147
           },
           {
             "id": "check",
             "label": "Check",
-            "purpose": "keep the pot small and still win sometimes",
+            "purpose": "keep the pot small with a hand that isn't clearly ahead",
             "ev": -3.18
           }
         ],
@@ -5373,10 +5583,10 @@
         }
       },
       "numbers": {
-        "total": 642,
+        "total": 990,
         "beats": 342,
         "ties": 1,
-        "beatsPct": 53.3,
+        "beatsPct": 34.5,
         "rollouts": 250,
         "evGap": 150.18
       },
@@ -5385,144 +5595,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "342 of his 642 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "342 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
       "id": "h046",
-      "sourceId": "gen-13863",
-      "leak": "call-price",
-      "leakLabel": "Paying the wrong price",
-      "title": "He bets into a hand you beat",
-      "street": "River",
-      "pot": "$73",
-      "effective": "$101 behind",
-      "heroPosition": "In position · acts last",
-      "opponentNote": "very tight — bets only with strong hands",
-      "hero": [
-        "A♣",
-        "7♣"
-      ],
-      "board": [
-        "10♥",
-        "4♣",
-        "K♣",
-        "5♣",
-        "A♥"
-      ],
-      "decisionNow": "Opponent bets $26 into $47. You act now.",
-      "history": [
-        {
-          "street": "Preflop",
-          "actions": [
-            "4 players fold.",
-            "You call $3.",
-            "Opponent checks."
-          ]
-        },
-        {
-          "street": "Flop · 10♥ 4♣ K♣",
-          "actions": [
-            "Opponent checks.",
-            "You check."
-          ]
-        },
-        {
-          "street": "Turn · 5♣",
-          "actions": [
-            "Opponent bets to $4.",
-            "You raise to $12.",
-            "Opponent calls $8."
-          ]
-        },
-        {
-          "street": "River · A♥",
-          "actions": [
-            "Opponent bets to $26."
-          ]
-        }
-      ],
-      "read": {
-        "prompt": "Against what he can have here, where does your hand stand?",
-        "options": [
-          {
-            "id": "ahead",
-            "label": "You beat almost everything he can have"
-          },
-          {
-            "id": "mixed",
-            "label": "It's roughly a coin flip"
-          },
-          {
-            "id": "behind",
-            "label": "You lose to most of what he can have"
-          }
-        ],
-        "correctId": "ahead",
-        "why": {
-          "ahead": "Counting his possible hands, very few of them beat yours.",
-          "mixed": "Not quite. 0 of his 621 possible hands beat you — 0%.",
-          "behind": "Not quite. 0 of his 621 possible hands beat you — 0%."
-        }
-      },
-      "action": {
-        "prompt": "What do you do, and what is it for?",
-        "options": [
-          {
-            "id": "raise-big",
-            "label": "Raise to $104",
-            "purpose": "charge him now that you're ahead",
-            "ev": 154.31
-          },
-          {
-            "id": "raise",
-            "label": "Raise to $65",
-            "purpose": "charge him now that you're ahead",
-            "ev": 118.45
-          },
-          {
-            "id": "call",
-            "label": "Call $26",
-            "purpose": "pay to see it, because you beat his bluffs",
-            "ev": 73
-          },
-          {
-            "id": "fold",
-            "label": "Fold",
-            "purpose": "stop paying when you're beaten",
-            "ev": 0
-          }
-        ],
-        "correctIds": [
-          "raise-big"
-        ],
-        "why": {
-          "raise-big": "Holds up: over 250 simulated play-outs this earned about $154.",
-          "raise": "Costs about $36 against the best line, measured over 250 play-outs.",
-          "call": "Costs about $81 against the best line, measured over 250 play-outs.",
-          "fold": "Costs about $154 against the best line, measured over 250 play-outs."
-        }
-      },
-      "numbers": {
-        "total": 621,
-        "beats": 0,
-        "ties": 0,
-        "beatsPct": 0,
-        "rollouts": 250,
-        "evGap": 35.86
-      },
-      "evidence": {
-        "counting": "exact",
-        "opponent": "heuristic",
-        "coaching": "authored"
-      },
-      "takeaway": "You beat 100% of what he can hold. Price the call on that, not on how strong the bet looked."
-    },
-    {
-      "id": "h047",
       "sourceId": "gen-2023",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "Ace high, and he keeps checking",
       "street": "River",
       "pot": "$40",
       "effective": "$175 behind",
@@ -5539,7 +5619,7 @@
         "J♥",
         "4♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -5562,6 +5642,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 4♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -5636,11 +5722,11 @@
       "takeaway": "206 of his 270 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h048",
+      "id": "h047",
       "sourceId": "gen-8316",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "Top pair, first to act",
       "street": "River",
       "pot": "$157",
       "effective": "$88 behind",
@@ -5657,7 +5743,7 @@
         "5♦",
         "4♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -5680,6 +5766,12 @@
           "actions": [
             "You bet to $37.",
             "Opponent calls $37."
+          ]
+        },
+        {
+          "street": "River · 4♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -5753,11 +5845,11 @@
       "takeaway": "66 of his 277 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h049",
+      "id": "h048",
       "sourceId": "gen-10050",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "A small pocket pair, first to act",
       "street": "River",
       "pot": "$186",
       "effective": "$44 behind",
@@ -5774,7 +5866,7 @@
         "9♦",
         "6♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -5797,6 +5889,12 @@
             "You bet to $38.",
             "Opponent calls $38."
           ]
+        },
+        {
+          "street": "River · 6♦",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -5817,8 +5915,8 @@
         ],
         "correctId": "behind",
         "why": {
-          "ahead": "Not quite. 511 of his 614 possible hands beat you — 83%.",
-          "mixed": "Not quite. 511 of his 614 possible hands beat you — 83%.",
+          "ahead": "Not quite. 511 of his 990 possible hands beat you — 52%.",
+          "mixed": "Not quite. 511 of his 990 possible hands beat you — 52%.",
           "behind": "Most of the hands he can hold here are better than yours."
         }
       },
@@ -5854,10 +5952,10 @@
         }
       },
       "numbers": {
-        "total": 614,
+        "total": 990,
         "beats": 511,
         "ties": 1,
-        "beatsPct": 83.2,
+        "beatsPct": 51.6,
         "rollouts": 250,
         "evGap": 189.32
       },
@@ -5866,14 +5964,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "511 of his 614 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "511 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h050",
+      "id": "h049",
       "sourceId": "gen-1407",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets into a hand you beat",
+      "title": "Top pair, and he bets into you",
       "street": "River",
       "pot": "$40",
       "effective": "$98 behind",
@@ -6000,11 +6098,11 @@
       "takeaway": "You beat 88% of what he can hold. Price the call on that, not on how strong the bet looked."
     },
     {
-      "id": "h051",
+      "id": "h050",
       "sourceId": "gen-11863",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "Middle pair, first to act",
       "street": "River",
       "pot": "$156",
       "effective": "$93 behind",
@@ -6021,7 +6119,7 @@
         "8♦",
         "7♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -6044,6 +6142,12 @@
           "actions": [
             "You bet to $35.",
             "Opponent calls $35."
+          ]
+        },
+        {
+          "street": "River · 7♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -6117,11 +6221,11 @@
       "takeaway": "342 of his 384 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h052",
+      "id": "h051",
       "sourceId": "gen-25766",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "Checked to you, and you're ahead",
+      "title": "Middle pair, and he keeps checking",
       "street": "River",
       "pot": "$43",
       "effective": "$148 behind",
@@ -6138,7 +6242,7 @@
         "3♥",
         "J♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -6161,6 +6265,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · J♥",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -6234,11 +6344,11 @@
       "takeaway": "Only 28 of his 209 hands beat you — so name the worse ones that will actually call before you check."
     },
     {
-      "id": "h053",
+      "id": "h052",
       "sourceId": "gen-8699",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "Top pair, first to act",
       "street": "River",
       "pot": "$131",
       "effective": "$97 behind",
@@ -6255,7 +6365,7 @@
         "4♦",
         "3♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -6278,6 +6388,12 @@
             "You bet to $31.",
             "Opponent calls $31."
           ]
+        },
+        {
+          "street": "River · 3♦",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -6298,8 +6414,8 @@
         ],
         "correctId": "behind",
         "why": {
-          "ahead": "Not quite. 468 of his 777 possible hands beat you — 60%.",
-          "mixed": "Not quite. 468 of his 777 possible hands beat you — 60%.",
+          "ahead": "Not quite. 468 of his 990 possible hands beat you — 47%.",
+          "mixed": "Not quite. 468 of his 990 possible hands beat you — 47%.",
           "behind": "Most of the hands he can hold here are better than yours."
         }
       },
@@ -6336,10 +6452,10 @@
         }
       },
       "numbers": {
-        "total": 777,
+        "total": 990,
         "beats": 468,
         "ties": 4,
-        "beatsPct": 60.2,
+        "beatsPct": 47.3,
         "rollouts": 250,
         "evGap": 132.7
       },
@@ -6348,14 +6464,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "468 of his 777 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "468 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h054",
+      "id": "h053",
       "sourceId": "gen-13439",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets — and it's close",
+      "title": "Two pair facing a bet",
       "street": "River",
       "pot": "$88",
       "effective": "$298 behind",
@@ -6480,11 +6596,11 @@
       "takeaway": "You beat 67% of what he can hold. Price the call on that, not on how strong the bet looked."
     },
     {
-      "id": "h055",
+      "id": "h054",
       "sourceId": "gen-19785",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "Middle pair, first to act",
       "street": "River",
       "pot": "$51",
       "effective": "$131 behind",
@@ -6501,7 +6617,7 @@
         "8♦",
         "2♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -6524,6 +6640,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 2♣",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -6597,11 +6719,11 @@
       "takeaway": "517 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h056",
+      "id": "h055",
       "sourceId": "gen-27991",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "Top pair, first to act",
       "street": "River",
       "pot": "$102",
       "effective": "$56 behind",
@@ -6618,7 +6740,7 @@
         "5♣",
         "4♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -6641,6 +6763,12 @@
             "You bet to $25.",
             "Opponent calls $25."
           ]
+        },
+        {
+          "street": "River · 4♠",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -6659,11 +6787,11 @@
             "label": "You lose to most of what he can have"
           }
         ],
-        "correctId": "mixed",
+        "correctId": "ahead",
         "why": {
-          "ahead": "Not quite. 140 of his 618 possible hands beat you — 23%.",
-          "mixed": "His range splits close to evenly against your hand.",
-          "behind": "Not quite. 140 of his 618 possible hands beat you — 23%."
+          "ahead": "Counting his possible hands, very few of them beat yours.",
+          "mixed": "Not quite. 140 of his 990 possible hands beat you — 14%.",
+          "behind": "Not quite. 140 of his 990 possible hands beat you — 14%."
         }
       },
       "action": {
@@ -6672,19 +6800,19 @@
           {
             "id": "bet-big",
             "label": "Bet $77",
-            "purpose": "charge the worse hands, and fold out the ones still live",
+            "purpose": "get called by something worse",
             "ev": 158
           },
           {
             "id": "bet-small",
             "label": "Bet $34",
-            "purpose": "charge the worse hands, and fold out the ones still live",
+            "purpose": "get called by something worse",
             "ev": 136
           },
           {
             "id": "check",
             "label": "Check",
-            "purpose": "keep the pot small with a hand that isn't clearly ahead",
+            "purpose": "keep his weaker hands in, and not get raised",
             "ev": 106.34
           }
         ],
@@ -6698,10 +6826,10 @@
         }
       },
       "numbers": {
-        "total": 618,
+        "total": 990,
         "beats": 140,
         "ties": 6,
-        "beatsPct": 22.7,
+        "beatsPct": 14.1,
         "rollouts": 250,
         "evGap": 51.66
       },
@@ -6710,14 +6838,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "140 of his 618 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "Only 140 of his 990 hands beat you — so name the worse ones that will actually call before you check."
     },
     {
-      "id": "h057",
+      "id": "h056",
       "sourceId": "gen-7712",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "Bottom pair, first to act",
       "street": "River",
       "pot": "$101",
       "effective": "$66 behind",
@@ -6734,7 +6862,7 @@
         "7♦",
         "8♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -6757,6 +6885,12 @@
             "You bet to $22.",
             "Opponent calls $22."
           ]
+        },
+        {
+          "street": "River · 8♥",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -6777,8 +6911,8 @@
         ],
         "correctId": "behind",
         "why": {
-          "ahead": "Not quite. 540 of his 774 possible hands beat you — 70%.",
-          "mixed": "Not quite. 540 of his 774 possible hands beat you — 70%.",
+          "ahead": "Not quite. 540 of his 990 possible hands beat you — 55%.",
+          "mixed": "Not quite. 540 of his 990 possible hands beat you — 55%.",
           "behind": "Most of the hands he can hold here are better than yours."
         }
       },
@@ -6815,10 +6949,10 @@
         }
       },
       "numbers": {
-        "total": 774,
+        "total": 990,
         "beats": 540,
         "ties": 5,
-        "beatsPct": 69.8,
+        "beatsPct": 54.5,
         "rollouts": 250,
         "evGap": 101.79
       },
@@ -6827,14 +6961,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "540 of his 774 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "540 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h058",
+      "id": "h057",
       "sourceId": "gen-19859",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "A bet you have to price",
+      "title": "Two pair facing a bet",
       "street": "River",
       "pot": "$63",
       "effective": "$119 behind",
@@ -6959,11 +7093,11 @@
       "takeaway": "297 of his 311 hands beat you. Decide on that price before you call, not after."
     },
     {
-      "id": "h059",
+      "id": "h058",
       "sourceId": "gen-21119",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "Bottom pair, first to act",
       "street": "River",
       "pot": "$38",
       "effective": "$168 behind",
@@ -6980,7 +7114,7 @@
         "6♣",
         "K♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -7003,6 +7137,12 @@
             "You check.",
             "Opponent bets to $6.",
             "You call $6."
+          ]
+        },
+        {
+          "street": "River · K♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -7076,11 +7216,11 @@
       "takeaway": "260 of his 282 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h060",
+      "id": "h059",
       "sourceId": "gen-25505",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "A small pocket pair, first to act",
       "street": "River",
       "pot": "$160",
       "effective": "$29 behind",
@@ -7097,7 +7237,7 @@
         "K♣",
         "A♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -7120,6 +7260,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · A♣",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -7186,11 +7332,11 @@
       "takeaway": "51 of his 139 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h061",
+      "id": "h060",
       "sourceId": "gen-13246",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "No pair, first to act",
       "street": "River",
       "pot": "$270",
       "effective": "$110 behind",
@@ -7207,7 +7353,7 @@
         "4♥",
         "9♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -7231,6 +7377,12 @@
             "You bet to $56.",
             "Opponent calls $56."
           ]
+        },
+        {
+          "street": "River · 9♠",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -7251,8 +7403,8 @@
         ],
         "correctId": "behind",
         "why": {
-          "ahead": "Not quite. 663 of his 663 possible hands beat you — 100%.",
-          "mixed": "Not quite. 663 of his 663 possible hands beat you — 100%.",
+          "ahead": "Not quite. 829 of his 990 possible hands beat you — 84%.",
+          "mixed": "Not quite. 829 of his 990 possible hands beat you — 84%.",
           "behind": "Most of the hands he can hold here are better than yours."
         }
       },
@@ -7289,10 +7441,10 @@
         }
       },
       "numbers": {
-        "total": 663,
-        "beats": 663,
-        "ties": 0,
-        "beatsPct": 100,
+        "total": 990,
+        "beats": 829,
+        "ties": 9,
+        "beatsPct": 83.7,
         "rollouts": 250,
         "evGap": 270
       },
@@ -7301,14 +7453,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "663 of his 663 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "829 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h062",
+      "id": "h061",
       "sourceId": "gen-3244",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets — and it's close",
+      "title": "A flush, and he bets into you",
       "street": "River",
       "pot": "$171",
       "effective": "$0 behind",
@@ -7373,11 +7525,11 @@
             "label": "You lose to most of what he can have"
           }
         ],
-        "correctId": "mixed",
+        "correctId": "ahead",
         "why": {
-          "ahead": "Not quite. 170 of his 774 possible hands beat you — 22%.",
-          "mixed": "His range splits close to evenly against your hand.",
-          "behind": "Not quite. 170 of his 774 possible hands beat you — 22%."
+          "ahead": "Counting his possible hands, very few of them beat yours.",
+          "mixed": "Not quite. 170 of his 990 possible hands beat you — 17%.",
+          "behind": "Not quite. 170 of his 990 possible hands beat you — 17%."
         }
       },
       "action": {
@@ -7398,7 +7550,7 @@
           {
             "id": "raise",
             "label": "Raise to $194 (all in)",
-            "purpose": "charge the worse hands, and fold out the ones still live",
+            "purpose": "charge him now that you're ahead",
             "ev": -65
           }
         ],
@@ -7412,10 +7564,10 @@
         }
       },
       "numbers": {
-        "total": 774,
+        "total": 990,
         "beats": 170,
         "ties": 0,
-        "beatsPct": 22,
+        "beatsPct": 17.2,
         "rollouts": 250,
         "evGap": 65
       },
@@ -7424,14 +7576,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "You beat 78% of what he can hold. Price the call on that, not on how strong the bet looked."
+      "takeaway": "You beat 83% of what he can hold. Price the call on that, not on how strong the bet looked."
     },
     {
-      "id": "h063",
+      "id": "h062",
       "sourceId": "gen-6850",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Ahead, but is a bet worth it?",
+      "title": "A straight, first to act",
       "street": "River",
       "pot": "$40",
       "effective": "$91 behind",
@@ -7448,7 +7600,7 @@
         "2♥",
         "9♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -7471,6 +7623,12 @@
             "You bet to $11.",
             "Opponent calls $11."
           ]
+        },
+        {
+          "street": "River · 9♣",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -7492,8 +7650,8 @@
         "correctId": "ahead",
         "why": {
           "ahead": "Counting his possible hands, very few of them beat yours.",
-          "mixed": "Not quite. 12 of his 750 possible hands beat you — 2%.",
-          "behind": "Not quite. 12 of his 750 possible hands beat you — 2%."
+          "mixed": "Not quite. 12 of his 990 possible hands beat you — 1%.",
+          "behind": "Not quite. 12 of his 990 possible hands beat you — 1%."
         }
       },
       "action": {
@@ -7528,10 +7686,10 @@
         }
       },
       "numbers": {
-        "total": 750,
+        "total": 990,
         "beats": 12,
         "ties": 117,
-        "beatsPct": 1.6,
+        "beatsPct": 1.2,
         "rollouts": 250,
         "evGap": 37.55
       },
@@ -7540,14 +7698,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "You're ahead of 98% of his range, but a bet still needs a worse caller. Without one, checking keeps what you have."
+      "takeaway": "You're ahead of 99% of his range, but a bet still needs a worse caller. Without one, checking keeps what you have."
     },
     {
-      "id": "h064",
+      "id": "h063",
       "sourceId": "gen-4893",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$92",
       "effective": "$69 behind",
@@ -7564,7 +7722,7 @@
         "8♦",
         "A♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -7587,6 +7745,12 @@
           "actions": [
             "You bet to $11.",
             "Opponent calls $11."
+          ]
+        },
+        {
+          "street": "River · A♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -7661,11 +7825,11 @@
       "takeaway": "170 of his 391 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h065",
+      "id": "h064",
       "sourceId": "gen-15818",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "A small pocket pair, and he keeps checking",
       "street": "River",
       "pot": "$69",
       "effective": "$74 behind",
@@ -7682,7 +7846,7 @@
         "3♥",
         "A♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -7706,6 +7870,12 @@
             "You check.",
             "Opponent checks."
           ]
+        },
+        {
+          "street": "River · A♠",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -7724,11 +7894,11 @@
             "label": "You lose to most of what he can have"
           }
         ],
-        "correctId": "behind",
+        "correctId": "mixed",
         "why": {
-          "ahead": "Not quite. 437 of his 702 possible hands beat you — 62%.",
-          "mixed": "Not quite. 437 of his 702 possible hands beat you — 62%.",
-          "behind": "Most of the hands he can hold here are better than yours."
+          "ahead": "Not quite. 437 of his 990 possible hands beat you — 44%.",
+          "mixed": "His range splits close to evenly against your hand.",
+          "behind": "Not quite. 437 of his 990 possible hands beat you — 44%."
         }
       },
       "action": {
@@ -7737,19 +7907,19 @@
           {
             "id": "bet-big",
             "label": "Bet $52",
-            "purpose": "make a better hand fold",
+            "purpose": "charge the worse hands, and fold out the ones still live",
             "ev": 69
           },
           {
             "id": "check",
             "label": "Check",
-            "purpose": "keep the pot small and still win sometimes",
+            "purpose": "keep the pot small with a hand that isn't clearly ahead",
             "ev": 0
           },
           {
             "id": "bet-small",
             "label": "Bet $23",
-            "purpose": "make a better hand fold",
+            "purpose": "charge the worse hands, and fold out the ones still live",
             "ev": -23
           }
         ],
@@ -7763,10 +7933,10 @@
         }
       },
       "numbers": {
-        "total": 702,
+        "total": 990,
         "beats": 437,
         "ties": 1,
-        "beatsPct": 62.3,
+        "beatsPct": 44.1,
         "rollouts": 250,
         "evGap": 69
       },
@@ -7775,14 +7945,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "437 of his 702 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "437 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h066",
+      "id": "h065",
       "sourceId": "gen-8204",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets into a hand you beat",
+      "title": "Top pair, and he bets into you",
       "street": "River",
       "pot": "$53",
       "effective": "$114 behind",
@@ -7908,11 +8078,11 @@
       "takeaway": "You beat 90% of what he can hold. Price the call on that, not on how strong the bet looked."
     },
     {
-      "id": "h067",
+      "id": "h066",
       "sourceId": "gen-6168",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "Ace high, first to act",
       "street": "River",
       "pot": "$72",
       "effective": "$88 behind",
@@ -7929,7 +8099,7 @@
         "5♦",
         "7♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -7952,6 +8122,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 7♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -8025,11 +8201,11 @@
       "takeaway": "209 of his 262 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h068",
+      "id": "h067",
       "sourceId": "gen-8792",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "Checked to you, and you're ahead",
+      "title": "An overpair, first to act",
       "street": "River",
       "pot": "$177",
       "effective": "$91 behind",
@@ -8046,7 +8222,7 @@
         "J♦",
         "5♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -8068,6 +8244,12 @@
           "actions": [
             "You bet to $43.",
             "Opponent calls $43."
+          ]
+        },
+        {
+          "street": "River · 5♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -8141,11 +8323,11 @@
       "takeaway": "Only 17 of his 157 hands beat you — so name the worse ones that will actually call before you check."
     },
     {
-      "id": "h069",
+      "id": "h068",
       "sourceId": "gen-28687",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "King high, first to act",
       "street": "River",
       "pot": "$194",
       "effective": "$158 behind",
@@ -8162,7 +8344,7 @@
         "4♦",
         "3♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -8186,6 +8368,12 @@
             "You bet to $48.",
             "Opponent calls $48."
           ]
+        },
+        {
+          "street": "River · 3♥",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -8206,8 +8394,8 @@
         ],
         "correctId": "behind",
         "why": {
-          "ahead": "Not quite. 133 of his 133 possible hands beat you — 100%.",
-          "mixed": "Not quite. 133 of his 133 possible hands beat you — 100%.",
+          "ahead": "Not quite. 744 of his 990 possible hands beat you — 75%.",
+          "mixed": "Not quite. 744 of his 990 possible hands beat you — 75%.",
           "behind": "Most of the hands he can hold here are better than yours."
         }
       },
@@ -8243,26 +8431,26 @@
         }
       },
       "numbers": {
-        "total": 133,
-        "beats": 133,
-        "ties": 0,
-        "beatsPct": 100,
+        "total": 990,
+        "beats": 744,
+        "ties": 8,
+        "beatsPct": 75.2,
         "rollouts": 250,
         "evGap": 194
       },
       "evidence": {
         "counting": "exact",
-        "opponent": "modelled",
+        "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "133 of his 133 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "744 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h070",
+      "id": "h069",
       "sourceId": "gen-8050",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets — and it's close",
+      "title": "Two pair facing a bet",
       "street": "River",
       "pot": "$38",
       "effective": "$162 behind",
@@ -8388,11 +8576,11 @@
       "takeaway": "You beat 77% of what he can hold. Price the call on that, not on how strong the bet looked."
     },
     {
-      "id": "h071",
+      "id": "h070",
       "sourceId": "gen-28423",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "A coin flip — and no reason to bet",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$89",
       "effective": "$107 behind",
@@ -8409,7 +8597,7 @@
         "4♠",
         "10♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -8432,6 +8620,12 @@
           "actions": [
             "You bet to $19.",
             "Opponent calls $19."
+          ]
+        },
+        {
+          "street": "River · 10♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -8505,11 +8699,11 @@
       "takeaway": "221 of his 990 hands beat you — but you still beat his misses. Checking wins those; bluffing into him does not."
     },
     {
-      "id": "h072",
+      "id": "h071",
       "sourceId": "gen-14925",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "Checked to you, and you're ahead",
+      "title": "Trips, first to act",
       "street": "River",
       "pot": "$122",
       "effective": "$160 behind",
@@ -8526,7 +8720,7 @@
         "7♣",
         "10♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -8549,6 +8743,12 @@
           "actions": [
             "You bet to $28.",
             "Opponent calls $28."
+          ]
+        },
+        {
+          "street": "River · 10♣",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -8623,11 +8823,11 @@
       "takeaway": "Only 22 of his 121 hands beat you — so name the worse ones that will actually call before you check."
     },
     {
-      "id": "h073",
+      "id": "h072",
       "sourceId": "gen-28943",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "A small pocket pair, first to act",
       "street": "River",
       "pot": "$222",
       "effective": "$156 behind",
@@ -8644,7 +8844,7 @@
         "7♣",
         "2♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -8669,6 +8869,12 @@
             "You check.",
             "Opponent bets to $42.",
             "You call $42."
+          ]
+        },
+        {
+          "street": "River · 2♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -8742,11 +8948,11 @@
       "takeaway": "97 of his 160 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h074",
+      "id": "h073",
       "sourceId": "gen-13052",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets into a hand you beat",
+      "title": "Two pair, and he bets into you",
       "street": "River",
       "pot": "$38",
       "effective": "$99 behind",
@@ -8814,8 +9020,8 @@
         "correctId": "ahead",
         "why": {
           "ahead": "Counting his possible hands, very few of them beat yours.",
-          "mixed": "Not quite. 71 of his 606 possible hands beat you — 12%.",
-          "behind": "Not quite. 71 of his 606 possible hands beat you — 12%."
+          "mixed": "Not quite. 71 of his 990 possible hands beat you — 7%.",
+          "behind": "Not quite. 71 of his 990 possible hands beat you — 7%."
         }
       },
       "action": {
@@ -8857,10 +9063,10 @@
         }
       },
       "numbers": {
-        "total": 606,
+        "total": 990,
         "beats": 71,
         "ties": 4,
-        "beatsPct": 11.7,
+        "beatsPct": 7.2,
         "rollouts": 250,
         "evGap": 14
       },
@@ -8869,14 +9075,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "You beat 88% of what he can hold. Price the call on that, not on how strong the bet looked."
+      "takeaway": "You beat 93% of what he can hold. Price the call on that, not on how strong the bet looked."
     },
     {
-      "id": "h075",
+      "id": "h074",
       "sourceId": "gen-16751",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "Ace high, first to act",
       "street": "River",
       "pot": "$53",
       "effective": "$101 behind",
@@ -8893,7 +9099,7 @@
         "4♥",
         "K♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -8916,6 +9122,12 @@
             "You bet to $13.",
             "Opponent calls $13."
           ]
+        },
+        {
+          "street": "River · K♥",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -8936,8 +9148,8 @@
         ],
         "correctId": "behind",
         "why": {
-          "ahead": "Not quite. 625 of his 625 possible hands beat you — 100%.",
-          "mixed": "Not quite. 625 of his 625 possible hands beat you — 100%.",
+          "ahead": "Not quite. 625 of his 990 possible hands beat you — 63%.",
+          "mixed": "Not quite. 625 of his 990 possible hands beat you — 63%.",
           "behind": "Most of the hands he can hold here are better than yours."
         }
       },
@@ -8973,10 +9185,10 @@
         }
       },
       "numbers": {
-        "total": 625,
+        "total": 990,
         "beats": 625,
-        "ties": 0,
-        "beatsPct": 100,
+        "ties": 8,
+        "beatsPct": 63.1,
         "rollouts": 250,
         "evGap": 47.42
       },
@@ -8985,14 +9197,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "625 of his 625 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "625 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h076",
+      "id": "h075",
       "sourceId": "gen-5709",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "Checked to you, and you're ahead",
+      "title": "Middle pair, first to act",
       "street": "River",
       "pot": "$108",
       "effective": "$52 behind",
@@ -9009,7 +9221,7 @@
         "4♣",
         "2♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -9031,6 +9243,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 2♥",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -9104,11 +9322,11 @@
       "takeaway": "Only 38 of his 226 hands beat you — so name the worse ones that will actually call before you check."
     },
     {
-      "id": "h077",
+      "id": "h076",
       "sourceId": "gen-15972",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "Ace high, and he keeps checking",
       "street": "River",
       "pot": "$36",
       "effective": "$111 behind",
@@ -9125,7 +9343,7 @@
         "10♥",
         "8♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -9148,6 +9366,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 8♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -9221,11 +9445,11 @@
       "takeaway": "128 of his 162 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h078",
+      "id": "h077",
       "sourceId": "gen-23352",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "A bet you have to price",
+      "title": "Top pair facing a bet",
       "street": "River",
       "pot": "$112",
       "effective": "$186 behind",
@@ -9292,8 +9516,8 @@
         ],
         "correctId": "behind",
         "why": {
-          "ahead": "Not quite. 287 of his 287 possible hands beat you — 100%.",
-          "mixed": "Not quite. 287 of his 287 possible hands beat you — 100%.",
+          "ahead": "Not quite. 553 of his 990 possible hands beat you — 56%.",
+          "mixed": "Not quite. 553 of his 990 possible hands beat you — 56%.",
           "behind": "Most of the hands he can hold here are better than yours."
         }
       },
@@ -9336,26 +9560,26 @@
         }
       },
       "numbers": {
-        "total": 287,
-        "beats": 287,
-        "ties": 0,
-        "beatsPct": 100,
+        "total": 990,
+        "beats": 553,
+        "ties": 33,
+        "beatsPct": 55.9,
         "rollouts": 250,
         "evGap": 41
       },
       "evidence": {
         "counting": "exact",
-        "opponent": "modelled",
+        "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "287 of his 287 hands beat you. Decide on that price before you call, not after."
+      "takeaway": "553 of his 990 hands beat you. Decide on that price before you call, not after."
     },
     {
-      "id": "h079",
+      "id": "h078",
       "sourceId": "gen-6642",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Ahead, but is a bet worth it?",
+      "title": "A flush, first to act",
       "street": "River",
       "pot": "$50",
       "effective": "$249 behind",
@@ -9372,7 +9596,7 @@
         "9♣",
         "10♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -9396,6 +9620,12 @@
             "You check.",
             "Opponent bets to $12.",
             "You call $12."
+          ]
+        },
+        {
+          "street": "River · 10♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -9469,11 +9699,11 @@
       "takeaway": "You're ahead of 93% of his range, but a bet still needs a worse caller. Without one, checking keeps what you have."
     },
     {
-      "id": "h080",
+      "id": "h079",
       "sourceId": "gen-10156",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "A small pocket pair, first to act",
       "street": "River",
       "pot": "$165",
       "effective": "$51 behind",
@@ -9490,7 +9720,7 @@
         "5♥",
         "2♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -9514,6 +9744,12 @@
             "You check.",
             "Opponent checks."
           ]
+        },
+        {
+          "street": "River · 2♠",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -9534,9 +9770,9 @@
         ],
         "correctId": "mixed",
         "why": {
-          "ahead": "Not quite. 223 of his 614 possible hands beat you — 36%.",
+          "ahead": "Not quite. 223 of his 990 possible hands beat you — 23%.",
           "mixed": "His range splits close to evenly against your hand.",
-          "behind": "Not quite. 223 of his 614 possible hands beat you — 36%."
+          "behind": "Not quite. 223 of his 990 possible hands beat you — 23%."
         }
       },
       "action": {
@@ -9564,10 +9800,10 @@
         }
       },
       "numbers": {
-        "total": 614,
+        "total": 990,
         "beats": 223,
         "ties": 1,
-        "beatsPct": 36.3,
+        "beatsPct": 22.5,
         "rollouts": 250,
         "evGap": 78.06
       },
@@ -9576,14 +9812,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "223 of his 614 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "223 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h081",
+      "id": "h080",
       "sourceId": "gen-10385",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "King high, and he keeps checking",
       "street": "River",
       "pot": "$44",
       "effective": "$141 behind",
@@ -9600,7 +9836,7 @@
         "9♠",
         "6♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -9624,6 +9860,12 @@
             "You check.",
             "Opponent checks."
           ]
+        },
+        {
+          "street": "River · 6♣",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -9644,8 +9886,8 @@
         ],
         "correctId": "behind",
         "why": {
-          "ahead": "Not quite. 641 of his 641 possible hands beat you — 100%.",
-          "mixed": "Not quite. 641 of his 641 possible hands beat you — 100%.",
+          "ahead": "Not quite. 769 of his 990 possible hands beat you — 78%.",
+          "mixed": "Not quite. 769 of his 990 possible hands beat you — 78%.",
           "behind": "Most of the hands he can hold here are better than yours."
         }
       },
@@ -9682,10 +9924,10 @@
         }
       },
       "numbers": {
-        "total": 641,
-        "beats": 641,
-        "ties": 0,
-        "beatsPct": 100,
+        "total": 990,
+        "beats": 769,
+        "ties": 9,
+        "beatsPct": 77.7,
         "rollouts": 250,
         "evGap": 43.11
       },
@@ -9694,14 +9936,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "641 of his 641 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "769 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h082",
+      "id": "h081",
       "sourceId": "gen-1346",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "A bet you have to price",
+      "title": "Two pair facing a bet",
       "street": "River",
       "pot": "$44",
       "effective": "$96 behind",
@@ -9827,11 +10069,11 @@
       "takeaway": "632 of his 990 hands beat you. Decide on that price before you call, not after."
     },
     {
-      "id": "h083",
+      "id": "h082",
       "sourceId": "gen-9468",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "King high, and he keeps checking",
       "street": "River",
       "pot": "$40",
       "effective": "$123 behind",
@@ -9848,7 +10090,7 @@
         "J♣",
         "3♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -9871,6 +10113,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 3♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -9944,11 +10192,11 @@
       "takeaway": "308 of his 417 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h084",
+      "id": "h083",
       "sourceId": "gen-11723",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "Top pair, first to act",
       "street": "River",
       "pot": "$58",
       "effective": "$110 behind",
@@ -9965,7 +10213,7 @@
         "3♠",
         "5♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -9987,6 +10235,12 @@
           "actions": [
             "You bet to $16.",
             "Opponent calls $16."
+          ]
+        },
+        {
+          "street": "River · 5♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -10060,11 +10314,11 @@
       "takeaway": "73 of his 356 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h085",
+      "id": "h084",
       "sourceId": "gen-16976",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "A coin flip — and no reason to bet",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$41",
       "effective": "$161 behind",
@@ -10081,7 +10335,7 @@
         "K♠",
         "J♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -10104,6 +10358,12 @@
             "You bet to $5.",
             "Opponent raises to $16.",
             "You call $11."
+          ]
+        },
+        {
+          "street": "River · J♥",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -10177,11 +10437,11 @@
       "takeaway": "269 of his 990 hands beat you — but you still beat his misses. Checking wins those; bluffing into him does not."
     },
     {
-      "id": "h086",
+      "id": "h085",
       "sourceId": "gen-908",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets into a hand you beat",
+      "title": "Top pair, and he bets into you",
       "street": "River",
       "pot": "$36",
       "effective": "$204 behind",
@@ -10307,11 +10567,11 @@
       "takeaway": "You beat 84% of what he can hold. Price the call on that, not on how strong the bet looked."
     },
     {
-      "id": "h087",
+      "id": "h086",
       "sourceId": "gen-6439",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "No pair, and he keeps checking",
       "street": "River",
       "pot": "$44",
       "effective": "$147 behind",
@@ -10328,7 +10588,7 @@
         "9♠",
         "4♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -10351,6 +10611,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 4♣",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -10424,11 +10690,11 @@
       "takeaway": "238 of his 309 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h088",
+      "id": "h087",
       "sourceId": "gen-15112",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "Middle pair, and he keeps checking",
       "street": "River",
       "pot": "$46",
       "effective": "$150 behind",
@@ -10445,7 +10711,7 @@
         "5♥",
         "J♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -10468,6 +10734,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · J♥",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -10541,11 +10813,11 @@
       "takeaway": "81 of his 217 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h089",
+      "id": "h088",
       "sourceId": "gen-17901",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "A small pocket pair, first to act",
       "street": "River",
       "pot": "$50",
       "effective": "$136 behind",
@@ -10562,7 +10834,7 @@
         "4♠",
         "7♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -10586,6 +10858,12 @@
             "You check.",
             "Opponent checks."
           ]
+        },
+        {
+          "street": "River · 7♦",
+          "actions": [
+            "You are first to act on the river."
+          ]
         }
       ],
       "read": {
@@ -10604,11 +10882,11 @@
             "label": "You lose to most of what he can have"
           }
         ],
-        "correctId": "behind",
+        "correctId": "mixed",
         "why": {
-          "ahead": "Not quite. 319 of his 630 possible hands beat you — 51%.",
-          "mixed": "Not quite. 319 of his 630 possible hands beat you — 51%.",
-          "behind": "Most of the hands he can hold here are better than yours."
+          "ahead": "Not quite. 319 of his 990 possible hands beat you — 32%.",
+          "mixed": "His range splits close to evenly against your hand.",
+          "behind": "Not quite. 319 of his 990 possible hands beat you — 32%."
         }
       },
       "action": {
@@ -10617,19 +10895,19 @@
           {
             "id": "bet-small",
             "label": "Bet $17",
-            "purpose": "make a better hand fold",
+            "purpose": "charge the worse hands, and fold out the ones still live",
             "ev": 46.01
           },
           {
             "id": "bet-big",
             "label": "Bet $38",
-            "purpose": "make a better hand fold",
+            "purpose": "charge the worse hands, and fold out the ones still live",
             "ev": 43.47
           },
           {
             "id": "check",
             "label": "Check",
-            "purpose": "keep the pot small and still win sometimes",
+            "purpose": "keep the pot small with a hand that isn't clearly ahead",
             "ev": -2.85
           }
         ],
@@ -10643,10 +10921,10 @@
         }
       },
       "numbers": {
-        "total": 630,
+        "total": 990,
         "beats": 319,
         "ties": 1,
-        "beatsPct": 50.6,
+        "beatsPct": 32.2,
         "rollouts": 250,
         "evGap": 48.86
       },
@@ -10655,14 +10933,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "319 of his 630 hands beat you, so a bet has to fold better hands. Name them before you fire."
+      "takeaway": "319 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h090",
+      "id": "h089",
       "sourceId": "gen-18028",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "He bets into a hand you beat",
+      "title": "Two pair, and he bets into you",
       "street": "River",
       "pot": "$41",
       "effective": "$177 behind",
@@ -10789,11 +11067,11 @@
       "takeaway": "You beat 93% of what he can hold. Price the call on that, not on how strong the bet looked."
     },
     {
-      "id": "h091",
+      "id": "h090",
       "sourceId": "gen-2051",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "Middle pair, first to act",
       "street": "River",
       "pot": "$53",
       "effective": "$162 behind",
@@ -10810,7 +11088,7 @@
         "K♥",
         "6♦"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -10832,6 +11110,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 6♦",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -10905,11 +11189,11 @@
       "takeaway": "143 of his 196 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h092",
+      "id": "h091",
       "sourceId": "gen-18343",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "Checked to you, and you're ahead",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$56",
       "effective": "$73 behind",
@@ -10926,7 +11210,7 @@
         "4♥",
         "J♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -10949,6 +11233,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · J♣",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -11022,11 +11312,11 @@
       "takeaway": "Only 9 of his 109 hands beat you — so name the worse ones that will actually call before you check."
     },
     {
-      "id": "h093",
+      "id": "h092",
       "sourceId": "gen-5255",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "Behind — so what can a bet do?",
+      "title": "An overpair, first to act",
       "street": "River",
       "pot": "$37",
       "effective": "$108 behind",
@@ -11043,7 +11333,7 @@
         "3♠",
         "6♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -11065,6 +11355,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 6♥",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -11138,11 +11434,11 @@
       "takeaway": "61 of his 119 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h094",
+      "id": "h093",
       "sourceId": "gen-9398",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "A bet you have to price",
+      "title": "Top pair facing a bet",
       "street": "River",
       "pot": "$112",
       "effective": "$57 behind",
@@ -11207,11 +11503,11 @@
             "label": "You lose to most of what he can have"
           }
         ],
-        "correctId": "behind",
+        "correctId": "mixed",
         "why": {
-          "ahead": "Not quite. 340 of his 714 possible hands beat you — 48%.",
-          "mixed": "Not quite. 340 of his 714 possible hands beat you — 48%.",
-          "behind": "Most of the hands he can hold here are better than yours."
+          "ahead": "Not quite. 340 of his 990 possible hands beat you — 34%.",
+          "mixed": "His range splits close to evenly against your hand.",
+          "behind": "Not quite. 340 of his 990 possible hands beat you — 34%."
         }
       },
       "action": {
@@ -11232,7 +11528,7 @@
           {
             "id": "raise",
             "label": "Raise to $100 (all in)",
-            "purpose": "make a better hand fold",
+            "purpose": "charge the worse hands, and fold out the ones still live",
             "ev": -85
           }
         ],
@@ -11246,10 +11542,10 @@
         }
       },
       "numbers": {
-        "total": 714,
+        "total": 990,
         "beats": 340,
         "ties": 5,
-        "beatsPct": 47.6,
+        "beatsPct": 34.3,
         "rollouts": 250,
         "evGap": 40
       },
@@ -11258,14 +11554,14 @@
         "opponent": "heuristic",
         "coaching": "authored"
       },
-      "takeaway": "340 of his 714 hands beat you. Decide on that price before you call, not after."
+      "takeaway": "You beat 66% of what he can hold. Price the call on that, not on how strong the bet looked."
     },
     {
-      "id": "h095",
+      "id": "h094",
       "sourceId": "gen-16552",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "Ace high, first to act",
       "street": "River",
       "pot": "$78",
       "effective": "$80 behind",
@@ -11282,7 +11578,7 @@
         "7♥",
         "9♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -11305,6 +11601,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · 9♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -11378,11 +11680,11 @@
       "takeaway": "225 of his 321 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h096",
+      "id": "h095",
       "sourceId": "gen-26259",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "Checked to you, and you're ahead",
+      "title": "A full house, first to act",
       "street": "River",
       "pot": "$37",
       "effective": "$140 behind",
@@ -11399,7 +11701,7 @@
         "10♥",
         "4♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -11422,6 +11724,12 @@
           "actions": [
             "You bet to $8.",
             "Opponent calls $8."
+          ]
+        },
+        {
+          "street": "River · 4♣",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -11496,11 +11804,11 @@
       "takeaway": "Only 4 of his 990 hands beat you — so name the worse ones that will actually call before you check."
     },
     {
-      "id": "h097",
+      "id": "h096",
       "sourceId": "gen-13526",
       "leak": "plan-action",
       "leakLabel": "A bet with no job to do",
-      "title": "A coin flip — and no reason to bet",
+      "title": "Two pair, first to act",
       "street": "River",
       "pot": "$47",
       "effective": "$125 behind",
@@ -11517,7 +11825,7 @@
         "Q♣",
         "Q♥"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -11540,6 +11848,12 @@
             "You check.",
             "Opponent bets to $7.",
             "You call $7."
+          ]
+        },
+        {
+          "street": "River · Q♥",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -11613,11 +11927,11 @@
       "takeaway": "54 of his 190 hands beat you — but you still beat his misses. Checking wins those; bluffing into him does not."
     },
     {
-      "id": "h098",
+      "id": "h097",
       "sourceId": "gen-8199",
       "leak": "call-price",
       "leakLabel": "Paying the wrong price",
-      "title": "A bet you have to price",
+      "title": "Two pair facing a bet",
       "street": "River",
       "pot": "$45",
       "effective": "$113 behind",
@@ -11742,11 +12056,11 @@
       "takeaway": "121 of his 147 hands beat you. Decide on that price before you call, not after."
     },
     {
-      "id": "h099",
+      "id": "h098",
       "sourceId": "gen-22845",
       "leak": "read-as-fact",
       "leakLabel": "Treating a read as fact",
-      "title": "Behind — so what can a bet do?",
+      "title": "Top pair, first to act",
       "street": "River",
       "pot": "$71",
       "effective": "$133 behind",
@@ -11763,7 +12077,7 @@
         "4♣",
         "Q♣"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -11785,6 +12099,12 @@
           "actions": [
             "You check.",
             "Opponent checks."
+          ]
+        },
+        {
+          "street": "River · Q♣",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -11858,11 +12178,11 @@
       "takeaway": "131 of his 213 hands beat you, so a bet has to fold better hands. Name them before you fire."
     },
     {
-      "id": "h100",
+      "id": "h099",
       "sourceId": "gen-11388",
       "leak": "weaker-callers",
       "leakLabel": "Leaving value behind",
-      "title": "A coin flip, and a reason to bet",
+      "title": "Top pair, first to act",
       "street": "River",
       "pot": "$119",
       "effective": "$49 behind",
@@ -11879,7 +12199,7 @@
         "7♠",
         "4♠"
       ],
-      "decisionNow": "Opponent checks. You act now.",
+      "decisionNow": "You are first to act on the river.",
       "history": [
         {
           "street": "Preflop",
@@ -11901,6 +12221,12 @@
           "actions": [
             "You bet to $29.",
             "Opponent calls $29."
+          ]
+        },
+        {
+          "street": "River · 4♠",
+          "actions": [
+            "You are first to act on the river."
           ]
         }
       ],
@@ -11972,6 +12298,128 @@
         "coaching": "authored"
       },
       "takeaway": "63 of his 229 hands beat you, so a bet has to fold better hands. Name them before you fire."
+    },
+    {
+      "id": "h100",
+      "sourceId": "gen-2886",
+      "leak": "plan-action",
+      "leakLabel": "A bet with no job to do",
+      "title": "No pair, first to act",
+      "street": "River",
+      "pot": "$113",
+      "effective": "$166 behind",
+      "heroPosition": "Out of position · acts first",
+      "opponentNote": "loose and unpredictable tonight",
+      "hero": [
+        "10♥",
+        "Q♠"
+      ],
+      "board": [
+        "6♠",
+        "5♦",
+        "4♠",
+        "A♣",
+        "J♠"
+      ],
+      "decisionNow": "You are first to act on the river.",
+      "history": [
+        {
+          "street": "Preflop",
+          "actions": [
+            "4 players fold.",
+            "You raise to $11.",
+            "Opponent calls $11."
+          ]
+        },
+        {
+          "street": "Flop · 6♠ 5♦ 4♠",
+          "actions": [
+            "You bet to $15.",
+            "Opponent calls $15."
+          ]
+        },
+        {
+          "street": "Turn · A♣",
+          "actions": [
+            "You bet to $28.",
+            "Opponent calls $28."
+          ]
+        },
+        {
+          "street": "River · J♠",
+          "actions": [
+            "You are first to act on the river."
+          ]
+        }
+      ],
+      "read": {
+        "prompt": "Against what he can have here, where does your hand stand?",
+        "options": [
+          {
+            "id": "ahead",
+            "label": "You beat almost everything he can have"
+          },
+          {
+            "id": "mixed",
+            "label": "It's roughly a coin flip"
+          },
+          {
+            "id": "behind",
+            "label": "You lose to most of what he can have"
+          }
+        ],
+        "correctId": "behind",
+        "why": {
+          "ahead": "Not quite. 761 of his 990 possible hands beat you — 77%.",
+          "mixed": "Not quite. 761 of his 990 possible hands beat you — 77%.",
+          "behind": "Most of the hands he can hold here are better than yours."
+        }
+      },
+      "action": {
+        "prompt": "What do you do, and what is it for?",
+        "options": [
+          {
+            "id": "bet-big",
+            "label": "Bet $85",
+            "purpose": "make a better hand fold",
+            "ev": 105.87
+          },
+          {
+            "id": "check",
+            "label": "Check",
+            "purpose": "keep the pot small and still win sometimes",
+            "ev": -0.5
+          },
+          {
+            "id": "bet-small",
+            "label": "Bet $37",
+            "purpose": "make a better hand fold",
+            "ev": -19.6
+          }
+        ],
+        "correctIds": [
+          "bet-big"
+        ],
+        "why": {
+          "bet-big": "Holds up: over 250 simulated play-outs this earned about $106.",
+          "check": "Costs about $106 against the best line, measured over 250 play-outs.",
+          "bet-small": "Costs about $125 against the best line, measured over 250 play-outs."
+        }
+      },
+      "numbers": {
+        "total": 990,
+        "beats": 761,
+        "ties": 9,
+        "beatsPct": 76.9,
+        "rollouts": 250,
+        "evGap": 106.37
+      },
+      "evidence": {
+        "counting": "exact",
+        "opponent": "heuristic",
+        "coaching": "authored"
+      },
+      "takeaway": "761 of his 990 hands beat you, so a bet has to fold better hands. Name them before you fire."
     }
   ]
 }
