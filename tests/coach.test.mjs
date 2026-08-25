@@ -80,3 +80,28 @@ test("select never returns more than asked for", () => {
   }));
   assert.equal(select(candidates, 12).length, 12);
 });
+
+// The FROM address is load-bearing: Cloudflare onboards withmagic.ai but NOT its
+// subdomains, and mail from a subdomain reaches verified Email Routing
+// destinations only while 400ing for everyone else. That fails silently in dev
+// because Raj's own address IS a verified destination, so it gets a test.
+import { assertSendableFrom, DEFAULT_FROM } from "../netlify/functions/_lib/email.mjs";
+
+test("the default sender is on the onboarded root domain", () => {
+  assert.doesNotThrow(() => assertSendableFrom(DEFAULT_FROM));
+  assert.match(DEFAULT_FROM, /@withmagic\.ai$/);
+});
+
+test("a subdomain sender is refused, not quietly accepted", () => {
+  assert.throws(() => assertSendableFrom("coach@pokercoach.withmagic.ai"), /not on an onboarded domain/);
+  assert.throws(() => assertSendableFrom("hello@mail.withmagic.ai"), /not on an onboarded domain/);
+});
+
+test("an unrelated domain is refused", () => {
+  assert.throws(() => assertSendableFrom("coach@example.com"), /not on an onboarded domain/);
+  assert.throws(() => assertSendableFrom("notanemail"), /not on an onboarded domain/);
+});
+
+test("a lookalike domain does not slip through", () => {
+  assert.throws(() => assertSendableFrom("a@notwithmagic.ai"), /not on an onboarded domain/);
+});

@@ -62,6 +62,13 @@ Magic-link tokens are stored only as HMACs and are single-use with a 20-minute l
 cookies are HttpOnly, Secure, SameSite=Lax and signed, so a forged cookie is rejected before
 the database is touched.
 
+**Email goes through Cloudflare Email Sending, not Resend**, and the FROM address is
+load-bearing: Cloudflare onboards `withmagic.ai` but **not its subdomains**. Mail from
+`@pokercoach.withmagic.ai` reaches verified Email Routing destinations only and 400s for
+everyone else - which looks fine while you test it and is broken for strangers.
+`assertSendableFrom()` in `netlify/functions/_lib/email.mjs` refuses a subdomain sender
+outright, and the test suite asserts it. Send from `coach@withmagic.ai`.
+
 ```bash
 node tools/migrate.mjs   # applies db/schema.sql, idempotent, safe on every deploy
 ```
