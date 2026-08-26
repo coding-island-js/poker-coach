@@ -480,7 +480,31 @@ function toLesson(candidate, index) {
 }
 
 async function main() {
-  const raw = JSON.parse(await readFile(IN, "utf8"));
+  // `--in` takes a comma-separated list so pools generated with different seeds
+  // can be pooled. More candidates is the only lever that improves variety once
+  // the de-duplication key is right.
+  const paths = IN.split(",").map((path) => path.trim()).filter(Boolean);
+  const pools = await Promise.all(paths.map(async (path) => JSON.parse(await readFile(path, "utf8"))));
+  const seen = new Set();
+  const merged = [];
+  for (const pool of pools) {
+    for (const candidate of pool.candidates) {
+      // Different seeds can still deal the same spot; key on the cards.
+      const key = `${candidate.boardCodes.join("")}|${candidate.heroCodes.join("")}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      merged.push(candidate);
+    }
+  }
+  merged.sort((a, b) => b.evGapPot - a.evGapPot);
+  const raw = {
+    candidates: merged,
+    dealt: pools.reduce((sum, pool) => sum + (pool.dealt ?? 0), 0),
+    generatedFrom: pools[0]?.generatedFrom,
+  };
+  if (paths.length > 1) {
+    console.log(`merged ${paths.length} pools -> ${merged.length} unique candidates from ${raw.dealt} hands dealt`);
+  }
   // Over-select, then drop the hands whose read question answers itself - a
   // hero holding the nuts, or drawing dead, has no range to read - and trim
   // back to the target. h046 shipped as the nut flush against 990 combos, where

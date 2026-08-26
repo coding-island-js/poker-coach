@@ -23,6 +23,11 @@ Three layers, and only the last one is writing:
 | The answer | Measured by replaying the hand | Ground truth, not an opinion and not an LLM guess |
 | The words | Templates over those numbers | Language is the only thing that needs authoring |
 
+Two pools on different seeds are merged before curation. Selecting a hundred from ~2,200
+candidates rather than ~840 is the only lever that improves variety once the de-duplication key
+is right, and it lifted the median EV gap from $69 to $82 - the spots are simply more
+instructive when there are more to choose from.
+
 **No model decides what the right play is.** Each candidate action is forced at the real
 decision point and the hand is replayed 250 times; the mean stack change is its EV. A spot
 is only kept when the *tempting* play — what a naive archetype actually does there — is
@@ -31,11 +36,12 @@ measurably worse than the best one.
 ### The pipeline
 
 ```bash
-npm run generate   # deal ~30k hands, score river spots, write work/candidates.json
-npm run curate     # pick 100 varied instructive ones -> public/hands.json
-npm run audit      # re-derive every claim from the cards; fails on any disagreement
-npm run build      # stamp assets, content gate, audit
-npm run content    # all of it
+npm run generate       # deal 30k hands, score river spots -> work/candidates.json
+npm run generate:more  # a second pool on a different seed -> work/candidates-b.json
+npm run curate         # merge both, pick 100 varied instructive ones -> public/hands.json
+npm run audit          # re-derive every claim from the cards; fails on any disagreement
+npm run build          # stamp assets, content gate, audit
+npm run content        # all of it
 ```
 
 `npm run audit` is the one that matters. The content gate checks a hand is well *formed*; the
