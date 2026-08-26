@@ -108,20 +108,30 @@ for (const hand of hands) {
   }
 
   // --- 7. the situation must be internally consistent ------------------
-  const actsFirst = hand.heroPosition.includes("acts first");
+  // heroPosition is a seat NAME now ("Big blind"), so who acts first comes from
+  // `inPosition` rather than from parsing the label.
+  const actsFirst = hand.inPosition === false;
+  if (!actsFirst && /^You are first to act/.test(hand.decisionNow)) {
+    note(hand, "story", "hero is in position, yet described as first to act");
+  }
   if (actsFirst && /^Opponent checks/.test(hand.decisionNow)) {
     note(hand, "story", "hero acts first, yet the opponent is described as having checked");
   }
-  if (!actsFirst && /^You are first to act/.test(hand.decisionNow)) {
-    note(hand, "story", "hero acts last, yet described as first to act");
-  }
+  if (!hand.opponentPosition) note(hand, "story", "no opponent position named");
+  if (hand.heroPosition === hand.opponentPosition) note(hand, "story", "both players in the same seat");
   const facing = /bets \$/.test(hand.decisionNow);
   const hasFold = options.some((o) => o.id === "fold");
   if (facing !== hasFold) {
     note(hand, "story", facing ? "facing a bet but cannot fold" : "not facing a bet but offered a fold");
   }
-  if (!hand.history.some((s) => s.street.startsWith("River"))) {
-    note(hand, "story", "timeline never reaches the river");
+  // The timeline must reach the street being decided - which is the river only
+  // for river hands. Flop and turn spots correctly stop where the action is.
+  if (!hand.history.some((entry) => entry.street.startsWith(hand.street))) {
+    note(hand, "story", `timeline never reaches the ${hand.street.toLowerCase()}`);
+  }
+  const boardFor = { Flop: 3, Turn: 4, River: 5 }[hand.street];
+  if (boardFor && hand.board.length !== boardFor) {
+    note(hand, "story", `${hand.street} hand shows ${hand.board.length} board cards`);
   }
 
   // --- 8. the count must say what it is counting -----------------------
@@ -172,6 +182,12 @@ const reads = {};
 for (const hand of hands) reads[hand.read.correctId] = (reads[hand.read.correctId] ?? 0) + 1;
 console.log(`  leaks                  ${Object.entries(spread).map(([k, v]) => `${k} ${v}`).join(" · ")}`);
 console.log(`  read answers           ${Object.entries(reads).map(([k, v]) => `${k} ${v}`).join(" · ")}`);
+const streets = {};
+for (const hand of hands) streets[hand.street] = (streets[hand.street] ?? 0) + 1;
+console.log(`  streets                ${Object.entries(streets).map(([k, v]) => `${k} ${v}`).join(" · ")}`);
+const seats = {};
+for (const hand of hands) seats[hand.heroPosition] = (seats[hand.heroPosition] ?? 0) + 1;
+console.log(`  hero seats             ${Object.entries(seats).map(([k, v]) => `${k} ${v}`).join(" · ")}`);
 
 const gaps = hands.map((h) => h.numbers.evGap).sort((a, b) => a - b);
 console.log(`  EV gap $ min/med/max   ${gaps[0]} / ${gaps[Math.floor(gaps.length / 2)]} / ${gaps.at(-1)}`);

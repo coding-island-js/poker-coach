@@ -2,7 +2,8 @@
 
 A No-Limit Hold'em coach that grades your **reasoning**, not just your answer.
 
-Every hand is a real spot dealt by a simulated cash game. Every number the app shows was
+Every hand is a real spot dealt by a simulated cash game - flop, turn or river, in a named
+seat, against a named opponent type. Every number the app shows was
 counted or measured, not asserted. Two questions per hand, feedback after each one:
 
 ```
@@ -122,8 +123,10 @@ cache", then "CDN requesting 0 files and 0 functions".
 
 ## Known limits
 
-- **River spots only.** Turn and flop decisions need runout variance in the rollout, which
-  the current EV measurement does not model.
+- **Heads-up only.** Real low-stakes hands are often three to five ways; every spot here is
+  two-handed. This is the biggest remaining realism gap.
+- **No preflop, and no same-hand continuation.** Each spot is a single decision on one street;
+  nothing asks the turn and then the river of the same hand.
 - **The taxonomy was rebuilt around the content.** Codex's original six leaks were designed for
   hand-authored hands and did not survive generated river spots - one never fired at all and
   another reached three hands in a hundred. The six now shipped were read off the pool's real

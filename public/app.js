@@ -48,7 +48,20 @@ const el = (tag, attrs = {}, ...kids) => {
 };
 
 const isRed = (card) => card.includes("♥") || card.includes("♦");
-const cardEl = (card) => el("span", { class: `pc${isRed(card) ? " red" : ""}` }, card);
+// Rank and suit are separate elements so the suit can be drawn big. Rendering
+// the whole thing as one string put the glyph at rank size, and a J-heart read
+// as a J-spade at a glance - which is the one mistake a poker UI cannot make.
+const cardEl = (card) => {
+  const suit = card.slice(-1);
+  const rank = card.slice(0, -1);
+  return el("span", { class: `pc${isRed(card) ? " red" : ""}`, "aria-label": cardName(rank, suit) },
+    el("b", {}, rank),
+    el("i", { "aria-hidden": "true" }, suit));
+};
+
+const SUIT_NAMES = { "♠": "spades", "♥": "hearts", "♦": "diamonds", "♣": "clubs" };
+const RANK_NAMES = { A: "ace", K: "king", Q: "queen", J: "jack" };
+const cardName = (rank, suit) => `${RANK_NAMES[rank] ?? rank} of ${SUIT_NAMES[suit] ?? suit}`;
 const scrollTop = () => window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
 
 const currentHand = () => content.hands[view.handIndex] ?? content.hands[0];
@@ -61,11 +74,12 @@ function feltEl(hand) {
       el("span", {}, hand.effective)),
     el("div", { class: "hands" },
       el("div", { class: "hand-group" },
-        el("span", {}, `You · ${hand.heroPosition.split(" ·")[0]}`),
+        el("span", {}, `You · ${hand.heroPosition}${hand.inPosition ? " · in position" : ""}`),
         el("div", { class: "cards" }, hand.hero.map(cardEl))),
       el("div", { class: "hand-group" },
         el("span", {}, "Board"),
-        el("div", { class: "cards" }, hand.board.map(cardEl)))));
+        el("div", { class: "cards" }, hand.board.map(cardEl)))),
+    el("p", { class: "seats" }, `You're in the ${hand.heroPosition.toLowerCase()}, he's in the ${(hand.opponentPosition ?? "").toLowerCase()}.`));
 }
 
 function contextEl(hand, { step } = {}) {
@@ -146,6 +160,24 @@ function readStep(hand) {
       el("div", { class: "countline" },
         el("span", {}, "Of the "), el("b", {}, n.total), el("span", {}, ` ${hand.rangeBasis ?? "hands he can hold"}, `),
         el("b", {}, n.beats), el("span", {}, ` beat you — ${Math.round(n.beatsPct)}%.`)),
+      // The range itself, grouped. A learner told "323 of 990 beat you" has a
+      // number; one who can see that 18 are straights and 145 are top pair has
+      // a range. This is the whole "combinations before labels" idea, shown.
+      hand.breakdown?.length
+        ? el("div", { class: "breakdown" },
+            el("p", { class: "breakdown-head" }, "What he can actually have"),
+            hand.breakdown.map((row) => {
+              const share = Math.max(2, Math.round((row.combos / n.total) * 100));
+              const losing = row.beatsHero === 0;
+              return el("div", { class: "brow" },
+                el("span", { class: "blabel" }, row.label),
+                el("span", { class: "bbar" },
+                  el("i", { class: losing ? "you-win" : "you-lose", style: `width:${share}%` })),
+                el("span", { class: "bcount" }, `${row.combos}`),
+                el("span", { class: `bverdict ${losing ? "ok" : "no"}` },
+                  losing ? "you beat" : row.beatsHero === row.combos ? "all beat you" : `${row.beatsHero} beat you`));
+            }))
+        : null,
       el("p", { class: "small muted" }, hand.read.why[hand.read.correctId]),
       // Say plainly when the count has not been narrowed by his betting. The
       // number is still exact; what it counts is just wider than a real read.

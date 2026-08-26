@@ -26,7 +26,18 @@ for (const hand of hands) {
   if (!LEAKS.has(hand.leak)) fail(id, `unknown leak "${hand.leak}"`);
   if (!hand.title || !hand.takeaway) fail(id, "missing title or takeaway");
   if (!Array.isArray(hand.hero) || hand.hero.length !== 2) fail(id, "hero must be two cards");
-  if (!Array.isArray(hand.board) || hand.board.length !== 5) fail(id, "board must be five cards");
+  // Board length is set by the street: three on the flop, four on the turn,
+  // five on the river. A single hardcoded five was left over from when every
+  // spot was a river.
+  const expectedBoard = { Flop: 3, Turn: 4, River: 5 }[hand.street];
+  if (!expectedBoard) fail(id, `unknown street "${hand.street}"`);
+  if (!Array.isArray(hand.board) || (expectedBoard && hand.board.length !== expectedBoard)) {
+    fail(id, `${hand.street} needs ${expectedBoard} board cards, has ${hand.board?.length}`);
+  }
+  if (!hand.heroPosition || !hand.opponentPosition) fail(id, "both seats must be named");
+  if (hand.breakdown && hand.breakdown.reduce((sum, row) => sum + row.combos, 0) !== hand.numbers.total) {
+    fail(id, "range breakdown does not add up to the counted range");
+  }
   if (!hand.history?.length) fail(id, "no hand history");
 
   // Every question must be answerable and have exactly one defensible target.

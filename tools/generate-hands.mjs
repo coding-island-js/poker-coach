@@ -1,6 +1,6 @@
 // Poker Coach content generator.
 //
-// Deals hands with poker-sim's engine, finds heads-up river spots where a
+// Deals hands with poker-sim's engine, finds heads-up postflop spots where a
 // tempting play is measurably worse than the best one, computes the opponent's
 // range from their actual actions, and emits scored candidates.
 //
@@ -14,6 +14,7 @@ import {
   act, getLegalActions, getBotHandContext, decideBotAction, createSeededRng,
   createLineup, newHand, livePlayers, playerOf, rollout, candidateActions,
   estimateRange, cappedness, bucketOfHolding, candidateCombos, archetypeById, plausibleRange, createBotProfile, showdownSplit,
+  rangeBreakdown,
 } from "./lib/engine.mjs";
 
 // ---------------------------------------------------------------- arguments
@@ -29,7 +30,10 @@ const SEED = Number.parseInt(arg("seed", "20260825"), 10);
 
 // A spot has to be worth a learner's 90 seconds. Tiny limped pots and
 // decisions where every option earns the same are correct but not instructive.
-const MIN_POT_BB = Number.parseFloat(arg("min-pot-bb", "12"));
+// Pots are naturally smaller earlier in the hand, so a single floor would
+// admit only rivers. Scaled by street instead.
+const MIN_POT_BB = { flop: 6, turn: 10, river: 12 };
+const STREETS = ["flop", "turn", "river"];
 const MIN_GAP_POT = Number.parseFloat(arg("min-gap", "0.08"));
 // Above this share of random hands being "strong", the board itself (a pair on
 // board, four to a straight) has made almost every holding strong and the
@@ -46,12 +50,36 @@ const money = (n) => `$${Math.round(n)}`;
 // temptations: what an ordinary low-stakes opponent actually does here.
 const NAIVE_ARCHETYPES = ["calling-station", "passive-rec", "loose-passive-rec", "ego-rec"];
 
+/**
+ * The seat's real name. poker-sim tracks distance from the button but never
+ * names it, and "out of position" teaches less than "big blind" - position is
+ * the thing a learner is supposed to be carrying to the table.
+ */
+function positionName(hand, playerId) {
+  const order = hand.seatOrder ?? [];
+  const buttonIndex = order.indexOf(hand.buttonId);
+  const seatIndex = order.indexOf(playerId);
+  if (buttonIndex < 0 || seatIndex < 0) return "Unknown";
+  if (playerId === hand.buttonId) return "Button";
+  if (playerId === hand.smallBlindId) return "Small blind";
+  if (playerId === hand.bigBlindId) return "Big blind";
+
+  const seats = order.length;
+  const fromButton = (seatIndex - buttonIndex + seats) % seats;
+  // Counting backwards from the button: the seat before it is the cutoff.
+  const beforeButton = seats - fromButton;
+  if (beforeButton === 1) return "Cutoff";
+  if (beforeButton === 2) return "Hijack";
+  if (beforeButton === 3) return "Lojack";
+  return "Early position";
+}
+
 // --------------------------------------------------------------- spot search
 /**
  * Play one hand, stopping at the first heads-up river decision, and return
  * everything that decision depends on.
  */
-function findRiverSpot(handIndex, rng) {
+function findSpot(handIndex, rng, wantStreet) {
   const { players, profiles } = createLineup(handIndex, rng);
   let game = newHand(handIndex, rng, players);
   const decisionsByPlayer = new Map();
@@ -65,12 +93,16 @@ function findRiverSpot(handIndex, rng) {
     const hand = game.table.currentHand;
     const context = getBotHandContext(game, legal.playerId);
 
-    if (hand.phase === "river" && livePlayers(hand).length === 2) {
+    // Only the street this hand was asked for. Taking the first heads-up spot
+    // instead gave 28 flops to 6 turns to 1 river, because most hands are still
+    // two-handed on the flop and thin out after.
+    if (hand.phase === wantStreet && livePlayers(hand).length === 2) {
       const heroId = legal.playerId;
       const villain = livePlayers(hand).find((p) => p.id !== heroId);
       if (villain && context.pot > 0) {
         return {
           game, legal, profiles, heroId, villainId: villain.id,
+          street: hand.phase,
           heroContext: context,
           villainDecisions: decisionsByPlayer.get(villain.id) ?? [],
         };
@@ -237,28 +269,30 @@ async function main() {
   const started = Date.now();
   const candidates = [];
   let dealt = 0;
-  let riverSpots = 0;
+  let spots = 0;
 
   for (let handIndex = 0; handIndex < HANDS; handIndex += 1) {
     const rng = createSeededRng(SEED + handIndex * 104_729);
     dealt += 1;
     let spot;
     try {
-      spot = findRiverSpot(handIndex, rng);
+      // Rotate the target street so the shipped set covers all three.
+      spot = findSpot(handIndex, rng, STREETS[handIndex % STREETS.length]);
     } catch {
       continue;
     }
     if (!spot) continue;
-    riverSpots += 1;
+    spots += 1;
 
-    const { game, legal, profiles, heroId, villainId, heroContext, villainDecisions } = spot;
+    const { game, legal, profiles, heroId, villainId, heroContext, villainDecisions, street } = spot;
     const hand = game.table.currentHand;
     const heroCards = playerOf(hand, heroId)?.holeCards ?? [];
     const board = hand.board ?? [];
-    if (heroCards.length !== 2 || board.length !== 5) continue;
+    const expectedBoard = { flop: 3, turn: 4, river: 5 }[street];
+    if (heroCards.length !== 2 || board.length !== expectedBoard) continue;
 
     const pot = heroContext.pot;
-    if (pot < MIN_POT_BB * 3) continue;
+    if (pot < (MIN_POT_BB[street] ?? 12) * 3) continue;
     const actions = candidateActions(legal, pot);
     if (actions.length < 2) continue;
 
@@ -327,11 +361,13 @@ async function main() {
       id: `gen-${handIndex}`,
       handIndex,
       leak,
-      street: "River",
+      street: street.charAt(0).toUpperCase() + street.slice(1),
       pot: money(pot),
       potRaw: pot,
       effective: `${money(heroContext.effectiveStack ?? heroContext.stack)} behind`,
-      heroPosition: heroContext.position?.inPosition ? "In position · acts last" : "Out of position · acts first",
+      heroPosition: positionName(hand, heroId),
+      opponentPosition: positionName(hand, villainId),
+      inPosition: Boolean(heroContext.position?.inPosition),
       opponentArchetype: villainProfile?.archetype ?? null,
       hero: prettyAll(heroCards),
       heroCodes: heroCards,
@@ -360,6 +396,9 @@ async function main() {
       },
       rangeSource,
       showdown: split,
+      // The range grouped into hand classes. This is what turns "323 of 990
+      // beat you" from a number into a range a learner can picture.
+      breakdown: rangeBreakdown({ heroCards, board, holdings: quoted }),
       capped: cap && {
         strongShare: cap.strongShare === null ? null : Number((cap.strongShare * 100).toFixed(1)),
         baseline: cap.baseline === null ? null : Number((cap.baseline * 100).toFixed(1)),
@@ -382,12 +421,16 @@ async function main() {
   await mkdir(dirname(OUT), { recursive: true });
   await writeFile(OUT, JSON.stringify({
     generatedFrom: { hands: HANDS, rollouts: ROLLOUTS, seed: SEED },
-    dealt, riverSpots, scored: candidates.length,
+    dealt, spots, scored: candidates.length,
     seconds: Number(((Date.now() - started) / 1000).toFixed(1)),
     candidates,
   }, null, 2));
 
-  console.log(`\ndealt ${dealt} hands -> ${riverSpots} heads-up river spots -> ${candidates.length} scored`);
+  const byStreet = {};
+  for (const candidate of candidates) byStreet[candidate.street] = (byStreet[candidate.street] ?? 0) + 1;
+  console.log(`
+dealt ${dealt} hands -> ${spots} heads-up spots -> ${candidates.length} scored`);
+  console.log(`streets: ${Object.entries(byStreet).map(([k, v]) => `${k} ${v}`).join(" · ")}`);
   const mid = candidates[Math.floor(candidates.length / 2)];
   console.log(`EV gap (share of pot): max ${candidates[0]?.evGapPot ?? 0}, median ${mid?.evGapPot ?? 0}`);
   console.log(`wrote ${OUT} in ${((Date.now() - started) / 1000).toFixed(1)}s`);

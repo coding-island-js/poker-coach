@@ -117,11 +117,15 @@ button { font-family: inherit; }
 }
 .cards { display: flex; gap: 5px; }
 .pc {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-width: 34px; height: 46px; padding: 0 5px;
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 38px; height: 50px; padding: 3px 5px; gap: 1px;
   background: #fff; border-radius: 6px; color: #14231d;
-  font-size: 16px; font-weight: 700; box-shadow: 0 2px 5px rgba(0,0,0,.18);
+  line-height: 1; box-shadow: 0 2px 5px rgba(0,0,0,.18);
 }
+.pc b { font-size: 17px; font-weight: 700; letter-spacing: -.02em; }
+/* The suit is the thing that gets misread, so it is drawn at rank size, not as
+   a superscript. */
+.pc i { font-size: 15px; font-style: normal; line-height: 1; }
 .pc.red { color: #b3271b; }
 
 .factline {
@@ -261,4 +265,32 @@ button { font-family: inherit; }
 @media (max-width: 420px) {
   .street { grid-template-columns: 1fr; gap: 3px; padding: 9px 0; }
   .street b { font-size: 13px; }
+}
+
+/* --------------------------------------------------------- range breakdown */
+.seats { margin: 12px 0 0; font-size: 13px; color: rgba(234,244,240,.85); }
+.felt .seats { margin-top: 12px; }
+
+.breakdown { margin: 14px 0 4px; }
+.breakdown-head {
+  margin: 0 0 9px; font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .07em; color: var(--felt);
+}
+.brow {
+  display: grid; grid-template-columns: minmax(96px, 1.5fr) 1fr auto auto;
+  gap: 9px; align-items: center; padding: 5px 0; font-size: 13.5px;
+}
+.blabel { color: var(--ink); }
+.bbar { height: 7px; border-radius: 99px; background: var(--line-soft); overflow: hidden; }
+.bbar i { display: block; height: 100%; border-radius: inherit; }
+.bbar .you-win { background: var(--felt); }
+.bbar .you-lose { background: var(--warn); }
+.bcount { font-variant-numeric: tabular-nums; color: var(--ink-2); min-width: 34px; text-align: right; }
+.bverdict { font-size: 12px; white-space: nowrap; }
+.bverdict.ok { color: var(--felt-dark); }
+.bverdict.no { color: var(--warn); }
+
+@media (max-width: 460px) {
+  .brow { grid-template-columns: 1fr auto auto; gap: 7px; }
+  .bbar { display: none; }
 }

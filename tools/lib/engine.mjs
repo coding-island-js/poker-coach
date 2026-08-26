@@ -99,18 +99,34 @@ export function rollout({ game, profiles, playerId, action, trials, seed }) {
   let total = 0;
   let completed = 0;
   for (let trial = 0; trial < trials; trial += 1) {
+    const trialRng = createSeededRng(seed + trial * 7919);
     let g;
     try {
-      g = act(game, action);
+      // Shuffle the undealt remainder FIRST. Without this the turn and river
+      // are already fixed in the deck, every trial deals the same runout, and a
+      // flop decision would be scored against one lucky card. This is what
+      // makes anything before the river measurable at all.
+      g = act(reshuffleUndealt(game, trialRng), action);
     } catch {
       return null; // action was not legal here
     }
-    const trialRng = createSeededRng(seed + trial * 7919);
     g = playOut(g, profiles, trialRng);
     total += finalStack(g, playerId) - before;
     completed += 1;
   }
   return completed ? total / completed : null;
+}
+
+/** A copy of the game whose undealt cards are in a fresh order. */
+export function reshuffleUndealt(game, rng) {
+  const hand = game.table.currentHand;
+  const deck = [...(hand.deck ?? [])];
+  if (deck.length < 2) return game;
+  for (let i = deck.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(rng() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return { ...game, table: { ...game.table, currentHand: { ...hand, deck } } };
 }
 
 /**
@@ -205,4 +221,75 @@ export function plausibleRange(board, knownCards) {
   // Uniform overstates how weak he is, which the app labels honestly as a
   // heuristic. Being a bit generous is recoverable; being circular is not.
   return candidateCombos(knownCards).map((cards) => ({ cards, weight: 1 }));
+}
+
+// ------------------------------------------------------- range breakdown
+const RANK_INDEX = "23456789TJQKA";
+const rankValue = (code) => RANK_INDEX.indexOf(code[0] === "1" ? "T" : code[0]);
+
+/**
+ * What class of hand a holding makes on this board, coarse enough to teach with.
+ *
+ * Ordered strongest first by the `order` field so a breakdown reads down the
+ * range the way a player thinks about it.
+ */
+export function handCategory(cards, board) {
+  const all = [...cards, ...board];
+  const ranks = all.map(rankValue);
+  const boardRanks = board.map(rankValue);
+  const counts = {};
+  for (const r of ranks) counts[r] = (counts[r] ?? 0) + 1;
+  const suitCounts = {};
+  for (const c of all) suitCounts[c[1]] = (suitCounts[c[1]] ?? 0) + 1;
+
+  const groups = Object.values(counts).sort((a, b) => b - a);
+  const flush = Object.values(suitCounts).some((n) => n >= 5);
+  const unique = [...new Set(ranks)].sort((a, b) => a - b);
+  let straight = false;
+  for (let i = 0; i + 5 <= unique.length; i += 1) {
+    if (unique[i + 4] - unique[i] === 4) straight = true;
+  }
+  // Wheel: A2345.
+  if (unique.includes(12) && [0, 1, 2, 3].every((r) => unique.includes(r))) straight = true;
+
+  if (groups[0] === 4) return { order: 0, label: "Four of a kind" };
+  if (groups[0] === 3 && groups[1] >= 2) return { order: 1, label: "A full house" };
+  if (flush) return { order: 2, label: "A flush" };
+  if (straight) return { order: 3, label: "A straight" };
+  if (groups[0] === 3) return { order: 4, label: "Three of a kind" };
+  if (groups[0] === 2 && groups[1] === 2) return { order: 5, label: "Two pair" };
+  if (groups[0] === 2) {
+    const pairedRank = Number(Object.keys(counts).find((r) => counts[r] === 2));
+    const topBoard = Math.max(...boardRanks);
+    return pairedRank >= topBoard
+      ? { order: 6, label: "Top pair or better" }
+      : { order: 7, label: "A weaker pair" };
+  }
+  return { order: 8, label: "No pair" };
+}
+
+/**
+ * The opponent's range, grouped into hand classes, with how many of each beat
+ * the hero.
+ *
+ * This is the product's founding principle made literal: a learner who is told
+ * "323 of 990 beat you" has a number, and a learner who can see that 18 of them
+ * are straights and 145 are top pair has a range. The count alone was a label
+ * wearing a number's clothes.
+ */
+export function rangeBreakdown({ heroCards, board, holdings }) {
+  const boardIdx = cardIndexes(board);
+  const heroScore = scoreCards([...cardIndexes(heroCards), ...boardIdx]);
+  const rows = new Map();
+
+  for (const holding of holdings) {
+    const { order, label } = handCategory(holding.cards, board);
+    const row = rows.get(label) ?? { label, order, combos: 0, beatsHero: 0, tiesHero: 0 };
+    row.combos += 1;
+    const score = scoreCards([...cardIndexes(holding.cards), ...boardIdx]);
+    if (score > heroScore) row.beatsHero += 1;
+    else if (score === heroScore) row.tiesHero += 1;
+    rows.set(label, row);
+  }
+  return [...rows.values()].sort((a, b) => a.order - b.order);
 }

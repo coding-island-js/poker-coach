@@ -7,7 +7,7 @@
 //
 //   node tools/curate.mjs --in work/candidates.json --out public/hands.json --count 100
 import { readFile, writeFile, mkdir } from "node:fs/promises";
-import { showdownSplit, plausibleRange } from "./lib/engine.mjs";
+import { showdownSplit, plausibleRange, rangeBreakdown } from "./lib/engine.mjs";
 import { dirname, basename } from "node:path";
 
 const argv = process.argv.slice(2);
@@ -70,16 +70,29 @@ export function standing(beatsPct) {
   return "behind";
 }
 
-const READ_OPTIONS = [
-  { id: "ahead", label: "You beat almost everything he can have" },
-  { id: "mixed", label: "It's roughly a coin flip" },
-  { id: "behind", label: "You lose to most of what he can have" },
-];
+// On the flop and turn the count is about who is ahead RIGHT NOW - there are
+// cards to come, and saying "you win" would be a different claim than the one
+// the arithmetic supports. The river has no cards left, so it can speak plainly.
+const READ_OPTIONS = (street) => {
+  const now = street === "River" ? "" : " right now";
+  return [
+    { id: "ahead", label: `You beat almost everything he can have${now}` },
+    { id: "mixed", label: "It's roughly a coin flip" },
+    { id: "behind", label: `You lose to most of what he can have${now}` },
+  ];
+};
 
-const READ_WHY = {
-  ahead: "Counting his possible hands, very few of them beat yours.",
-  mixed: "His range splits close to evenly against your hand.",
-  behind: "Most of the hands he can hold here are better than yours.",
+const READ_PROMPT = (street) => street === "River"
+  ? "Against what he can have here, where does your hand stand?"
+  : "Against what he can have, where does your hand stand right now?";
+
+const READ_WHY = (street) => {
+  const tail = street === "River" ? "" : " More cards are still to come.";
+  return {
+    ahead: `Counting his possible hands, very few of them are ahead of yours.${tail}`,
+    mixed: `His range splits close to evenly against your hand.${tail}`,
+    behind: `Most of the hands he can hold are better than yours right now.${tail}`,
+  };
 };
 
 /** What a given action is actually trying to do, in plain words. */
@@ -215,13 +228,11 @@ function handTitle(candidate, shape) {
   let held;
   try { held = describeHero(hero, board); } catch { return titleFor(shape); }
 
-  if (shape.facing) {
-    return standingIsGood(shape.standingNow) ? `${held}, and he bets into you` : `${held} facing a bet`;
-  }
+  const spot = candidate.inPosition ? "in position" : "out of position";
+  if (shape.facing) return `${held}, and he bets into you`;
   const checkedTwice = (candidate.villainChecks ?? 0) >= 2;
   if (checkedTwice) return `${held}, and he keeps checking`;
-  const actsFirst = candidate.heroPosition.includes("acts first");
-  return actsFirst ? `${held}, first to act` : `${held}, checked to you`;
+  return `${held}, ${spot}`;
 }
 
 const standingIsGood = (standingNow) => standingNow === "ahead";
@@ -277,7 +288,10 @@ export function classify(candidate, standingNow) {
  * until every leak has been given a fair chance.
  */
 export function select(candidates, count, leakOf = (c) => c.leak) {
-  const pools = new Map(LEAKS.map((leak) => [leak, []]));
+  // Pools are keyed by whatever `leakOf` returns, and seeded from the data
+  // rather than from LEAKS, so the caller can round-robin over a compound key
+  // (leak x street) and get both balanced in one pass.
+  const pools = new Map();
   for (const candidate of candidates) {
     const leak = leakOf(candidate);
     if (!pools.has(leak)) pools.set(leak, []);
@@ -301,7 +315,10 @@ export function select(candidates, count, leakOf = (c) => c.leak) {
         // full. What makes two spots feel different is mostly what you hold.
         let held = "";
         try { held = describeHero(next.heroCodes, next.boardCodes); } catch { /* keyed without it */ }
-        const key = `${leakOf(next)}|${texture(next.boardCodes)}|${next.best.id}|${next.tempting.id}|${held}`;
+        const key = [
+          leakOf(next), texture(next.boardCodes), next.best.id, next.tempting.id, held,
+          next.heroPosition,
+        ].join("|");
         // Allow a repeat only once the obvious variety is exhausted.
         if (seen.has(key) && round < 6) continue;
         seen.add(key);
@@ -327,10 +344,10 @@ export function select(candidates, count, leakOf = (c) => c.leak) {
  */
 function decisionLine(candidate) {
   if (candidate.facingBet) return candidate.decisionNow;
-  const inPosition = !candidate.heroPosition.includes("acts first");
-  return inPosition
+  const street = (candidate.street ?? "River").toLowerCase();
+  return candidate.inPosition
     ? "Opponent checks. You act now."
-    : "You are first to act on the river.";
+    : `You are first to act on the ${street}.`;
 }
 
 /**
@@ -340,12 +357,17 @@ function decisionLine(candidate) {
  */
 function fullHistory(candidate) {
   const history = candidate.history.map((street) => ({ ...street }));
-  const riverCard = candidate.board[4];
-  const riverRow = history.find((street) => street.street.startsWith("River"));
-  if (!riverRow) {
-    history.push({ street: `River · ${riverCard}`, actions: [decisionLine(candidate)] });
-  } else if (!candidate.facingBet && !riverRow.actions.length) {
-    riverRow.actions = [decisionLine(candidate)];
+  const street = candidate.street ?? "River";
+  // The card or cards that brought this street.
+  const dealt = street === "Flop"
+    ? candidate.board.slice(0, 3).join(" ")
+    : street === "Turn" ? candidate.board[3] : candidate.board[4];
+
+  const row = history.find((entry) => entry.street.startsWith(street));
+  if (!row) {
+    history.push({ street: `${street} · ${dealt}`, actions: [decisionLine(candidate)] });
+  } else if (!candidate.facingBet && !row.actions.length) {
+    row.actions = [decisionLine(candidate)];
   }
   return history;
 }
@@ -370,16 +392,25 @@ function usableShowdown(candidate) {
   // the fallback range changed after the candidates were generated and stale
   // counts would silently disagree with the cards on screen.
   const stale = candidate.rangeSource !== "modelled";
-  if (!degenerate && !stale) return { split: shipped, source: candidate.rangeSource };
+  if (!degenerate && !stale) {
+    return { split: shipped, source: candidate.rangeSource, breakdown: candidate.breakdown ?? null };
+  }
 
+  // Recompute the BREAKDOWN from the same holdings as the count. Recomputing
+  // only the count left the two describing different ranges, and the grouped
+  // rows stopped adding up to the total printed beside them.
   const hero = candidate.heroCodes ?? candidate.hero.map(toCode);
   const board = candidate.boardCodes ?? candidate.board.map(toCode);
-  const split = showdownSplit({ heroCards: hero, board, holdings: plausibleRange(board, [...board, ...hero]) });
-  return { split, source: "heuristic" };
+  const holdings = plausibleRange(board, [...board, ...hero]);
+  return {
+    split: showdownSplit({ heroCards: hero, board, holdings }),
+    source: "heuristic",
+    breakdown: rangeBreakdown({ heroCards: hero, board, holdings }),
+  };
 }
 
 function toLesson(candidate, index) {
-  const { split: showdown, source: rangeSource } = usableShowdown(candidate);
+  const { split: showdown, source: rangeSource, breakdown } = usableShowdown(candidate);
   const beatsPct = showdown?.beatsPct ?? null;
   const standingNow = standing(beatsPct);
   const opts = candidate.options.slice().sort((a, b) => b.ev - a.ev);
@@ -416,9 +447,9 @@ function toLesson(candidate, index) {
   }
 
   const readWhy = {};
-  for (const option of READ_OPTIONS) {
+  for (const option of READ_OPTIONS(candidate.street)) {
     readWhy[option.id] = option.id === standingNow
-      ? READ_WHY[option.id]
+      ? READ_WHY(candidate.street)[option.id]
       : `Not quite. ${showdown.beats} of his ${showdown.total} possible hands beat you — ${pct(beatsPct)}.`;
   }
 
@@ -434,6 +465,9 @@ function toLesson(candidate, index) {
     pot: candidate.pot,
     effective: candidate.effective,
     heroPosition: candidate.heroPosition,
+    opponentPosition: candidate.opponentPosition,
+    inPosition: candidate.inPosition,
+    breakdown,
     opponentNote: opponentNote(candidate.opponentArchetype),
     hero: candidate.hero,
     board: candidate.board,
@@ -441,8 +475,8 @@ function toLesson(candidate, index) {
     history: fullHistory(candidate),
 
     read: {
-      prompt: "Against what he can have here, where does your hand stand?",
-      options: READ_OPTIONS,
+      prompt: READ_PROMPT(candidate.street),
+      options: READ_OPTIONS(candidate.street),
       correctId: standingNow,
       why: readWhy,
     },
@@ -509,7 +543,11 @@ async function main() {
   // hero holding the nuts, or drawing dead, has no range to read - and trim
   // back to the target. h046 shipped as the nut flush against 990 combos, where
   // "you beat 100% of what he can hold" is true and teaches nothing.
-  const leakOf = (candidate) => classify(candidate, standing(candidate.showdown?.beatsPct ?? null));
+  // Round-robin over leak AND street, so the shipped set covers both instead of
+  // filling up on flops - most hands are still two-handed on the flop, so an
+  // unweighted draw lands about 52/24/24.
+  const leakOf = (candidate) =>
+    `${classify(candidate, standing(candidate.showdown?.beatsPct ?? null))}|${candidate.street}`;
   const chosen = select(raw.candidates, Math.round(COUNT * 1.6), leakOf);
   const lessons = chosen
     .map(toLesson)
