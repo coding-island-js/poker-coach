@@ -254,3 +254,11 @@ button { font-family: inherit; }
 .send-link { width: auto; flex: 0 0 auto; min-height: 44px; padding: 12px 18px; font-size: 15px; }
 
 .caveat { border-left: 2px solid var(--line); padding-left: 10px; margin-top: 10px; font-size: 13px; }
+
+/* Below ~420px the two-column timeline squeezes the street label until the
+   board wraps mid-hand ("Flop · 7♣ 2♦" / "5♣"). Stacking reads better than
+   cramming, and keeps the board on one line. */
+@media (max-width: 420px) {
+  .street { grid-template-columns: 1fr; gap: 3px; padding: 9px 0; }
+  .street b { font-size: 13px; }
+}
