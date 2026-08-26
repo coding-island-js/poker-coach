@@ -6,7 +6,7 @@
 import { readFile } from "node:fs/promises";
 
 const PATH = new URL("../public/hands.json", import.meta.url);
-const LEAKS = new Set(["removes-strength", "weaker-callers", "bluffs-showdown", "plan-action", "call-price", "read-as-fact"]);
+const LEAKS = new Set(["missed-value", "missed-bluff", "bet-no-caller", "bet-away-showdown", "wrong-size", "wrong-price"]);
 
 const problems = [];
 const fail = (id, message) => problems.push(`${id}: ${message}`);

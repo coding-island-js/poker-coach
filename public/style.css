@@ -252,3 +252,5 @@ button { font-family: inherit; }
 /* Email-only sign-in: the button sits beside the field, so it should not
    stretch to full width the way .primary does elsewhere. */
 .send-link { width: auto; flex: 0 0 auto; min-height: 44px; padding: 12px 18px; font-size: 15px; }
+
+.caveat { border-left: 2px solid var(--line); padding-left: 10px; margin-top: 10px; font-size: 13px; }

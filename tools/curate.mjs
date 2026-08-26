@@ -19,15 +19,23 @@ const IN = arg("in", "work/candidates.json");
 const OUT = arg("out", "public/hands.json");
 const COUNT = Number.parseInt(arg("count", "100"), 10);
 
-const LEAKS = ["removes-strength", "weaker-callers", "bluffs-showdown", "plan-action", "call-price", "read-as-fact"];
+// The taxonomy the CONTENT actually supports.
+//
+// The original six came from Codex's hand-authored hands and did not survive
+// contact with generated river spots: `removes-strength` never fired at all and
+// `bluffs-showdown` reached three hands in a hundred, which makes a profile
+// screen that says "1 attempt" and teaches nothing. These six were read off the
+// pool's real shapes, and every one of them carries real mass (smallest is 53
+// of 838). Each is a mistake a player would recognise being talked out of.
+const LEAKS = ["missed-value", "missed-bluff", "bet-no-caller", "bet-away-showdown", "wrong-size", "wrong-price"];
 
 export const LEAK_LABELS = {
-  "removes-strength": "Reading a check as weakness",
-  "weaker-callers": "Leaving value behind",
-  "bluffs-showdown": "Betting a hand that should check",
-  "plan-action": "A bet with no job to do",
-  "call-price": "Paying the wrong price",
-  "read-as-fact": "Treating a read as fact",
+  "missed-value": "Leaving value behind",
+  "missed-bluff": "A bluff you didn't make",
+  "bet-no-caller": "Betting with nothing worse to call",
+  "bet-away-showdown": "Betting away a hand that was winning",
+  "wrong-size": "Right idea, wrong size",
+  "wrong-price": "Paying the wrong price",
 };
 
 // Plain descriptions. No archetype jargon reaches the learner.
@@ -112,7 +120,7 @@ function takeawayFor({ facing, bestIsBet, standingNow, beats, total, losesPct })
   if (bestIsBet) {
     return standingNow === "ahead"
       ? `Only ${count} hands beat you — so name the worse ones that will actually call before you check.`
-      : `${count} hands beat you, so a bet has to fold better hands. Name them before you fire.`;
+      : `${count} hands beat you. Checking wins none of those; a bet can. Name the better hands that fold.`;
   }
   return standingNow === "ahead"
     ? `You're ahead of ${losesPct}% of his range, but a bet still needs a worse caller. Without one, checking keeps what you have.`
@@ -129,6 +137,13 @@ const rankOf = (code) => RANK_ORDER.indexOf(code[0] === "1" ? "T" : code[0]);
  * combinations for a hundred hands - one of them used thirty-one times. The
  * hand itself is the thing that makes a spot memorable.
  */
+const RANK_NAMES = {
+  0: "twos", 1: "threes", 2: "fours", 3: "fives", 4: "sixes", 5: "sevens", 6: "eights",
+  7: "nines", 8: "tens", 9: "jacks", 10: "queens", 11: "kings", 12: "aces",
+};
+const nameOf = (value) => RANK_NAMES[value] ?? "cards";
+const singular = (plural) => (plural === "sixes" ? "six" : plural.replace(/es$/, "").replace(/s$/, ""));
+
 function describeHero(heroCodes, boardCodes) {
   const cards = [...heroCodes, ...boardCodes];
   const ranks = cards.map(rankOf);
@@ -143,35 +158,40 @@ function describeHero(heroCodes, boardCodes) {
   const flushSuit = Object.keys(suitCounts).find((s) => suitCounts[s] >= 5);
 
   const unique = [...new Set(ranks)].sort((a, b) => a - b);
-  let straight = false;
-  for (let i = 0; i + 4 < unique.length + 1; i += 1) {
+  let straightHigh = null;
+  for (let i = 0; i + 5 <= unique.length; i += 1) {
     const window = unique.slice(i, i + 5);
-    if (window.length === 5 && window[4] - window[0] === 4) straight = true;
+    if (window[4] - window[0] === 4) straightHigh = window[4];
   }
-  const groups = Object.values(counts).sort((a, b) => b - a);
+  const pairs = Object.keys(counts).filter((r) => counts[r] === 2).map(Number).sort((a, b) => b - a);
+  const trips = Object.keys(counts).filter((r) => counts[r] === 3).map(Number).sort((a, b) => b - a);
+  const quads = Object.keys(counts).filter((r) => counts[r] === 4).map(Number);
 
-  if (flushSuit && heroCodes.some((c) => c[1] === flushSuit)) return "a flush";
-  if (groups[0] === 4) return "quads";
-  if (groups[0] === 3 && groups[1] >= 2) return "a full house";
-  if (straight) return "a straight";
-  if (groups[0] === 3) {
-    return heroRanks[0] === heroRanks[1] ? "a set" : "trips";
+  // Naming the actual ranks is what makes a hundred titles read as a hundred
+  // spots. "Two pair" alone landed on eighteen different hands.
+  if (quads.length) return `Quad ${nameOf(quads[0])}`;
+  if (trips.length && pairs.length) return `${nameOf(trips[0])} full of ${nameOf(pairs[0])}`.replace(/^./, (c) => c.toUpperCase());
+  if (flushSuit && heroCodes.some((c) => c[1] === flushSuit)) return "A flush";
+  if (straightHigh !== null) return `A ${singular(nameOf(straightHigh))}-high straight`;
+  if (trips.length) {
+    const set = heroRanks[0] === heroRanks[1] && heroRanks[0] === trips[0];
+    return `${set ? "A set of" : "Trip"} ${nameOf(trips[0])}`;
   }
-  if (groups[0] === 2 && groups[1] === 2) return "two pair";
-  if (groups[0] === 2) {
-    const pairedRank = Number(Object.keys(counts).find((r) => counts[r] === 2));
+  if (pairs.length >= 2) return `${nameOf(pairs[0])} and ${nameOf(pairs[1])}`.replace(/^./, (c) => c.toUpperCase());
+  if (pairs.length === 1) {
+    const pairedRank = pairs[0];
     const topBoard = Math.max(...boardRanks);
     if (heroRanks[0] === heroRanks[1]) {
-      return heroRanks[0] > topBoard ? "an overpair" : "a small pocket pair";
+      return heroRanks[0] > topBoard
+        ? `An overpair of ${nameOf(heroRanks[0])}`
+        : `Pocket ${nameOf(heroRanks[0])}`;
     }
-    if (pairedRank === topBoard) return "top pair";
-    if (pairedRank === Math.min(...boardRanks)) return "bottom pair";
-    return "middle pair";
+    if (pairedRank === topBoard) return `Top pair, ${nameOf(pairedRank)}`;
+    if (pairedRank === Math.min(...boardRanks)) return `Bottom pair, ${nameOf(pairedRank)}`;
+    return `Middle pair, ${nameOf(pairedRank)}`;
   }
   const high = Math.max(...heroRanks);
-  if (high === 12) return "ace high";
-  if (high === 11) return "king high";
-  return "no pair";
+  return `${singular(nameOf(high)).replace(/^./, (c) => c.toUpperCase())} high`;
 }
 
 function titleFor({ facing, bestIsBet, standingNow }) {
@@ -195,16 +215,13 @@ function handTitle(candidate, shape) {
   let held;
   try { held = describeHero(hero, board); } catch { return titleFor(shape); }
 
-  const capital = held.charAt(0).toUpperCase() + held.slice(1);
   if (shape.facing) {
-    return standingIsGood(shape.standingNow)
-      ? `${capital}, and he bets into you`
-      : `${capital} facing a bet`;
+    return standingIsGood(shape.standingNow) ? `${held}, and he bets into you` : `${held} facing a bet`;
   }
   const checkedTwice = (candidate.villainChecks ?? 0) >= 2;
-  if (checkedTwice) return `${capital}, and he keeps checking`;
+  if (checkedTwice) return `${held}, and he keeps checking`;
   const actsFirst = candidate.heroPosition.includes("acts first");
-  return actsFirst ? `${capital}, first to act` : `${capital}, checked to you`;
+  return actsFirst ? `${held}, first to act` : `${held}, checked to you`;
 }
 
 const standingIsGood = (standingNow) => standingNow === "ahead";
@@ -220,6 +237,37 @@ export function texture(boardCodes) {
   return `${paired ? "paired" : "unpaired"}-${flushy ? "flushy" : "rainbow"}`;
 }
 
+/**
+ * Which leak this spot tests, decided here rather than in the generator.
+ *
+ * The generator classified before the showdown count was recomputed, and it
+ * gated "betting a hand that should check" on the hero being WEAK - backwards,
+ * since that leak is about betting away showdown value, which requires having
+ * some. It produced three such hands in a hundred. Taxonomy is learner-facing
+ * copy, so it belongs next to the rest of the learner-facing copy.
+ */
+export function classify(candidate, standingNow) {
+  const isBet = (id) => id.startsWith("bet") || id.startsWith("raise");
+  const best = candidate.best.id;
+  const tempted = candidate.tempting.id;
+
+  if (candidate.facingBet) return "wrong-price";
+
+  // You would have checked; betting earns more.
+  if (tempted === "check" && isBet(best)) {
+    return standingNow === "behind" ? "missed-bluff" : "missed-value";
+  }
+  // You would have bet; checking earns more.
+  if (isBet(tempted) && best === "check") {
+    return standingNow === "ahead" ? "bet-no-caller" : "bet-away-showdown";
+  }
+  // Both bet, and the size is the whole difference.
+  if (isBet(tempted) && isBet(best) && tempted !== best) return "wrong-size";
+
+  if (isBet(best)) return standingNow === "behind" ? "missed-bluff" : "missed-value";
+  return standingNow === "ahead" ? "bet-no-caller" : "bet-away-showdown";
+}
+
 // --------------------------------------------------------------- selection
 /**
  * Pick `count` candidates that are instructive AND varied.
@@ -228,11 +276,12 @@ export function texture(boardCodes) {
  * refuses near-duplicates (same leak, same texture, same shape of mistake)
  * until every leak has been given a fair chance.
  */
-export function select(candidates, count) {
+export function select(candidates, count, leakOf = (c) => c.leak) {
   const pools = new Map(LEAKS.map((leak) => [leak, []]));
   for (const candidate of candidates) {
-    if (!pools.has(candidate.leak)) pools.set(candidate.leak, []);
-    pools.get(candidate.leak).push(candidate);
+    const leak = leakOf(candidate);
+    if (!pools.has(leak)) pools.set(leak, []);
+    pools.get(leak).push(candidate);
   }
   for (const pool of pools.values()) pool.sort((a, b) => b.evGapPot - a.evGapPot);
 
@@ -246,7 +295,13 @@ export function select(candidates, count) {
       const pool = pools.get(leak);
       while (pool.length) {
         const next = pool.shift();
-        const key = `${next.leak}|${texture(next.boardCodes)}|${next.best.id}|${next.tempting.id}`;
+        // The hero's hand belongs in the key. Without it, "wrong size" had
+        // roughly four distinct keys across 175 candidates - two textures by
+        // two directions - and starved after four picks while the pool stayed
+        // full. What makes two spots feel different is mostly what you hold.
+        let held = "";
+        try { held = describeHero(next.heroCodes, next.boardCodes); } catch { /* keyed without it */ }
+        const key = `${leakOf(next)}|${texture(next.boardCodes)}|${next.best.id}|${next.tempting.id}|${held}`;
         // Allow a repeat only once the obvious variety is exhausted.
         if (seen.has(key) && round < 6) continue;
         seen.add(key);
@@ -367,12 +422,7 @@ function toLesson(candidate, index) {
       : `Not quite. ${showdown.beats} of his ${showdown.total} possible hands beat you — ${pct(beatsPct)}.`;
   }
 
-  // The generator's "is the hero weak" cut is at 50% while `standing()` calls
-  // 45% behind, so a hand can arrive tagged as a value leak while the app tells
-  // the learner they are behind. Trust the standing the learner is shown.
-  const leak = candidate.leak === "weaker-callers" && standingNow === "behind"
-    ? "plan-action"
-    : candidate.leak;
+  const leak = classify(candidate, standingNow);
 
   return {
     id: `h${String(index + 1).padStart(3, "0")}`,
@@ -403,6 +453,13 @@ function toLesson(candidate, index) {
       why: actionWhy,
     },
 
+    // What the count is actually counting. "Hands he can hold" implies his
+    // betting narrowed the range, which is only true for the modelled ones;
+    // saying it of a uniform fallback would overclaim.
+    rangeBasis: rangeSource === "modelled"
+      ? "hands that fit how he has played"
+      : "hands he could still be dealt",
+    rangeNarrowed: rangeSource === "modelled",
     numbers: {
       total: showdown.total,
       beats: showdown.beats,
@@ -428,7 +485,8 @@ async function main() {
   // hero holding the nuts, or drawing dead, has no range to read - and trim
   // back to the target. h046 shipped as the nut flush against 990 combos, where
   // "you beat 100% of what he can hold" is true and teaches nothing.
-  const chosen = select(raw.candidates, Math.round(COUNT * 1.4));
+  const leakOf = (candidate) => classify(candidate, standing(candidate.showdown?.beatsPct ?? null));
+  const chosen = select(raw.candidates, Math.round(COUNT * 1.6), leakOf);
   const lessons = chosen
     .map(toLesson)
     .filter((lesson) => lesson.numbers.beats > 0 && lesson.numbers.beats < lesson.numbers.total)

@@ -79,10 +79,15 @@ for (const hand of hands) {
   // --- 5. the marked-correct action must be the best measured one ------
   const options = hand.action.options;
   const best = Math.max(...options.map((o) => o.ev));
+  // Tolerance is a share of the POT, matching the curator. Scaling it by the
+  // best EV breaks whenever that EV is negative - a spot where every line loses
+  // money is still a spot, and `best * 0.2` goes negative and flags a near-tie.
+  const potSize = Number(String(hand.pot).replace(/[^0-9.]/g, "")) || 0;
+  const tolerance = Math.max(1, potSize * 0.05);
   for (const id of hand.action.correctIds) {
     const option = options.find((o) => o.id === id);
-    if (best - option.ev > Math.max(1, best * 0.2)) {
-      note(hand, "ev", `"${option.label}" marked correct at ${option.ev} but best is ${best}`);
+    if (best - option.ev > tolerance) {
+      note(hand, "ev", `"${option.label}" marked correct at ${option.ev} but best is ${best} (pot ${hand.pot})`);
     }
   }
   const wrongButBest = options.find((o) => o.ev === best && !hand.action.correctIds.includes(o.id));
@@ -117,6 +122,16 @@ for (const hand of hands) {
   }
   if (!hand.history.some((s) => s.street.startsWith("River"))) {
     note(hand, "story", "timeline never reaches the river");
+  }
+
+  // --- 8. the count must say what it is counting -----------------------
+  if (!hand.rangeBasis) note(hand, "copy", "no rangeBasis - the count would overclaim");
+  const narrowed = hand.evidence.opponent === "modelled";
+  if (hand.rangeNarrowed !== narrowed) {
+    note(hand, "copy", `rangeNarrowed ${hand.rangeNarrowed} disagrees with evidence.opponent ${hand.evidence.opponent}`);
+  }
+  if (!narrowed && shipped.total !== possible) {
+    note(hand, "count", `unnarrowed range is ${shipped.total} but ${possible} combos are dealable`);
   }
 }
 

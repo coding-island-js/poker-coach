@@ -118,8 +118,10 @@ cache", then "CDN requesting 0 files and 0 functions".
 
 - **River spots only.** Turn and flop decisions need runout variance in the rollout, which
   the current EV measurement does not model.
-- **Leak coverage is uneven.** The six-leak taxonomy was designed for hand-authored content;
-  `removes-strength` never fires in generated river spots and `bluffs-showdown` is thin (3 of 100).
+- **The taxonomy was rebuilt around the content.** Codex's original six leaks were designed for
+  hand-authored hands and did not survive generated river spots - one never fired at all and
+  another reached three hands in a hundred. The six now shipped were read off the pool's real
+  shapes and each carries real mass.
 - **Opponent modelling is calibrated to judgement, not live data**, because published live
   low-stakes data does not exist. See `poker-sim/docs/DECISIONS.md`.
 - **The fallback range is uniform.** About a third of hands use `plausibleRange`, which is every

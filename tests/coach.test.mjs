@@ -105,3 +105,52 @@ test("an unrelated domain is refused", () => {
 test("a lookalike domain does not slip through", () => {
   assert.throws(() => assertSendableFrom("a@notwithmagic.ai"), /not on an onboarded domain/);
 });
+
+// The taxonomy is learner-facing copy and drives the profile screen, so the
+// mapping from "what the mistake was" to "what it is called" gets tests.
+import { classify } from "../tools/curate.mjs";
+
+const spot = (over) => ({
+  facingBet: false, villainChecks: 0,
+  best: { id: "check" }, tempting: { id: "check" }, ...over,
+});
+
+test("facing a bet is always a pricing decision", () => {
+  assert.equal(classify(spot({ facingBet: true, best: { id: "call" }, tempting: { id: "fold" } }), "behind"), "wrong-price");
+  assert.equal(classify(spot({ facingBet: true, best: { id: "fold" }, tempting: { id: "call" } }), "ahead"), "wrong-price");
+});
+
+test("checking a hand that should bet is value or a bluff, by standing", () => {
+  const wouldCheck = { tempting: { id: "check" }, best: { id: "bet-big" } };
+  assert.equal(classify(spot(wouldCheck), "ahead"), "missed-value");
+  assert.equal(classify(spot(wouldCheck), "behind"), "missed-bluff");
+});
+
+test("betting a hand that should check splits on whether it was winning", () => {
+  const wouldBet = { tempting: { id: "bet-big" }, best: { id: "check" } };
+  // Ahead and betting is worse: nothing worse was going to call.
+  assert.equal(classify(spot(wouldBet), "ahead"), "bet-no-caller");
+  // Not ahead: the hand still won sometimes, and betting threw that away.
+  assert.equal(classify(spot(wouldBet), "mixed"), "bet-away-showdown");
+  assert.equal(classify(spot(wouldBet), "behind"), "bet-away-showdown");
+});
+
+test("two different bet sizes is a sizing mistake, not a plan mistake", () => {
+  assert.equal(classify(spot({ tempting: { id: "bet-small" }, best: { id: "bet-big" } }), "ahead"), "wrong-size");
+  assert.equal(classify(spot({ tempting: { id: "raise" }, best: { id: "raise-big" } }), "behind"), "wrong-size");
+});
+
+test("every classification is a name the app can label", async () => {
+  const { LEAK_LABELS } = await import("../tools/curate.mjs");
+  const cases = [
+    [spot({ facingBet: true }), "behind"],
+    [spot({ tempting: { id: "check" }, best: { id: "bet-big" } }), "mixed"],
+    [spot({ tempting: { id: "bet-big" }, best: { id: "check" } }), "ahead"],
+    [spot({ tempting: { id: "bet-small" }, best: { id: "bet-big" } }), "ahead"],
+    [spot({}), "ahead"],
+    [spot({}), "behind"],
+  ];
+  for (const [candidate, standingNow] of cases) {
+    assert.ok(LEAK_LABELS[classify(candidate, standingNow)], `unlabelled: ${classify(candidate, standingNow)}`);
+  }
+});

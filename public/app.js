@@ -144,9 +144,15 @@ function readStep(hand) {
     const fb = el("div", { class: `feedback ${right ? "ok" : "no"}`, id: "fb", "aria-live": "polite" },
       el("div", { class: "verdict" }, right ? "✓ That matches the count" : "✕ Not what the count says"),
       el("div", { class: "countline" },
-        el("span", {}, "Of the "), el("b", {}, n.total), el("span", {}, " hands he can hold here, "),
+        el("span", {}, "Of the "), el("b", {}, n.total), el("span", {}, ` ${hand.rangeBasis ?? "hands he can hold"}, `),
         el("b", {}, n.beats), el("span", {}, ` beat you — ${Math.round(n.beatsPct)}%.`)),
       el("p", { class: "small muted" }, hand.read.why[hand.read.correctId]),
+      // Say plainly when the count has not been narrowed by his betting. The
+      // number is still exact; what it counts is just wider than a real read.
+      hand.rangeNarrowed === false
+        ? el("p", { class: "small muted caveat" },
+            "This counts every hand he could still be dealt — his betting has not been used to narrow it, so treat it as the wide end.")
+        : null,
       el("button", { class: "primary", onclick: () => { view.step = "action"; render(); scrollTop(); } },
         "Next: what do you do? →"));
     wrap.append(fb);
