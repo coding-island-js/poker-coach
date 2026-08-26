@@ -1,5 +1,13 @@
 # Range Coach V2 — scenario and twin catalogue
 
+> **Superseded in part, 2026-08-25.** This document describes the six-leak taxonomy designed for
+> the hand-authored V2 content. The shipped app now generates its hands from simulation, and that
+> taxonomy did not survive the change: `removes-strength` never fired at all and `bluffs-showdown`
+> reached three hands in a hundred. The shipped categories were re-derived from the content and are
+> listed in the root `README.md` and in `tools/curate.mjs`. The *reasoning* here still stands - the
+> product thesis, the boundaries, and the honesty rules are unchanged - but the leak names and the
+> hand IDs no longer match what ships.
+
 Status: authored content specification for the Reasoning Diagnostic Beta  
 Scope: heads-up, live cash No-Limit Hold'em study after the session  
 Validation state: all poker strategy is an independently authored teaching example; independent poker-expert and solver review are pending

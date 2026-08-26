@@ -1,5 +1,13 @@
 # Range Coach V2 — Reasoning Diagnostic Beta requirements
 
+> **Superseded in part, 2026-08-25.** This document describes the six-leak taxonomy designed for
+> the hand-authored V2 content. The shipped app now generates its hands from simulation, and that
+> taxonomy did not survive the change: `removes-strength` never fired at all and `bluffs-showdown`
+> reached three hands in a hundred. The shipped categories were re-derived from the content and are
+> listed in the root `README.md` and in `tools/curate.mjs`. The *reasoning* here still stands - the
+> product thesis, the boundaries, and the honesty rules are unchanged - but the leak names and the
+> hand IDs no longer match what ships.
+
 Date: August 17, 2026  
 Status: Approved scope baseline; implementation acceptance source
 
