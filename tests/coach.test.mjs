@@ -154,3 +154,40 @@ test("every classification is a name the app can label", async () => {
     assert.ok(LEAK_LABELS[classify(candidate, standingNow)], `unlabelled: ${classify(candidate, standingNow)}`);
   }
 });
+
+// Flop and turn spots are only measurable because a rollout reshuffles the
+// undealt remainder. Without it every trial deals the same turn and river, and
+// a flop decision gets scored against one predetermined card - silently, with
+// the EV numbers still looking plausible. This is the assertion that keeps it.
+import { reshuffleUndealt, createSeededRng } from "../tools/lib/engine.mjs";
+
+const fakeGame = (deck) => ({ table: { currentHand: { deck, board: ["Kd", "7s", "3c"] } } });
+
+test("reshuffleUndealt actually reorders the deck", () => {
+  const deck = Array.from({ length: 36 }, (_, i) => `c${i}`);
+  const shuffled = reshuffleUndealt(fakeGame(deck), createSeededRng(1234));
+  const after = shuffled.table.currentHand.deck;
+  assert.equal(after.length, deck.length, "no cards may be lost");
+  assert.deepEqual([...after].sort(), [...deck].sort(), "same cards, different order");
+  assert.notDeepEqual(after, deck, "order must actually change");
+});
+
+test("reshuffleUndealt leaves the original snapshot alone", () => {
+  const deck = Array.from({ length: 36 }, (_, i) => `c${i}`);
+  const game = fakeGame(deck);
+  const before = [...deck];
+  reshuffleUndealt(game, createSeededRng(99));
+  assert.deepEqual(game.table.currentHand.deck, before, "the snapshot is replayed many times over");
+});
+
+test("different seeds give different runouts", () => {
+  const deck = Array.from({ length: 36 }, (_, i) => `c${i}`);
+  const a = reshuffleUndealt(fakeGame(deck), createSeededRng(1)).table.currentHand.deck;
+  const b = reshuffleUndealt(fakeGame(deck), createSeededRng(2)).table.currentHand.deck;
+  assert.notDeepEqual(a, b, "two trials must not deal the same board");
+});
+
+test("a deck too short to shuffle is returned untouched", () => {
+  const game = fakeGame([]);
+  assert.equal(reshuffleUndealt(game, createSeededRng(7)), game);
+});
