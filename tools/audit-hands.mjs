@@ -8,7 +8,7 @@
 //
 //   node tools/audit-hands.mjs [--verbose]
 import { readFile } from "node:fs/promises";
-import { showdownSplit, plausibleRange, candidateCombos } from "./lib/engine.mjs";
+import { showdownSplit, showdownVsField, plausibleRange, candidateCombos } from "./lib/engine.mjs";
 
 const VERBOSE = process.argv.includes("--verbose");
 
@@ -21,7 +21,15 @@ const toCode = (pretty) => {
 };
 
 const data = JSON.parse(await readFile(new URL("../public/hands.json", import.meta.url), "utf8"));
-const hands = data.hands;
+// Continuations are audited exactly like the hands they hang off: the numbers
+// under a second decision are no more trustworthy than the numbers under a
+// first, and they are produced by the same templates.
+const shipped = data.hands;
+const continuations = shipped.flatMap((hand) =>
+  Object.values(hand.chain?.branches ?? {})
+    .filter((branch) => branch.kind === "question" && branch.lesson)
+    .map((branch) => branch.lesson));
+const hands = [...shipped, ...continuations];
 
 const problems = [];
 const note = (hand, kind, message) => problems.push({ id: hand.id, kind, message });
@@ -40,27 +48,40 @@ for (const hand of hands) {
   // Only the "heuristic" hands can be recomputed from the cards alone; the
   // "modelled" ones came from poker-sim's read model, which needs the
   // opponent's decision log. Those get the invariants instead.
-  const shipped = hand.numbers;
+  const counted = hand.numbers;
   const possible = candidateCombos(known).length;
 
+  // Three-handed the count is over the PAIRS the two of them can be dealt
+  // between them, so it is recomputed the same way and compared against the
+  // number of pairs rather than the number of single holdings. Checking a pair
+  // count against one range's size flagged every multiway hand as impossible.
+  const seats = hand.players ?? 2;
+  const villains = Math.max(1, seats - 1);
   if (hand.evidence.opponent === "heuristic") {
-    const recomputed = showdownSplit({ heroCards: hero, board, holdings: plausibleRange(board, known) });
-    if (recomputed.total !== shipped.total) note(hand, "count", `range ${shipped.total} shipped, ${recomputed.total} recomputed`);
-    if (recomputed.beats !== shipped.beats) note(hand, "count", `beats ${shipped.beats} shipped, ${recomputed.beats} recomputed`);
+    const holdings = plausibleRange(board, known);
+    const recomputed = showdownVsField({
+      heroCards: hero, board,
+      ranges: Array.from({ length: villains }, () => holdings),
+    });
+    if (recomputed.total !== counted.total) note(hand, "count", `range ${counted.total} shipped, ${recomputed.total} recomputed`);
+    if (recomputed.beats !== counted.beats) note(hand, "count", `beats ${counted.beats} shipped, ${recomputed.beats} recomputed`);
   }
 
-  if (shipped.total > possible) note(hand, "count", `range ${shipped.total} exceeds ${possible} possible combos`);
-  if (shipped.beats + (shipped.ties ?? 0) > shipped.total) note(hand, "count", "beats + ties exceeds range size");
-  const impliedPct = Number(((shipped.beats / shipped.total) * 100).toFixed(1));
-  if (Math.abs(impliedPct - shipped.beatsPct) > 0.15) {
-    note(hand, "count", `beatsPct ${shipped.beatsPct} but ${shipped.beats}/${shipped.total} is ${impliedPct}`);
+  // The ceiling for a field is the number of ordered pairs of distinct
+  // holdings, which is strictly less than possible^villains.
+  const ceiling = villains === 1 ? possible : possible * possible;
+  if (counted.total > ceiling) note(hand, "count", `range ${counted.total} exceeds ${ceiling} possible ${villains === 1 ? "combos" : "ways"}`);
+  if (counted.beats + (counted.ties ?? 0) > counted.total) note(hand, "count", "beats + ties exceeds range size");
+  const impliedPct = Number(((counted.beats / counted.total) * 100).toFixed(1));
+  if (Math.abs(impliedPct - counted.beatsPct) > 0.15) {
+    note(hand, "count", `beatsPct ${counted.beatsPct} but ${counted.beats}/${counted.total} is ${impliedPct}`);
   }
   // A range that beats the hero never, or always, is a red flag worth seeing.
-  if (shipped.beats === 0) note(hand, "count", `nothing in his range beats you (${shipped.total} combos) - is the range too narrow?`);
-  if (shipped.beats === shipped.total) note(hand, "count", "his entire range beats you - drawing dead");
+  if (counted.beats === 0) note(hand, "count", `nothing in his range beats you (${counted.total} combos) - is the range too narrow?`);
+  if (counted.beats === counted.total) note(hand, "count", "his entire range beats you - drawing dead");
 
   // --- 3. the read answer must follow from the count -------------------
-  const pct = shipped.beatsPct;
+  const pct = counted.beatsPct;
   const expected = pct < 20 ? "ahead" : pct < 45 ? "mixed" : "behind";
   if (hand.read.correctId !== expected) {
     note(hand, "read", `answer "${hand.read.correctId}" but ${pct}% beat you implies "${expected}"`);
@@ -75,9 +96,9 @@ for (const hand of hands) {
   // read a hundred times. Either count is a real one: how many of his hands
   // beat you, or how many you beat. Accepting only the first flagged twelve
   // takeaways that were correctly quoting the second.
-  const heroBeatsCount = shipped.total - shipped.beats - (shipped.ties ?? 0);
-  const carriesCount = [shipped.beats, heroBeatsCount]
-    .some((n) => hand.takeaway.includes(`${n} of his ${shipped.total}`));
+  const heroBeatsCount = counted.total - counted.beats - (counted.ties ?? 0);
+  const carriesCount = [counted.beats, heroBeatsCount]
+    .some((n) => hand.takeaway.includes(`${n} of his ${counted.total}`));
   if (!carriesCount && !hand.takeaway.includes("%")) {
     note(hand, "copy", "takeaway carries neither the count nor a percentage");
   }
@@ -88,14 +109,16 @@ for (const hand of hands) {
   // to be either the hands that beat the hero or the hands the hero beats.
   // Nothing else is a real quantity, and a mismatch means the copy drifted off
   // the data it claims to be reading.
-  const youBeat = shipped.total - shipped.beats - (shipped.ties ?? 0);
+  const youBeat = counted.total - counted.beats - (counted.ties ?? 0);
   const prose = [hand.takeaway, ...Object.values(hand.action.why ?? {}), ...Object.values(hand.read.why ?? {})];
-  for (const sentence of prose) {
+  // Three-handed the prose quotes shares, not pair counts - seven-figure numbers
+  // are exact and unreadable - so there is no "N of M" to check there.
+  for (const sentence of (hand.players ?? 2) >= 3 ? [] : prose) {
     for (const [, some, all] of String(sentence).matchAll(/(\d+) of (?:his |the )?(\d+)/g)) {
-      if (Number(all) !== shipped.total) {
-        note(hand, "copy", `prose quotes a range of ${all}, but the range is ${shipped.total}: "${sentence}"`);
-      } else if (Number(some) !== shipped.beats && Number(some) !== youBeat) {
-        note(hand, "copy", `prose quotes ${some} of ${all}, which is neither ${shipped.beats} beating you nor ${youBeat} you beat: "${sentence}"`);
+      if (Number(all) !== counted.total) {
+        note(hand, "copy", `prose quotes a range of ${all}, but the range is ${counted.total}: "${sentence}"`);
+      } else if (Number(some) !== counted.beats && Number(some) !== youBeat) {
+        note(hand, "copy", `prose quotes ${some} of ${all}, which is neither ${counted.beats} beating you nor ${youBeat} you beat: "${sentence}"`);
       }
     }
   }
@@ -153,7 +176,8 @@ for (const hand of hands) {
   if (hand.heroPosition === hand.opponentPosition) note(hand, "story", "both players in the same seat");
   // "raises to $20" is facing a bet too - matching only "bets $" made every
   // raise-facing hand look like it had been offered a fold it should not have.
-  const facing = /(bets|raises to) \$/.test(hand.decisionNow);
+  // Three-handed the line says what is on the hero rather than who bet.
+  const facing = /(bets|raises to) \$|to you, with/.test(hand.decisionNow);
   const hasFold = options.some((o) => o.id === "fold");
   if (facing !== hasFold) {
     note(hand, "story", facing ? "facing a bet but cannot fold" : "not facing a bet but offered a fold");
@@ -174,37 +198,42 @@ for (const hand of hands) {
   if (hand.rangeNarrowed !== narrowed) {
     note(hand, "copy", `rangeNarrowed ${hand.rangeNarrowed} disagrees with evidence.opponent ${hand.evidence.opponent}`);
   }
-  if (!narrowed && shipped.total !== possible) {
-    note(hand, "count", `unnarrowed range is ${shipped.total} but ${possible} combos are dealable`);
+  // Only meaningful for a single range; a field count is over pairs, so it is
+  // supposed to exceed the number of dealable holdings.
+  if (villains === 1 && !narrowed && counted.total !== possible) {
+    note(hand, "count", `unnarrowed range is ${counted.total} but ${possible} combos are dealable`);
   }
 }
 
 // ------------------------------------------------------------- uniqueness
 const key = (hand) => `${hand.board.join("")}|${hand.hero.join("")}`;
 const byKey = new Map();
-for (const hand of hands) {
+for (const hand of shipped) {
   const k = key(hand);
   byKey.set(k, [...(byKey.get(k) ?? []), hand.id]);
 }
 const dupes = [...byKey.entries()].filter(([, ids]) => ids.length > 1);
 
 const shape = (hand) => `${hand.leak}|${hand.read.correctId}|${hand.action.correctIds.join(",")}|${hand.action.options.length}`;
+// Variety describes the shipped catalogue only. Two branches of one chained
+// hand share a board and hole cards by definition, so counting them here would
+// report 25 "duplicate spots" that are the same hand seen twice.
 const byShape = new Map();
-for (const hand of hands) byShape.set(shape(hand), (byShape.get(shape(hand)) ?? 0) + 1);
+for (const hand of shipped) byShape.set(shape(hand), (byShape.get(shape(hand)) ?? 0) + 1);
 
-const boards = new Set(hands.map((h) => h.board.join("")));
-const heroes = new Set(hands.map((h) => h.hero.join("")));
+const boards = new Set(shipped.map((h) => h.board.join("")));
+const heroes = new Set(shipped.map((h) => h.hero.join("")));
 const titles = new Map();
-for (const hand of hands) titles.set(hand.title, (titles.get(hand.title) ?? 0) + 1);
-const takeaways = new Set(hands.map((h) => h.takeaway));
+for (const hand of shipped) titles.set(hand.title, (titles.get(hand.title) ?? 0) + 1);
+const takeaways = new Set(shipped.map((h) => h.takeaway));
 
 // ------------------------------------------------------------------ report
 console.log(`Audited ${hands.length} hands\n`);
 
 console.log("VARIETY");
-console.log(`  distinct boards        ${boards.size}/${hands.length}`);
-console.log(`  distinct hole cards    ${heroes.size}/${hands.length}`);
-console.log(`  distinct takeaways     ${takeaways.size}/${hands.length}`);
+console.log(`  distinct boards        ${boards.size}/${shipped.length}`);
+console.log(`  distinct hole cards    ${heroes.size}/${shipped.length}`);
+console.log(`  distinct takeaways     ${takeaways.size}/${shipped.length}`);
 console.log(`  distinct titles        ${titles.size} (most repeated ${Math.max(...titles.values())}x)`);
 console.log(`  exact duplicate spots  ${dupes.length}`);
 const topShape = [...byShape.entries()].sort((a, b) => b[1] - a[1])[0];

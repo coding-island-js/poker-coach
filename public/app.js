@@ -10,7 +10,11 @@ const main = document.getElementById("main");
 
 let content = null;
 let profile = load();
-let view = { screen: "hand", handIndex: 0, step: "read", answers: {}, confidence: null };
+let view = { screen: "hand", handIndex: 0, step: "read", answers: {}, confidence: null,
+  // A turn hand can carry a second decision - the river of the SAME hand, on
+  // the line the learner actually picked. `chainStep` is 1 or 2; `branch` is
+  // the action id they chose on the turn, which is what selects the river.
+  chainStep: 1, branch: null };
 
 // ------------------------------------------------------------------ storage
 function load() {
@@ -66,7 +70,33 @@ const scrollTop = () => window.requestAnimationFrame(() => window.scrollTo({ top
 
 const currentHand = () => content.hands[view.handIndex] ?? content.hands[0];
 
+/** The branch the learner's turn action led to, if this hand has one. */
+const branchOf = (hand) => (view.branch ? hand.chain?.branches?.[view.branch] ?? null : null);
+
+/**
+ * The lesson being answered right now: the hand itself, or - once the turn is
+ * done and the learner picked a line that leads somewhere - the continuation.
+ */
+function activeLesson() {
+  const hand = currentHand();
+  if (view.chainStep === 2) {
+    const branch = branchOf(hand);
+    if (branch?.kind === "question") return branch.lesson;
+  }
+  return hand;
+}
+
+
+
 // --------------------------------------------------------------- hand parts
+/** "You're in the small blind, he's in the big blind." - or all three seats. */
+function seatLine(hand) {
+  const mine = `You're in the ${hand.heroPosition.toLowerCase()}`;
+  const others = (hand.opponents ?? []).map((opponent) => (opponent.position ?? "").toLowerCase()).filter(Boolean);
+  if (others.length <= 1) return `${mine}, he's in the ${others[0] ?? (hand.opponentPosition ?? "").toLowerCase()}.`;
+  return `${mine}, against the ${others.join(" and the ")}.`;
+}
+
 function feltEl(hand) {
   return el("div", { class: "felt" },
     el("div", { class: "felt-row" },
@@ -79,7 +109,7 @@ function feltEl(hand) {
       el("div", { class: "hand-group" },
         el("span", {}, "Board"),
         el("div", { class: "cards" }, hand.board.map(cardEl)))),
-    el("p", { class: "seats" }, `You're in the ${hand.heroPosition.toLowerCase()}, he's in the ${(hand.opponentPosition ?? "").toLowerCase()}.`));
+    el("p", { class: "seats" }, seatLine(hand)));
 }
 
 function contextEl(hand, { step } = {}) {
@@ -101,16 +131,29 @@ function contextEl(hand, { step } = {}) {
     // combinatorics, and a personality label invites the exact habit this app
     // calls a leak ("Treating a read as fact").
     step === "action"
-      ? el("p", { class: "oppnote" },
-          el("span", { class: "given" }, "Assume"), " ", el("b", {}, hand.opponentNote))
+      ? el("div", { class: "oppnotes" },
+          (hand.opponents ?? [{ position: hand.opponentPosition, note: hand.opponentNote }])
+            .map((opponent) => el("p", { class: "oppnote" },
+              el("span", { class: "given" }, "Assume"), " ",
+              // A dash, not "is": the notes are verb phrases ("calls far too
+              // much"), so "the big blind is calls far too much" is what the
+              // obvious phrasing produces.
+              (hand.opponents ?? []).length > 1
+                ? el("b", {}, `the ${(opponent.position ?? "").toLowerCase()} — `)
+                : null,
+              el("b", {}, opponent.note ?? hand.opponentNote))))
       : null);
 }
 
 function stepDots(active) {
+  // Each decision is its own pair of questions. Promising "of 4" up front would
+  // be a guess: whether the hand carries on depends on the line the learner
+  // picks, and folding ends it. The street label says where we are instead.
+  const street = view.chainStep === 2 ? (activeLesson().street ?? "") : "";
   return el("div", { class: "stepdots" },
     el("span", { class: `dot${active >= 1 ? " on" : ""}` }),
     el("span", { class: `dot${active >= 2 ? " on" : ""}` }),
-    el("span", {}, active === 1 ? "Step 1 of 2" : "Step 2 of 2"));
+    el("span", {}, `${street ? `${street} · ` : ""}Step ${active} of 2`));
 }
 
 // ---------------------------------------------------------------- questions
@@ -157,17 +200,25 @@ function readStep(hand) {
   if (locked) {
     const fb = el("div", { class: `feedback ${right ? "ok" : "no"}`, id: "fb", "aria-live": "polite" },
       el("div", { class: "verdict" }, right ? "✓ That matches the count" : "✕ Not what the count says"),
-      el("div", { class: "countline" },
-        el("span", {}, "Of the "), el("b", {}, n.total), el("span", {}, ` ${hand.rangeBasis ?? "hands he can hold"}, `),
-        el("b", {}, n.beats), el("span", {}, ` beat you — ${Math.round(n.beatsPct)}%.`)),
+      // One sentence, written by the curator, because three-handed the count is
+      // over the WAYS the field can be dealt and the heads-up phrasing would be
+      // a different and false claim.
+      el("div", { class: "countline" }, hand.countSentence
+        ?? `Of the ${n.total} ${hand.rangeBasis ?? "hands he can hold"}, ${n.beats} beat you.`),
       // The range itself, grouped. A learner told "323 of 990 beat you" has a
       // number; one who can see that 18 are straights and 145 are top pair has
       // a range. This is the whole "combinations before labels" idea, shown.
-      hand.breakdown?.length
-        ? el("div", { class: "breakdown" },
-            el("p", { class: "breakdown-head" }, "What he can actually have"),
-            hand.breakdown.map((row) => {
-              const share = Math.max(2, Math.round((row.combos / n.total) * 100));
+      // One breakdown per opponent. Grouping is always over ONE player's range:
+      // it is what a learner reads, and it is not a slice of the pair count.
+      ...(hand.opponents ?? []).filter((opponent) => opponent.breakdown?.length).map((opponent) => {
+        const combos = opponent.combos || opponent.breakdown.reduce((sum, row) => sum + row.combos, 0);
+        return el("div", { class: "breakdown" },
+            el("p", { class: "breakdown-head" },
+              (hand.opponents ?? []).length > 1
+                ? `What the ${(opponent.position ?? "").toLowerCase()} can have`
+                : "What he can actually have"),
+            opponent.breakdown.map((row) => {
+              const share = Math.max(2, Math.round((row.combos / combos) * 100));
               const losing = row.beatsHero === 0;
               return el("div", { class: "brow" },
                 el("span", { class: "blabel" }, row.label),
@@ -176,8 +227,8 @@ function readStep(hand) {
                 el("span", { class: "bcount" }, `${row.combos}`),
                 el("span", { class: `bverdict ${losing ? "ok" : "no"}` },
                   losing ? "you beat" : row.beatsHero === row.combos ? "all beat you" : `${row.beatsHero} beat you`));
-            }))
-        : null,
+            }));
+      }),
       el("p", { class: "small muted" }, hand.read.why[hand.read.correctId]),
       // Say plainly when the count has not been narrowed by his betting. The
       // number is still exact; what it counts is just wider than a real read.
@@ -208,7 +259,13 @@ function actionStep(hand) {
         hand.action.options.map((option) => choiceButton({
           option, chosen, locked,
           correct: locked && correctIds.includes(option.id),
-          onPick: (id) => { view.answers.action = id; render(); scrollToFeedback(); },
+          onPick: (id) => {
+            view.answers.action = id;
+            // On the turn this choice also selects which river they will see.
+            if (view.chainStep === 1) view.branch = id;
+            render();
+            scrollToFeedback();
+          },
         })))));
 
   // Confidence is asked once the answer is in but before it is graded, so it
@@ -226,6 +283,49 @@ function actionStep(hand) {
   return wrap;
 }
 
+/**
+ * What comes after the turn answer. A hand that chains shows what the opponent
+ * did and hands back the next decision; one that does not just moves on.
+ *
+ * The branch shown is the one the LEARNER chose. That is the whole point: a
+ * learner who bets big and finds the river unplayable has been taught something
+ * a snapshot cannot teach.
+ */
+function continueEls(hand) {
+  if (view.chainStep === 2) return [nextHandButton()];
+  const branch = branchOf(currentHand());
+  if (!branch) return [nextHandButton()];
+
+  if (branch.kind === "question") {
+    return [
+      el("div", { class: "chain-next" },
+        el("p", { class: "chain-reply" }, branch.reply),
+        // The turn number came from 250 runouts; this is one of them. A learner
+        // who plays the turn right and watches the river punish them must not
+        // conclude the turn answer was wrong.
+        el("p", { class: "small muted" }, "This is one way the hand ran out. The numbers above came from 250 of them."),
+        el("button", {
+          class: "primary",
+          onclick: () => {
+            view.chainStep = 2;
+            view.step = "read";
+            view.answers = {};
+            view.confidence = null;
+            render();
+            scrollTop();
+          },
+        }, branch.street === "River" ? "Now the river →" : "He's not done — now what? →")),
+    ];
+  }
+  return [
+    el("div", { class: "chain-next" }, el("p", { class: "chain-reply" }, branch.outcome)),
+    nextHandButton(),
+  ];
+}
+
+const nextHandButton = () =>
+  el("button", { class: "primary", style: "margin-top:14px", onclick: nextHand }, "Next hand →");
+
 function resultEl(hand, right) {
   const chosen = view.answers.action;
   const best = hand.action.options[0];
@@ -234,12 +334,18 @@ function resultEl(hand, right) {
 
   return el("div", { class: `feedback ${right ? "ok" : "no"}`, id: "fb", "aria-live": "polite" },
     el("div", { class: "verdict" }, right ? "✓ That line holds up" : `✕ ${best.label} does better here`),
+    // The numbers that decide the spot, out of the prose and into a small table
+    // so the two that matter sit next to each other and can be compared. This
+    // replaced a second paragraph that restated the same count in words - when
+    // the wrong answer and the right one hinge on the same fact, which fold
+    // against call always does, it printed it twice.
+    hand.facts?.length
+      ? el("div", { class: "facts" }, hand.facts.map((fact) => el("div", { class: "fact" },
+          el("span", { class: "flabel" }, fact.label),
+          el("span", { class: "fvalue" }, fact.value),
+          fact.note ? el("span", { class: "fnote" }, fact.note) : null)))
+      : null,
     el("p", { class: "reason" }, hand.action.why[chosen]),
-    // Getting it wrong used to explain only the wrong answer, which leaves the
-    // learner knowing what not to do and not what to do. Both sides now.
-    right ? null : el("p", { class: "reason alt" },
-      el("b", {}, `Why ${best.label.toLowerCase()} instead: `),
-      hand.action.why[best.id]),
 
     el("p", { class: "eyebrow", style: "margin-top:14px" }, `Measured over ${hand.numbers.rollouts} play-outs`),
     el("div", { class: "evbar" },
@@ -258,7 +364,7 @@ function resultEl(hand, right) {
       el("span", { class: "tag modelled" }, `Opponent: ${hand.evidence.opponent}`),
       el("span", { class: "tag" }, "Coaching: written")),
 
-    el("button", { class: "primary", style: "margin-top:14px", onclick: nextHand }, "Next hand →"),
+    ...continueEls(hand),
     el("button", { class: "linkish", onclick: () => { resetHand(); render(); scrollTop(); } }, "Try this one again"));
 }
 
@@ -273,7 +379,11 @@ function record(hand) {
   profile.attempts.push({
     // Stable id so uploading the same attempt twice cannot double-count it.
     id: (crypto.randomUUID?.() ?? `${hand.id}-${Date.now()}-${Math.round(performance.now())}`),
-    handId: hand.id,
+    // Both decisions of a chained hand record against the SAME hand id: the
+    // progress screen counts distinct hand ids for "N of 100 hands seen", and
+    // giving the river its own id would make that read 135 of 100.
+    handId: hand.chainId ?? hand.id,
+    step: view.chainStep,
     leak: hand.leak,
     read: view.answers.read,
     readOk: view.answers.read === hand.read.correctId,
@@ -387,6 +497,8 @@ function resetHand() {
   view.step = "read";
   view.answers = {};
   view.confidence = null;
+  view.chainStep = 1;
+  view.branch = null;
 }
 
 function nextHand() {
@@ -470,7 +582,7 @@ function render() {
     return;
   }
   if (view.screen === "progress") { main.append(progressScreen()); return; }
-  const hand = currentHand();
+  const hand = activeLesson();
   main.append(view.step === "read" ? readStep(hand) : actionStep(hand));
 }
 

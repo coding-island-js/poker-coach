@@ -258,134 +258,321 @@ test("dealableHoldings on an empty range returns nothing rather than throwing", 
   assert.deepEqual(dealableHoldings(game, "villain", undefined), []);
 });
 
-// The feedback lines used to state only the SIZE of a mistake ("costs about
-// $190 against the best line"), which tells a learner how wrong they were and
-// nothing about why. These cover the shapes that got the reasoning backwards
-// when the explanations were first written.
-import { reasonFor } from "../tools/curate.mjs";
+// The feedback has been rewritten three times and each rewrite broke something
+// these now hold in place.
+//
+// The current contract: `decidingFacts` carries the NUMBERS, `reasonFor` carries
+// the JUDGMENT, and neither repeats the other. That split exists because showing
+// both the wrong answer's reason and the right answer's reason printed the same
+// count twice whenever they hinged on the same fact - which fold against call
+// always does.
+import { reasonFor, decidingFacts, voiceFor } from "../tools/curate.mjs";
 
-const opt = (id, label, answered = {}) => ({
-  id, label,
+const opt = (id, label, answered = {}, uncontested = 0) => ({
+  id, label, uncontested,
   answered: { fold: 0, call: 0, raise: 0, bet: 0, check: 0, ...answered },
+});
+
+const shape = (over = {}) => ({
+  facing: false, standingNow: "ahead", beats: 84, youBeat: 352, total: 437,
+  pot: 60, toCall: 0, players: 2, ...over,
+});
+
+test("facing a bet, the facts are the price and the share, side by side", () => {
+  const facts = decidingFacts({
+    ...shape({ facing: true, standingNow: "behind", beats: 210, youBeat: 124, total: 334, pot: 26, toCall: 13 }),
+    options: [], best: null,
+  });
+  assert.equal(facts.length, 2, "one comparison, two rows");
+  assert.equal(facts[0].label, "You need");
+  assert.equal(facts[0].value, "33%", "$13 to win $26 needs a third");
+  assert.equal(facts[1].label, "You win");
+  assert.equal(facts[1].value, "37%", "124 of 334");
+});
+
+test("the reason never repeats the numbers the facts already show", () => {
+  const why = reasonFor({
+    ...shape({ facing: true, standingNow: "behind", beats: 210, youBeat: 124, total: 334, pot: 39, toCall: 13 }),
+    chosen: opt("fold", "Fold"), best: opt("call", "Call $13"), isCorrect: false,
+  });
+  assert.doesNotMatch(why, /\d+ of (his|the)/, "counts belong in the facts block");
+  assert.match(why, /folding gives up/i);
 });
 
 test("betting a hand that is behind is a failed bluff, not a pot you already had", () => {
   const bet = opt("bet-small", "Bet $17", { call: 1 });
   const check = opt("check", "Check", { bet: 0.2, check: 0.8 });
   const why = reasonFor({
+    ...shape({ standingNow: "behind", beats: 203, youBeat: 19, total: 222 }),
     chosen: bet, best: check, options: [check, bet], isCorrect: false,
-    facing: false, standingNow: "behind", beats: 203, youBeat: 19, total: 222,
   });
   assert.doesNotMatch(why, /pot you already had/, "the pot was never his to keep");
-  assert.match(why, /folds nothing out|raises this/, "it should name what the bet failed to do");
-  assert.match(why, /203/, "and carry this hand's own count");
 });
 
-test("a bigger bet that gets called less is explained by the call rates, not asserted", () => {
-  const small = opt("bet-small", "Bet $9", { call: 0.62, fold: 0.38 });
-  const big = opt("bet-big", "Bet $20", { call: 0.11, fold: 0.89 });
-  const why = reasonFor({
-    chosen: big, best: small, options: [small, big], isCorrect: false,
-    facing: false, standingNow: "ahead", beats: 84, youBeat: 352, total: 437,
-  });
-  assert.match(why, /62%/);
-  assert.match(why, /11%/);
-  assert.match(why, /fold to the bigger bet/);
-});
-
-// The mirror case. Getting this backwards printed "the worse hands fold to the
-// bigger bet" over numbers showing he called the bigger bet MORE often.
-test("a smaller bet that gets called just as often is explained as collecting less", () => {
-  const small = opt("bet-small", "Bet $20", { call: 0.65 });
-  const big = opt("bet-big", "Bet $47", { call: 0.69 });
-  const why = reasonFor({
-    chosen: small, best: big, options: [small, big], isCorrect: false,
-    facing: false, standingNow: "ahead", beats: 74, youBeat: 204, total: 278,
-  });
-  assert.doesNotMatch(why, /fold to the bigger bet/, "he calls the bigger bet more, not less");
-  assert.match(why, /same hands pay you|worth the extra folds/);
-});
-
-// When checking is the answer there is no "best bet" to quote a price from.
-// Reaching for `best.label` printed "he folds 0% of the time against that much".
-test("checking as the answer never quotes a price it does not have", () => {
-  const check = opt("check", "Check", { bet: 0.868, check: 0.132 });
-  const bet = opt("bet-small", "Bet $27", { call: 0.068, raise: 0.456 });
-  const why = reasonFor({
-    chosen: check, best: check, options: [check, bet], isCorrect: true,
-    facing: false, standingNow: "mixed", beats: 61, youBeat: 140, total: 201,
-  });
-  assert.doesNotMatch(why, /that much/, "no unfilled placeholder");
-  assert.match(why, /87%/, "checking wins because it lets him bet - say so");
-});
-
-test("folding to a bet is explained as a price, in plain fractions", () => {
-  const fold = opt("fold", "Fold");
-  const call = opt("call", "Call $30", { call: 1 });
-  const why = reasonFor({
-    chosen: fold, best: fold, options: [fold, call], isCorrect: true,
-    facing: true, standingNow: "behind", beats: 300, youBeat: 55, total: 355,
-    pot: 90, toCall: 30,
-  });
-  assert.match(why, /1 time in 4/, "$30 to win $90 is one in four");
-  // The comparison a player can actually do: the price needed, next to the
-  // share they have. Quoting how many hands BEAT them makes them do the
-  // subtraction themselves.
-  assert.match(why, /55 of his 355/);
-  assert.match(why, /15%/);
-});
-
-test("every reason names a mechanism rather than quoting the money", () => {
-  const a = opt("bet-big", "Bet $50", { call: 0.72, fold: 0.28 });
-  const b = opt("check", "Check", { bet: 0.3, check: 0.7 });
-  for (const [chosen, best, isCorrect, standingNow] of [
-    [a, a, true, "ahead"], [b, a, false, "ahead"], [a, b, false, "behind"], [b, b, true, "behind"],
-  ]) {
-    const why = reasonFor({
-      chosen, best, options: [a, b], isCorrect, facing: false, standingNow,
-      beats: 109, youBeat: 234, total: 344,
-    });
-    assert.ok(why.length >= 70, `too thin to be a reason: "${why}"`);
-    assert.match(why, /\d/, "a reason has to count something");
-    assert.doesNotMatch(why, /that much|undefined|NaN/, `unfilled placeholder: "${why}"`);
-  }
-});
-
-// A bluff and a value bet want opposite things from a size. Judging a bluff by
-// its CALL rate printed "fewer hands call $105 than $46, and the ones that do
-// pay a lot more" on a hand whose winning bet worked because he folded.
-test("bet sizing on a bluff is judged by fold rate, not call rate", () => {
-  const big = opt("bet-big", "Bet $105", { fold: 0.88, call: 0.12 });
-  const small = opt("bet-small", "Bet $46", { fold: 0.08, call: 0.92 });
-  const why = reasonFor({
-    chosen: small, best: big, options: [small, big], isCorrect: false,
-    facing: false, standingNow: "behind", beats: 435, youBeat: 27, total: 494,
-  });
-  assert.match(why, /88%/);
-  assert.match(why, /8%/);
-  assert.match(why, /fold him out/);
-  assert.doesNotMatch(why, /pay a lot more|pay you/, "nobody is paying you when you are bluffing");
-});
-
-test("checking is never described as collecting value when the winning line is a bluff", () => {
+test("checking as the answer is never described as collecting value from a bluff", () => {
   const check = opt("check", "Check", { bet: 0.1, check: 0.9 });
   const bet = opt("bet-big", "Bet $105", { fold: 0.88, call: 0.12 });
   const why = reasonFor({
+    ...shape({ standingNow: "behind", beats: 435, youBeat: 27, total: 494 }),
     chosen: check, best: bet, options: [check, bet], isCorrect: false,
-    facing: false, standingNow: "behind", beats: 435, youBeat: 27, total: 494,
   });
-  assert.doesNotMatch(why, /collects none of that/, "there is nothing to collect from a bluff");
+  assert.doesNotMatch(why, /collects none/, "there is nothing to collect from a bluff");
   assert.match(why, /gives up/);
 });
 
-// "The hands that beat you ALL call" is only true when he barely folds.
-test("a failed bluff is not described as folding nothing out when it folds a third", () => {
-  const bet = opt("bet-big", "Bet $35", { fold: 0.32, call: 0.68 });
-  const check = opt("check", "Check", { bet: 0.2, check: 0.8 });
+test("bet sizing on a bluff is judged by folding them out, not by getting paid", () => {
+  const big = opt("bet-big", "Bet $105", { fold: 0.88, call: 0.12 });
+  const small = opt("bet-small", "Bet $46", { fold: 0.08, call: 0.92 });
   const why = reasonFor({
-    chosen: bet, best: check, options: [check, bet], isCorrect: false,
-    facing: false, standingNow: "behind", beats: 271, youBeat: 150, total: 430,
+    ...shape({ standingNow: "behind", beats: 435, youBeat: 27, total: 494 }),
+    chosen: small, best: big, options: [small, big], isCorrect: false,
   });
-  assert.doesNotMatch(why, /all call/, "32% folding is not 'they all call'");
-  assert.match(why, /not enough/);
+  assert.doesNotMatch(why, /pay you|paying you|collects more/, "nobody is paying you when you are bluffing");
+  assert.match(why, /move him off|not enough/i);
+
+  // And the facts beside it must quote FOLD rates, not call rates.
+  const facts = decidingFacts({
+    ...shape({ standingNow: "behind", beats: 435, youBeat: 27, total: 494 }),
+    options: [small, big], best: big,
+  });
+  assert.ok(facts.some((fact) => /folds to \$105/.test(fact.label) && fact.value === "88%"), JSON.stringify(facts));
+});
+
+test("bet sizing for value is judged by who keeps calling", () => {
+  const small = opt("bet-small", "Bet $9", { call: 0.62, fold: 0.38 });
+  const big = opt("bet-big", "Bet $20", { call: 0.11, fold: 0.89 });
+  const why = reasonFor({
+    ...shape({ standingNow: "ahead" }),
+    chosen: big, best: small, options: [small, big], isCorrect: false,
+  });
+  assert.match(why, /fold to this|keeps them in/i);
+  const facts = decidingFacts({ ...shape({ standingNow: "ahead" }), options: [small, big], best: small });
+  assert.ok(facts.some((fact) => /calls \$9/.test(fact.label) && fact.value === "62%"), JSON.stringify(facts));
+});
+
+// Three-handed, the reply tally only records the NEXT player to act, so it says
+// nothing about the field. The honest number is how often everyone folded.
+test("three-handed facts use the field, not one player's reply", () => {
+  const small = opt("bet-small", "Bet $22", { call: 0.35 }, 0.53);
+  const big = opt("bet-big", "Bet $51", { call: 0.32 }, 0.61);
+  const facts = decidingFacts({
+    ...shape({ players: 3, standingNow: "ahead", beats: 60792, youBeat: 1009398, total: 1070190 }),
+    options: [small, big], best: small,
+  });
+  assert.ok(facts.some((fact) => /Everyone folds to \$22/.test(fact.label) && fact.value === "53%"), JSON.stringify(facts));
+  assert.match(facts[0].note, /ways/, "the count is over ways the field can be dealt");
+  assert.doesNotMatch(facts[0].note, /\bhis\b/, "there is no single 'his' range three-handed");
+});
+
+test("three-handed value sizing knows that folding the field out is the failure", () => {
+  const small = opt("bet-small", "Bet $22", {}, 0.53);
+  const big = opt("bet-big", "Bet $51", {}, 0.61);
+  const why = reasonFor({
+    ...shape({ players: 3, standingNow: "ahead", beats: 60792, youBeat: 1009398, total: 1070190 }),
+    chosen: big, best: small, options: [small, big], isCorrect: false,
+  });
+  assert.match(why, /folds out the players you want paying you/);
+});
+
+test("voice switches from he to they once there is a field", () => {
+  assert.equal(voiceFor(2).subj, "he");
+  assert.equal(voiceFor(3).subj, "they");
+  assert.equal(voiceFor(3).plural, true);
+});
+
+test("every reason is a sentence, with no unfilled placeholders", () => {
+  const a = opt("bet-big", "Bet $50", { call: 0.72, fold: 0.28 });
+  const b = opt("check", "Check", { bet: 0.3, check: 0.7 });
+  for (const players of [2, 3]) {
+    for (const [chosen, best, isCorrect, standingNow] of [
+      [a, a, true, "ahead"], [b, a, false, "ahead"], [a, b, false, "behind"], [b, b, true, "behind"],
+    ]) {
+      const why = reasonFor({
+        ...shape({ players, standingNow, beats: 109, youBeat: 234, total: 344 }),
+        chosen, best, options: [a, b], isCorrect,
+      });
+      assert.ok(why.length >= 30, `too thin: "${why}"`);
+      assert.doesNotMatch(why, /that much|undefined|NaN|\$-/, `unfilled placeholder: "${why}"`);
+      assert.match(why, /\.$/, `not a sentence: "${why}"`);
+    }
+  }
+});
+
+
+// would poison every multiway hand while still looking like a plausible number.
+import { showdownVsField, cardIndexes, scoreCards } from "../tools/lib/engine.mjs";
+
+const bruteForce = (hero, board, A, B) => {
+  const bi = cardIndexes(board);
+  const heroScore = scoreCards([...cardIndexes(hero), ...bi]);
+  let total = 0, beats = 0;
+  for (const a of A) {
+    for (const b of B) {
+      if (a.cards.some((card) => b.cards.includes(card))) continue;
+      total += 1;
+      const sa = scoreCards([...cardIndexes(a.cards), ...bi]);
+      const sb = scoreCards([...cardIndexes(b.cards), ...bi]);
+      if (sa > heroScore || sb > heroScore) beats += 1;
+    }
+  }
+  return { total, beats };
+};
+
+test("showdownVsField counts pairs the way brute force does", () => {
+  const board = ["Kd", "7s", "3c", "2h", "9d"];
+  const hero = ["As", "Ah"];
+  const A = [["Kh", "Ks"], ["7h", "7d"], ["Kc", "Qh"], ["Jc", "Ts"], ["4c", "5d"]].map((cards) => ({ cards }));
+  const B = [["Kh", "Kc"], ["9h", "9c"], ["Qd", "Qc"], ["Jc", "Th"], ["6c", "5s"]].map((cards) => ({ cards }));
+  const got = showdownVsField({ heroCards: hero, board, ranges: [A, B] });
+  const want = bruteForce(hero, board, A, B);
+  assert.equal(got.total, want.total);
+  assert.equal(got.beats, want.beats);
+});
+
+test("showdownVsField never counts a pair that shares a card", () => {
+  const board = ["Kd", "7s", "3c", "2h", "9d"];
+  const hero = ["As", "Ah"];
+  // Both ranges are the SAME single holding, so there is no legal pair at all.
+  const one = [{ cards: ["Qc", "Qd"] }];
+  const got = showdownVsField({ heroCards: hero, board, ranges: [one, one] });
+  assert.equal(got.total, 0, "one holding cannot be dealt to two players at once");
+});
+
+test("showdownVsField agrees with brute force across random boards", () => {
+  const rng = createSeededRng(4242);
+  const deck = [];
+  for (const rank of "23456789TJQKA") for (const suit of "cdhs") deck.push(rank + suit);
+
+  for (let trial = 0; trial < 12; trial += 1) {
+    const shuffled = [...deck];
+    for (let i = shuffled.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(rng() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    const board = shuffled.slice(0, 5);
+    const hero = shuffled.slice(5, 7);
+    const rest = shuffled.slice(7);
+    const all = [];
+    for (let i = 0; i < rest.length; i += 1) {
+      for (let j = i + 1; j < rest.length; j += 1) all.push({ cards: [rest[i], rest[j]] });
+    }
+    const draw = (n) => {
+      const pool = [...all];
+      return Array.from({ length: n }, () => pool.splice(Math.floor(rng() * pool.length), 1)[0]);
+    };
+    const A = draw(25);
+    const B = draw(25);
+    const got = showdownVsField({ heroCards: hero, board, ranges: [A, B] });
+    const want = bruteForce(hero, board, A, B);
+    assert.equal(got.total, want.total, `board ${board.join(" ")}`);
+    assert.equal(got.beats, want.beats, `board ${board.join(" ")}`);
+  }
+});
+
+test("showdownVsField falls back to the heads-up count for one opponent", () => {
+  const board = ["Kd", "7s", "3c", "2h", "9d"];
+  const holdings = [["Kh", "Ks"], ["Kc", "Qh"]].map((cards) => ({ cards }));
+  const got = showdownVsField({ heroCards: ["As", "Ah"], board, ranges: [holdings] });
+  assert.equal(got.total, 2);
+  assert.equal(got.beats, 1);
+  assert.equal(got.ties, 0, "heads-up still reports ties");
+});
+
+test("showdownVsField refuses a field it cannot count exactly", () => {
+  const holdings = [{ cards: ["Kh", "Ks"] }];
+  assert.throws(
+    () => showdownVsField({ heroCards: ["As", "Ah"], board: ["Kd", "7s", "3c", "2h", "9d"], ranges: [holdings, holdings, holdings] }),
+    /one or two opponents/,
+    "better to refuse than to quietly estimate under an 'exact' label",
+  );
+});
+
+// Generation is deterministic, so a shipped hand does not carry its game state:
+// it carries a seed and a hand index, and the state is rebuilt on demand. That
+// makes this the load-bearing test for anything built on replay. A drift of a
+// single rng call rebuilds a DIFFERENT hand, silently, and every continuation
+// scored from it would be coaching about a hand that never happened.
+import { replaySpot, matchesCandidate } from "../tools/lib/replay.mjs";
+import { readFileSync } from "node:fs";
+
+test("every shipped hand can be replayed back to the exact spot it describes", () => {
+  const data = JSON.parse(readFileSync(new URL("../public/hands.json", import.meta.url), "utf8"));
+  const withSource = data.hands.filter((hand) => hand.source?.seed !== null && hand.source?.handIndex !== null);
+  assert.ok(withSource.length > 0, "hands must carry their source coordinates");
+
+  const failures = [];
+  for (const hand of withSource) {
+    const spot = replaySpot(hand.source);
+    // matchesCandidate wants the generator's field names.
+    const asCandidate = {
+      heroCodes: hand.hero.map(toEngineCode),
+      boardCodes: hand.board.map(toEngineCode),
+      potRaw: Number(String(hand.pot).replace(/[^0-9.]/g, "")),
+    };
+    if (!matchesCandidate(spot, asCandidate)) failures.push(hand.id);
+  }
+  assert.deepEqual(failures, [], `replay drifted for: ${failures.join(", ")}`);
+});
+
+const SUIT_CODES = { "♣": "c", "♦": "d", "♥": "h", "♠": "s" };
+function toEngineCode(pretty) {
+  const suit = SUIT_CODES[pretty.slice(-1)];
+  const rank = pretty.slice(0, -1) === "10" ? "T" : pretty.slice(0, -1);
+  return `${rank}${suit}`;
+}
+
+// A chained hand asks the turn, then the river OF THE SAME HAND, on the line
+// the learner picked. The thing that would break silently is the river being
+// the one the BOT took rather than the one the learner's action produced, so
+// these check the branch structure that keeps them apart.
+test("a chain gives every action its own branch, and questions their own ids", () => {
+  const data = JSON.parse(readFileSync(new URL("../public/hands.json", import.meta.url), "utf8"));
+  const chained = data.hands.filter((hand) => hand.chain);
+  if (!chained.length) return; // pools without turn spots are legitimate
+
+  const ids = new Set();
+  for (const hand of chained) {
+    assert.equal(hand.street, "Turn", `${hand.id} chains but is not a turn spot`);
+    for (const option of hand.action.options) {
+      assert.ok(hand.chain.branches[option.id], `${hand.id} has no branch for "${option.id}"`);
+    }
+    for (const [action, branch] of Object.entries(hand.chain.branches)) {
+      if (branch.kind === "question") {
+        assert.ok(branch.lesson, `${hand.id}/${action} is a question with no lesson`);
+        assert.ok(branch.reply, `${hand.id}/${action} does not say what the opponent did`);
+        assert.equal(branch.lesson.chainId, hand.id);
+        assert.equal(branch.lesson.step, 2);
+        assert.ok(!ids.has(branch.lesson.id), `duplicate continuation id ${branch.lesson.id}`);
+        ids.add(branch.lesson.id);
+        // The second decision is never earlier in the hand than the first.
+        const order = { Flop: 0, Turn: 1, River: 2 };
+        assert.ok(order[branch.lesson.street] >= order[hand.street],
+          `${hand.id}/${action} continues backwards to the ${branch.lesson.street}`);
+      } else {
+        assert.ok(branch.outcome, `${hand.id}/${action} ends with nothing said`);
+      }
+    }
+    // Folding can never lead to another decision.
+    const fold = hand.chain.branches.fold;
+    if (fold) assert.notEqual(fold.kind, "question", `${hand.id} asks a question after folding`);
+  }
+});
+
+test("a continuation is a complete lesson, not a stub", () => {
+  const data = JSON.parse(readFileSync(new URL("../public/hands.json", import.meta.url), "utf8"));
+  const lessons = data.hands.flatMap((hand) =>
+    Object.values(hand.chain?.branches ?? {})
+      .filter((branch) => branch.kind === "question")
+      .map((branch) => branch.lesson));
+  if (!lessons.length) return;
+
+  for (const lesson of lessons) {
+    assert.ok(lesson.read?.correctId, `${lesson.id} has no read answer`);
+    assert.ok(lesson.action?.correctIds?.length, `${lesson.id} has no action answer`);
+    assert.ok(lesson.facts?.length, `${lesson.id} has no deciding facts`);
+    assert.ok(lesson.takeaway, `${lesson.id} has no takeaway`);
+    assert.ok(lesson.numbers?.total > 0, `${lesson.id} has no counted range`);
+    assert.notEqual(lesson.action.correctIds.length, lesson.action.options.length,
+      `${lesson.id} marks every option correct`);
+  }
 });

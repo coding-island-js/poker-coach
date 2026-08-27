@@ -14,11 +14,39 @@ const fail = (id, message) => problems.push(`${id}: ${message}`);
 const data = JSON.parse(await readFile(PATH, "utf8"));
 const hands = data.hands ?? [];
 
+/**
+ * The second decision of a chained hand is a full lesson and gets checked like
+ * one. Shipping half the content ungated is not acceptable in a repo where a
+ * gate has already caught real defects.
+ */
+function continuationsOf(list) {
+  const out = [];
+  for (const hand of list) {
+    for (const [action, branch] of Object.entries(hand.chain?.branches ?? {})) {
+      if (branch.kind === "question") {
+        if (!branch.lesson) fail(hand.id, `chain branch "${action}" has no lesson`);
+        else out.push(branch.lesson);
+        if (!branch.reply) fail(hand.id, `chain branch "${action}" does not say what the opponent did`);
+      } else if (!branch.outcome) {
+        fail(hand.id, `chain branch "${action}" has no outcome`);
+      }
+    }
+    // A branch must exist for every action the learner can actually pick, or
+    // they will answer the turn and be handed nothing.
+    if (hand.chain) {
+      for (const option of hand.action?.options ?? []) {
+        if (!hand.chain.branches?.[option.id]) fail(hand.id, `no chain branch for "${option.id}"`);
+      }
+    }
+  }
+  return out;
+}
+
 if (hands.length < 20) fail("catalogue", `only ${hands.length} hands; expected at least 20`);
 if (!data.leakLabels) fail("catalogue", "leakLabels missing");
 
 const ids = new Set();
-for (const hand of hands) {
+for (const hand of [...hands, ...continuationsOf(hands)]) {
   const id = hand.id ?? "(no id)";
   if (ids.has(id)) fail(id, "duplicate id");
   ids.add(id);
@@ -35,8 +63,47 @@ for (const hand of hands) {
     fail(id, `${hand.street} needs ${expectedBoard} board cards, has ${hand.board?.length}`);
   }
   if (!hand.heroPosition || !hand.opponentPosition) fail(id, "both seats must be named");
-  if (hand.breakdown && hand.breakdown.reduce((sum, row) => sum + row.combos, 0) !== hand.numbers.total) {
+  // Heads-up the breakdown groups the one range the count is over. Three-handed
+  // the count is over PAIRS, so a breakdown can only ever add up to its OWN
+  // opponent's combos - checking it against the pair count would be comparing
+  // two different quantities.
+  const seats = hand.players ?? 2;
+  if (seats < 3 && hand.breakdown && hand.breakdown.reduce((sum, row) => sum + row.combos, 0) !== hand.numbers.total) {
     fail(id, "range breakdown does not add up to the counted range");
+  }
+  if (![2, 3].includes(seats)) fail(id, `unsupported player count ${seats}`);
+  const opponents = hand.opponents ?? [];
+  if (opponents.length !== seats - 1) fail(id, `${seats}-handed but ${opponents.length} opponents listed`);
+  for (const opponent of opponents) {
+    if (!opponent.position) fail(id, "an opponent has no seat name");
+    if (!opponent.note) fail(id, `no read note for the ${opponent.position}`);
+    if (opponent.breakdown?.length) {
+      const rows = opponent.breakdown.reduce((sum, row) => sum + row.combos, 0);
+      if (rows !== opponent.combos) {
+        fail(id, `${opponent.position} breakdown sums to ${rows} but the range is ${opponent.combos}`);
+      }
+    }
+  }
+  if (seats >= 3) {
+    // The field count is over the ways two opponents can be dealt between them,
+    // so it must exceed either range on its own by a wide margin. Recomputing it
+    // heads-up style reported 1,081 ways where there were more than a million,
+    // and the number still looked plausible on screen.
+    const biggest = Math.max(...opponents.map((opponent) => opponent.combos ?? 0), 0);
+    if (hand.numbers.total <= biggest) {
+      fail(id, `three-handed count is ${hand.numbers.total}, no bigger than one range (${biggest})`);
+    }
+  }
+  // The deciding numbers must be present and must actually be numbers.
+  if (!hand.facts?.length) fail(id, "no deciding facts");
+  for (const fact of hand.facts ?? []) {
+    if (!fact.label || !fact.value) fail(id, "a fact is missing its label or value");
+    if (fact.value && !/\d/.test(fact.value)) fail(id, `fact "${fact.label}" has no number in it`);
+  }
+  if (!hand.countSentence) fail(id, "no count sentence");
+  // Three-handed prose must not talk about one opponent's hands.
+  if (seats >= 3 && /\bof his \d/.test(`${hand.countSentence} ${hand.takeaway}`)) {
+    fail(id, "three-handed copy speaks as if there were one opponent");
   }
   if (!hand.history?.length) fail(id, "no hand history");
 
@@ -63,9 +130,13 @@ for (const hand of hands) {
     // in it is not counting anything, and a very short one is quoting the money
     // rather than naming the mechanism.
     const why = action.why?.[option.id] ?? "";
-    if (why && !/\d/.test(why)) fail(id, `feedback for "${option.id}" cites no number`);
+    // A reason no longer has to carry a number - `facts` does that - but it
+    // must not be empty.
+    if (!why.trim()) fail(id, `feedback for "${option.id}" is empty`);
     // Short SENTENCES are the goal; a short whole line means no mechanism named.
-    if (why && why.length < 55) fail(id, `feedback for "${option.id}" is too thin to be a reason: "${why}"`);
+    // The numbers moved into `facts`, so the sentences are deliberately short
+    // now. They still have to say something.
+    if (why && why.length < 30) fail(id, `feedback for "${option.id}" is too thin to be a reason: "${why}"`);
     // A template that fell through to its placeholder.
     if (/that much|undefined|NaN|\$null/.test(why)) fail(id, `feedback for "${option.id}" has an unfilled placeholder: "${why}"`);
     // "$-22": a negative number formatted as if it were positive.

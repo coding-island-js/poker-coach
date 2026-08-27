@@ -199,6 +199,24 @@ button { font-family: inherit; }
 .reason.alt { padding-top: 10px; border-top: 1px solid var(--line); color: var(--ink-2); }
 .reason.alt b { font-weight: 700; }
 
+/* The two or three numbers that decide the spot, lifted out of the prose so
+   they can be compared at a glance rather than parsed out of a sentence. */
+.facts { margin: 0 0 12px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.fact { display: grid; grid-template-columns: auto minmax(52px, max-content) 1fr; gap: 10px;
+  align-items: baseline; padding: 8px 12px; border-bottom: 1px solid var(--line); }
+.fact:last-child { border-bottom: 0; }
+.flabel { font-size: 13.5px; color: var(--ink-2); }
+.fvalue { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.fnote { font-size: 12.5px; color: var(--ink-3); }
+.oppnotes { margin: 0; }
+.oppnotes .oppnote + .oppnote { margin-top: 4px; }
+
+/* The bridge between the two halves of a chained hand. */
+.chain-next { margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--line); }
+.chain-reply { margin: 0 0 6px; font-size: 15px; font-weight: 600; }
+.chain-next .primary { margin-top: 10px; }
+
 .takeaway {
   border-left: 3px solid var(--felt); background: var(--surface);
   border-radius: 0 10px 10px 0; padding: 12px 14px; margin: 14px 0;

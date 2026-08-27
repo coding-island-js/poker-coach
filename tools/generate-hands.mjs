@@ -1,8 +1,9 @@
 // Poker Coach content generator.
 //
-// Deals hands with poker-sim's engine, finds heads-up postflop spots where a
-// tempting play is measurably worse than the best one, computes the opponent's
-// range from their actual actions, and emits scored candidates.
+// Deals hands with poker-sim's engine, finds postflop spots - heads-up and
+// three-handed - where a tempting play is measurably worse than the best one,
+// computes each opponent's range from their actual actions, and emits scored
+// candidates.
 //
 // Nothing here decides what is "correct" by opinion: every EV number is the
 // mean of N play-outs of the real engine from the real decision point.
@@ -13,7 +14,7 @@ import { dirname } from "node:path";
 import {
   act, getLegalActions, getBotHandContext, decideBotAction, createSeededRng,
   createLineup, newHand, livePlayers, playerOf, rollout, candidateActions,
-  estimateRange, cappedness, bucketOfHolding, candidateCombos, archetypeById, plausibleRange, createBotProfile, showdownSplit,
+  estimateRange, cappedness, bucketOfHolding, candidateCombos, archetypeById, plausibleRange, createBotProfile, showdownSplit, showdownVsField,
   rangeBreakdown,
 } from "./lib/engine.mjs";
 
@@ -34,6 +35,10 @@ const SEED = Number.parseInt(arg("seed", "20260825"), 10);
 // admit only rivers. Scaled by street instead.
 const MIN_POT_BB = { flop: 6, turn: 10, river: 12 };
 const STREETS = ["flop", "turn", "river"];
+// How many players are still in. Three-handed is the realism jump - a real
+// $1/$2 pot is rarely heads-up - and it stops at three because the showdown
+// count has to stay an exact integer. See `showdownVsField`.
+const SEATING = [2, 3];
 const MIN_GAP_POT = Number.parseFloat(arg("min-gap", "0.08"));
 // Above this share of random hands being "strong", the board itself (a pair on
 // board, four to a straight) has made almost every holding strong and the
@@ -60,7 +65,7 @@ const NAIVE_ARCHETYPES = ["calling-station", "passive-rec", "loose-passive-rec",
  * names it, and "out of position" teaches less than "big blind" - position is
  * the thing a learner is supposed to be carrying to the table.
  */
-function positionName(hand, playerId) {
+export function positionName(hand, playerId) {
   const order = hand.seatOrder ?? [];
   const buttonIndex = order.indexOf(hand.buttonId);
   const seatIndex = order.indexOf(playerId);
@@ -84,13 +89,23 @@ function positionName(hand, playerId) {
  * decision line can name it correctly. A raise and a bet cost the hero the same
  * amount to call and are not the same event to read.
  */
-function facingActionOf(hand, villainId, street) {
+export function facingActionOf(hand, villainId, street) {
   let last = null;
   for (const event of hand.events ?? []) {
     if (event.type !== "ACTION" || event.street !== street) continue;
     if (event.playerId !== villainId) continue;
-    if (event.action === "bet" || event.action === "raise") {
-      last = { type: event.action, to: Math.round(event.streetTotal ?? event.paid ?? 0) };
+    // poker-sim spells shoves several ways - "all-in", "short-all-in-raise" -
+    // and matching only "bet"/"raise" left the decision line quoting an earlier
+    // action: "Opponent raises to $30" printed directly under "He moves all in".
+    const name = String(event.action ?? "");
+    const aggressive = name.includes("bet") || name.includes("raise") || name.includes("all-in");
+    if (aggressive) {
+      const allIn = name.includes("all-in");
+      last = {
+        type: name.includes("bet") && !name.includes("raise") ? "bet" : "raise",
+        to: Math.round(event.streetTotal ?? event.paid ?? 0),
+        allIn,
+      };
     }
   }
   return last;
@@ -98,10 +113,15 @@ function facingActionOf(hand, villainId, street) {
 
 // --------------------------------------------------------------- spot search
 /**
- * Play one hand, stopping at the first heads-up river decision, and return
- * everything that decision depends on.
+ * Play one hand, stopping at the first decision on `wantStreet` with exactly
+ * `wantPlayers` still in, and return everything that decision depends on.
+ *
+ * `wantPlayers` is 2 or 3. Three is the realism jump - a $1/$2 pot is rarely
+ * heads-up - and it stops at three because the showdown count has to stay an
+ * exact integer, and counting four mutually card-disjoint holdings is a
+ * different problem. See `showdownVsField`.
  */
-function findSpot(handIndex, rng, wantStreet) {
+export function findSpot(handIndex, rng, wantStreet, wantPlayers) {
   const { players, profiles } = createLineup(handIndex, rng);
   let game = newHand(handIndex, rng, players);
   const decisionsByPlayer = new Map();
@@ -115,18 +135,19 @@ function findSpot(handIndex, rng, wantStreet) {
     const hand = game.table.currentHand;
     const context = getBotHandContext(game, legal.playerId);
 
-    // Only the street this hand was asked for. Taking the first heads-up spot
-    // instead gave 28 flops to 6 turns to 1 river, because most hands are still
-    // two-handed on the flop and thin out after.
-    if (hand.phase === wantStreet && livePlayers(hand).length === 2) {
+    // Only the street this hand was asked for. Taking the first spot instead
+    // gave 28 flops to 6 turns to 1 river, because most hands are still
+    // multi-handed on the flop and thin out after.
+    if (hand.phase === wantStreet && livePlayers(hand).length === wantPlayers) {
       const heroId = legal.playerId;
-      const villain = livePlayers(hand).find((p) => p.id !== heroId);
-      if (villain && context.pot > 0) {
+      const villains = livePlayers(hand).filter((p) => p.id !== heroId);
+      if (villains.length === wantPlayers - 1 && context.pot > 0) {
         return {
-          game, legal, profiles, heroId, villainId: villain.id,
+          game, legal, profiles, heroId,
+          villainIds: villains.map((p) => p.id),
           street: hand.phase,
           heroContext: context,
-          villainDecisions: decisionsByPlayer.get(villain.id) ?? [],
+          decisionsFor: (id) => decisionsByPlayer.get(id) ?? [],
         };
       }
     }
@@ -201,7 +222,7 @@ const READ_DRIVEN = new Set([
   "calling-station", "maniac", "nit-rock", "rules-nit", "omc", "scared-money", "ego-rec",
 ]);
 
-function classifyLeak({ legal, bestId, temptId, heroBeatsPct, villainChecks, opponent }) {
+export function classifyLeak({ legal, bestId, temptId, heroBeatsPct, villainChecks, opponent }) {
   const facing = legal.toCall > 0;
   const tempted = temptId ?? "";
   const best = bestId ?? "";
@@ -245,10 +266,10 @@ function classifyLeak({ legal, bestId, temptId, heroBeatsPct, villainChecks, opp
  * the river and their individual actions are noise, so they are collapsed into
  * one count - a learner reading the spot needs the story, not the log.
  */
-function renderHistory(hand, heroId, villainId) {
+export function renderHistory(hand, heroId, labels) {
   const streets = { preflop: [], flop: [], turn: [], river: [] };
   const conjugate = (id, verb) => {
-    // "You raise", "Opponent raises".
+    // "You raise", "The cutoff raises".
     const you = id === heroId;
     const forms = { bet: "bet", raise: "raise", call: "call", check: "check", fold: "fold" };
     const stem = forms[verb] ?? verb;
@@ -259,11 +280,13 @@ function renderHistory(hand, heroId, villainId) {
     if (event.type !== "ACTION") continue;
     const bucket = streets[event.street];
     if (!bucket) continue;
-    if (event.playerId !== heroId && event.playerId !== villainId) {
+    // Three-handed, "Opponent" is ambiguous and the timeline becomes unreadable,
+    // so everyone still in is named by their seat.
+    if (!labels.has(event.playerId)) {
       if (event.action === "fold") foldedOut += 1;
       continue;
     }
-    const who = event.playerId === heroId ? "You" : "Opponent";
+    const who = labels.get(event.playerId);
     const verb = conjugate(event.playerId, event.action);
     const detail = event.action === "bet" || event.action === "raise"
       ? ` to ${money(event.streetTotal ?? event.paid)}`
@@ -286,87 +309,230 @@ function renderHistory(hand, heroId, villainId) {
     .map(([street, actions]) => ({ street: label[street], actions }));
 }
 
+/**
+ * The scored spot, in the shape the curator reads.
+ *
+ * Pulled out of the loop so the chaining pass can build a continuation the
+ * same way rather than assembling a lookalike object by hand - two shapes
+ * that have to stay in step is exactly how the copy and the numbers drifted
+ * apart the first time.
+ */
+export function buildCandidate({
+  hand, heroId, villainIds, heroCards, board, street, legal, heroContext,
+  reads, quoted, split, cap, rangeSource, evs, best, tempt, gap, pot,
+  villainChecks, heroBucket, leak, seed, handIndex, rollouts,
+}) {
+  return {
+    // Seeded, because two pools generated with different seeds both emit a
+    // hand at index 17 and the merge dedupes on cards, not id - so `gen-17`
+    // could ship twice meaning two different hands. The seed also makes a
+    // candidate replayable: seed + handIndex + street reproduces this exact
+    // game state.
+    id: `gen-${SEED}-${handIndex}`,
+    handIndex,
+    seed,
+    leak,
+    street: street.charAt(0).toUpperCase() + street.slice(1),
+    pot: money(pot),
+    potRaw: pot,
+    effective: `${money(heroContext.effectiveStack ?? heroContext.stack)} behind`,
+    heroPosition: positionName(hand, heroId),
+    // Every seat still in, named. Heads-up hands keep `opponentPosition` so
+    // nothing downstream has to special-case the commonest shape.
+    opponentPosition: reads[0].position,
+    opponents: reads.map((read) => ({
+      position: read.position,
+      archetype: read.archetype,
+      combos: read.holdings.length,
+      rangeSource: read.source,
+      checks: read.checks,
+      breakdown: rangeBreakdown({ heroCards, board, holdings: read.holdings }),
+    })),
+    players: villainIds.length + 1,
+    inPosition: Boolean(heroContext.position?.inPosition),
+    opponentArchetype: reads[0].archetype,
+    hero: prettyAll(heroCards),
+    heroCodes: heroCards,
+    board: prettyAll(board),
+    boardCodes: board,
+    heroBucket,
+    facingBet: legal.toCall > 0,
+    toCall: legal.toCall,
+    decisionNow: legal.toCall > 0
+      ? `Opponent bets ${money(legal.toCall)} into ${money(pot - legal.toCall)}. You act now.`
+      : "Opponent checks. You act now.",
+    // What he actually did, so the line above the timeline can agree with the
+    // timeline. Calling a raise a "bet" put "Opponent bets $13 into $26"
+    // directly above "Opponent raises to $20" in the history.
+    facingAction: facingActionOf(hand, reads[0].villainId, street),
+    history: renderHistory(hand, heroId, new Map([
+      [heroId, "You"],
+      // Three-handed, "Opponent" is ambiguous. Everyone still in is named by
+      // seat so the timeline can be followed.
+      ...reads.map((read) => [
+        read.villainId,
+        villainIds.length > 1 ? `The ${read.position.toLowerCase()}` : "Opponent",
+      ]),
+    ])),
+    options: evs.map((entry) => ({
+      id: entry.id,
+      label: entry.label,
+      ev: Number(entry.ev.toFixed(2)),
+      // What he did about it: the share of play-outs in which his first reply
+      // to this action was a fold, a call, a raise, a bet or a check. This is
+      // what lets the coaching name the reason instead of quoting the result.
+      answered: Object.fromEntries(
+        Object.entries(entry.answered ?? {}).map(([type, share]) => [type, Number(share.toFixed(3))]),
+      ),
+      // Share of play-outs in which everyone folded and the hero took it down.
+      uncontested: Number((entry.uncontested ?? 0).toFixed(3)),
+    })),
+    best: { id: best.id, label: best.label, ev: Number(best.ev.toFixed(2)) },
+    tempting: { id: tempt.id, label: tempt.label, ev: Number(tempt.ev.toFixed(2)) },
+    evGap: Number(gap.toFixed(2)),
+    evGapBB: Number((gap / 3).toFixed(2)),
+    evGapPot: pot > 0 ? Number((gap / pot).toFixed(3)) : 0,
+    villainChecks,
+    // The read model's own summary, for the FIRST opponent. Each opponent's
+    // own numbers travel with them under `opponents`.
+    range: reads[0].range && {
+      combos: reads[0].range.combos ?? null,
+      top: reads[0].range.top ?? null,
+      confident: reads[0].range.confident ?? false,
+      reason: reads[0].range.reason ?? null,
+      buckets: reads[0].range.buckets ?? null,
+    },
+    rangeSource,
+    showdown: split,
+    // The range grouped into hand classes. This is what turns "323 of 990
+    // beat you" from a number into a range a learner can picture.
+    breakdown: rangeBreakdown({ heroCards, board, holdings: quoted }),
+    // `showdown` counts the FIELD: for two opponents it is a count over the
+    // pairs of holdings they can be dealt between them, not over one range.
+    fieldOpponents: villainIds.length,
+    capped: cap && {
+      strongShare: cap.strongShare === null ? null : Number((cap.strongShare * 100).toFixed(1)),
+      baseline: cap.baseline === null ? null : Number((cap.baseline * 100).toFixed(1)),
+      capped: cap.capped,
+      meaningful: cap.meaningful ?? false,
+      quotedCombos: cap.quotedCombos ?? null,
+    },
+    rollouts,
+  };
+}
 // ------------------------------------------------------------------- driver
 async function main() {
   const started = Date.now();
   const candidates = [];
   let dealt = 0;
   let spots = 0;
+  // Where spots go when they do not become candidates. Without this a whole
+  // class of spot can vanish silently - three-handed hands did, and the run
+  // still reported a healthy total.
+  const dropped = {};
+  const drop = (why, players) => { const k = `${players}-handed: ${why}`; dropped[k] = (dropped[k] ?? 0) + 1; };
 
   for (let handIndex = 0; handIndex < HANDS; handIndex += 1) {
     const rng = createSeededRng(SEED + handIndex * 104_729);
     dealt += 1;
     let spot;
     try {
-      // Rotate the target street so the shipped set covers all three.
-      spot = findSpot(handIndex, rng, STREETS[handIndex % STREETS.length]);
+      // Rotate the target street AND the number of players, so the shipped set
+      // covers all three streets both heads-up and three-handed rather than
+      // filling up on whichever is commonest.
+      spot = findSpot(
+        handIndex, rng,
+        STREETS[handIndex % STREETS.length],
+        SEATING[Math.floor(handIndex / STREETS.length) % SEATING.length],
+      );
     } catch {
       continue;
     }
     if (!spot) continue;
     spots += 1;
 
-    const { game, legal, profiles, heroId, villainId, heroContext, villainDecisions, street } = spot;
+    const { game, legal, profiles, heroId, villainIds, heroContext, decisionsFor, street } = spot;
     const hand = game.table.currentHand;
     const heroCards = playerOf(hand, heroId)?.holeCards ?? [];
     const board = hand.board ?? [];
     const expectedBoard = { flop: 3, turn: 4, river: 5 }[street];
-    if (heroCards.length !== 2 || board.length !== expectedBoard) continue;
+    const seated = villainIds.length + 1;
+    if (heroCards.length !== 2 || board.length !== expectedBoard) { drop("bad deal", seated); continue; }
 
     const pot = heroContext.pot;
-    if (pot < (MIN_POT_BB[street] ?? 12) * 3) continue;
+    if (pot < (MIN_POT_BB[street] ?? 12) * 3) { drop("pot too small", seated); continue; }
     const actions = candidateActions(legal, pot);
-    if (actions.length < 2) continue;
+    if (actions.length < 2) { drop("fewer than two actions", seated); continue; }
 
-    // --- what the opponent's actions actually imply -----------------------
-    // This runs BEFORE the EV, because the EV is measured against this range.
-    // Computing it afterwards is what let the two describe different opponents.
-    const villainProfile = profiles.get(villainId);
+    // --- what each opponent's actions actually imply ----------------------
+    // This runs BEFORE the EV, because the EV is measured against these ranges.
+    // Computing them afterwards is what let the two describe different players.
     const known = [...board, ...heroCards];
-    let range = null;
-    let cap = null;
-    let rangeSource = "none";
-    let quotedHoldings = null;
     // Below this, the read model has narrowed to a range too small to quote to a
     // learner. "He has exactly three hands" is confident and indefensible.
     const MIN_CREDIBLE_COMBOS = 100;
+
+    const reads = villainIds.map((villainId) => {
+      const profile = profiles.get(villainId);
+      const decisions = decisionsFor(villainId);
+      let range = null;
+      let holdings = null;
+      let source = "heuristic";
+      try {
+        range = estimateRange({ decisions, profile, board, knownCards: known });
+        const modelled = range?.holdings ?? [];
+        const credible = modelled.length >= MIN_CREDIBLE_COMBOS && range?.confident;
+        holdings = credible ? modelled : plausibleRange(board, known);
+        source = credible ? "modelled" : "heuristic";
+      } catch {
+        holdings = plausibleRange(board, known);
+      }
+      return {
+        villainId,
+        profile,
+        range,
+        holdings: holdings ?? plausibleRange(board, known),
+        source,
+        checks: decisions.filter((d) => d.action?.type === "check").length,
+        position: positionName(hand, villainId),
+        archetype: profile?.archetype ?? null,
+      };
+    });
+
+    // The field is only as narrowed as its least-narrowed member: calling the
+    // count "hands that fit how they have played" when one of the two is a
+    // uniform fallback would overclaim on that one.
+    const rangeSource = reads.every((read) => read.source === "modelled") ? "modelled" : "heuristic";
+    const quoted = reads[0].holdings;
+    let cap = null;
     try {
-      range = estimateRange({
-        decisions: villainDecisions, profile: villainProfile, board, knownCards: known,
-      });
-      const modelled = range?.holdings ?? [];
-      const credible = modelled.length >= MIN_CREDIBLE_COMBOS && range?.confident;
-      const holdings = credible ? modelled : plausibleRange(board, known);
-      quotedHoldings = holdings;
-      rangeSource = credible ? "modelled" : "heuristic";
-      cap = cappedness({ holdings, board, knownCards: known });
+      cap = cappedness({ holdings: quoted, board, knownCards: known });
       const meaningful = cap.baseline !== null && cap.baseline <= MAX_MEANINGFUL_BASELINE;
       cap = {
         ...cap,
-        quotedCombos: holdings.length,
+        quotedCombos: quoted.length,
         // Suppressed rather than shown wrong: on a paired board almost every
         // hand makes two pair, so "100% of his range is strong" is an artifact
         // of the board, not a read on the opponent.
         meaningful,
         capped: meaningful ? cap.capped : null,
       };
-    } catch { /* range stays null; the spot is still usable */ }
+    } catch { /* cap stays null; the spot is still usable */ }
 
-    const villainChecks = villainDecisions.filter((d) => d.action?.type === "check").length;
+    const villainChecks = reads[0].checks;
     const heroBucket = bucketOfHolding(heroCards, board);
-    const quoted = quotedHoldings ?? plausibleRange(board, known);
-    const split = showdownSplit({ heroCards, board, holdings: quoted });
-    // A range the hero beats all of, or none of, makes the read question answer
-    // itself - and now that the EV is measured against this same range, it also
-    // makes the EV a foregone conclusion. Drop the spot here rather than let
-    // curation quietly recount it against a different range later.
-    if (split.beats === 0 || split.beats === split.total) continue;
+    const split = showdownVsField({ heroCards, board, ranges: reads.map((read) => read.holdings) });
+    // A field the hero beats all of, or none of, makes the read question answer
+    // itself - and now that the EV is measured against these same ranges, it
+    // also makes the EV a foregone conclusion. Drop the spot here rather than
+    // let curation quietly recount it against a different range later.
+    if (split.beats === 0 || split.beats === split.total) { drop("field beats you never or always", seated); continue; }
 
     // --- EV of every candidate action, by play-out ------------------------
-    // The villain is dealt a fresh hand from `quoted` on every trial, so this
-    // measures the action against his whole range rather than against the one
-    // hand he was dealt before the decision point.
-    const opponents = [{ playerId: villainId, holdings: quoted }];
+    // Every opponent is dealt a fresh hand from their OWN range on every trial,
+    // so this measures the action against the whole field rather than against
+    // the hands they happened to be dealt before the decision point.
+    const opponents = reads.map((read) => ({ playerId: read.villainId, holdings: read.holdings }));
     // One competent policy plays the hero's LATER streets, instead of whichever
     // archetype the hero's seat drew. The EV should say what the action is worth
     // if you play on sensibly, not what it is worth if a calling station
@@ -382,93 +548,28 @@ async function main() {
         trials: ROLLOUTS, seed: SEED + handIndex * 31 + entry.id.length,
       });
       if (measured === null) continue;
-      evs.push({ ...entry, ev: measured.ev, answered: measured.answered });
+      evs.push({ ...entry, ev: measured.ev, answered: measured.answered, uncontested: measured.uncontested });
     }
-    if (evs.length < 2) continue;
+    if (evs.length < 2) { drop("fewer than two measurable actions", seated); continue; }
 
     evs.sort((a, b) => b.ev - a.ev);
     const best = evs[0];
     const temptId = temptingAction({ game, legal, heroId, candidates: evs, seed: SEED + handIndex });
     const tempt = evs.find((entry) => entry.id === temptId) ?? evs[evs.length - 1];
     const gap = best.ev - tempt.ev;
-    if (pot <= 0 || gap / pot < MIN_GAP_POT) continue;
+    if (pot <= 0 || gap / pot < MIN_GAP_POT) { drop("EV gap too small", seated); continue; }
     const leak = classifyLeak({
       legal, bestId: best.id, temptId: tempt.id,
       heroBeatsPct: split.beatsPct, villainChecks,
-      opponent: villainProfile?.archetype ?? null,
+      opponent: reads[0].archetype,
     });
 
-    candidates.push({
-      // Seeded, because two pools generated with different seeds both emit a
-      // hand at index 17 and the merge dedupes on cards, not id - so `gen-17`
-      // could ship twice meaning two different hands. The seed also makes a
-      // candidate replayable: seed + handIndex + street reproduces this exact
-      // game state.
-      id: `gen-${SEED}-${handIndex}`,
-      handIndex,
-      seed: SEED,
-      leak,
-      street: street.charAt(0).toUpperCase() + street.slice(1),
-      pot: money(pot),
-      potRaw: pot,
-      effective: `${money(heroContext.effectiveStack ?? heroContext.stack)} behind`,
-      heroPosition: positionName(hand, heroId),
-      opponentPosition: positionName(hand, villainId),
-      inPosition: Boolean(heroContext.position?.inPosition),
-      opponentArchetype: villainProfile?.archetype ?? null,
-      hero: prettyAll(heroCards),
-      heroCodes: heroCards,
-      board: prettyAll(board),
-      boardCodes: board,
-      heroBucket,
-      facingBet: legal.toCall > 0,
-      toCall: legal.toCall,
-      decisionNow: legal.toCall > 0
-        ? `Opponent bets ${money(legal.toCall)} into ${money(pot - legal.toCall)}. You act now.`
-        : "Opponent checks. You act now.",
-      // What he actually did, so the line above the timeline can agree with the
-      // timeline. Calling a raise a "bet" put "Opponent bets $13 into $26"
-      // directly above "Opponent raises to $20" in the history.
-      facingAction: facingActionOf(hand, villainId, street),
-      history: renderHistory(hand, heroId, villainId),
-      options: evs.map((entry) => ({
-        id: entry.id,
-        label: entry.label,
-        ev: Number(entry.ev.toFixed(2)),
-        // What he did about it: the share of play-outs in which his first reply
-        // to this action was a fold, a call, a raise, a bet or a check. This is
-        // what lets the coaching name the reason instead of quoting the result.
-        answered: Object.fromEntries(
-          Object.entries(entry.answered ?? {}).map(([type, share]) => [type, Number(share.toFixed(3))]),
-        ),
-      })),
-      best: { id: best.id, label: best.label, ev: Number(best.ev.toFixed(2)) },
-      tempting: { id: tempt.id, label: tempt.label, ev: Number(tempt.ev.toFixed(2)) },
-      evGap: Number(gap.toFixed(2)),
-      evGapBB: Number((gap / 3).toFixed(2)),
-      evGapPot: pot > 0 ? Number((gap / pot).toFixed(3)) : 0,
-      villainChecks,
-      range: range && {
-        combos: range.combos ?? null,
-        top: range.top ?? null,
-        confident: range.confident ?? false,
-        reason: range.reason ?? null,
-        buckets: range.buckets ?? null,
-      },
-      rangeSource,
-      showdown: split,
-      // The range grouped into hand classes. This is what turns "323 of 990
-      // beat you" from a number into a range a learner can picture.
-      breakdown: rangeBreakdown({ heroCards, board, holdings: quoted }),
-      capped: cap && {
-        strongShare: cap.strongShare === null ? null : Number((cap.strongShare * 100).toFixed(1)),
-        baseline: cap.baseline === null ? null : Number((cap.baseline * 100).toFixed(1)),
-        capped: cap.capped,
-        meaningful: cap.meaningful ?? false,
-        quotedCombos: cap.quotedCombos ?? null,
-      },
-      rollouts: ROLLOUTS,
-    });
+    candidates.push(buildCandidate({
+      hand, heroId, villainIds, heroCards, board, street, legal, heroContext,
+      reads, quoted, split, cap, rangeSource, evs, best, tempt, gap, pot,
+      villainChecks, heroBucket,
+      leak, seed: SEED, handIndex, rollouts: ROLLOUTS,
+    }));
 
     if (candidates.length % 25 === 0) {
       process.stdout.write(`  ${candidates.length} scored (${handIndex + 1}/${HANDS} dealt)\n`);
@@ -492,9 +593,15 @@ async function main() {
   console.log(`
 dealt ${dealt} hands -> ${spots} heads-up spots -> ${candidates.length} scored`);
   console.log(`streets: ${Object.entries(byStreet).map(([k, v]) => `${k} ${v}`).join(" · ")}`);
+  const bySeating = {};
+  for (const candidate of candidates) bySeating[candidate.players] = (bySeating[candidate.players] ?? 0) + 1;
+  console.log(`players: ${Object.entries(bySeating).map(([k, v]) => `${k}-handed ${v}`).join(" | ")}`);
+  console.log("dropped:");
+  for (const [why, n] of Object.entries(dropped).sort((a, b) => b[1] - a[1])) console.log(`  ${why}: ${n}`);
   const mid = candidates[Math.floor(candidates.length / 2)];
   console.log(`EV gap (share of pot): max ${candidates[0]?.evGapPot ?? 0}, median ${mid?.evGapPot ?? 0}`);
   console.log(`wrote ${OUT} in ${((Date.now() - started) / 1000).toFixed(1)}s`);
 }
 
-main();
+// Only run when invoked directly, so the helpers above stay importable.
+if (process.argv[1] && process.argv[1].endsWith("generate-hands.mjs")) main();

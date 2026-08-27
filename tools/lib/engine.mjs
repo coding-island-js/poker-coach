@@ -17,6 +17,9 @@ export { createBotProfile, act, getLegalActions, getBotHandContext, decideBotAct
 export const STAKE = STAKE_PRESETS["lucky-lady-2/3"];
 export const SEAT_COUNT = 6;
 const ACTION_CAP = 300;
+// How many times to re-draw an opponent's hand when it clashes with one
+// already dealt this trial.
+const DEAL_ATTEMPTS = 12;
 
 // Calibration runs pay no rake; every field the drop is built from must be
 // zeroed or the room preset's flat $5 leaks back in.
@@ -165,12 +168,33 @@ export function rollout({ game, profiles, playerId, action, trials, seed, oppone
   // which is a result, not a reason. "He folds 964 of the 1035 hands you beat
   // and calls with the 71 that beat you" is the reason.
   const answered = { fold: 0, call: 0, raise: 0, bet: 0, check: 0 };
+  // Share of trials in which EVERY opponent folded, so the hero won it there and
+  // then. Heads-up this is close to the fold share; three-handed it is the only
+  // honest way to say "this takes it down", because the reply tally above only
+  // records the next player to act, not the field.
+  let uncontested = 0;
 
   for (let trial = 0; trial < trials; trial += 1) {
     const trialRng = createSeededRng(seed + trial * 7919);
     let g = game;
+    // Deal the opponents one at a time, refusing a holding that needs a card
+    // another opponent has already been dealt this trial. Their ranges are both
+    // built from the same pool, so left unchecked the second one can be handed a
+    // card the first is holding - the engine then rejects the hero's action and
+    // the whole spot scores as unmeasurable. Every three-handed spot died this
+    // way, silently, while the run still reported a healthy total.
+    const taken = new Set();
     for (const draw of draws) {
-      const holding = draw.holdings[Math.floor(trialRng() * draw.holdings.length)];
+      let holding = null;
+      for (let attempt = 0; attempt < DEAL_ATTEMPTS && !holding; attempt += 1) {
+        const pick = draw.holdings[Math.floor(trialRng() * draw.holdings.length)];
+        if (!pick.cards.some((card) => taken.has(card))) holding = pick;
+      }
+      // A clash is rare - two cards out of roughly forty-five - so a handful of
+      // tries is plenty. If they all clash, leave this opponent as dealt rather
+      // than force an illegal deal.
+      if (!holding) continue;
+      for (const card of holding.cards) taken.add(card);
       g = dealTo(g, draw.playerId, holding.cards);
     }
     try {
@@ -186,8 +210,11 @@ export function rollout({ game, profiles, playerId, action, trials, seed, oppone
     // "what did this bet do", and folding the river after calling the turn
     // would otherwise be recorded as folding to the turn bet.
     let replied = false;
+    const folded = new Set();
     g = playOut(g, table, trialRng, ({ playerId: actor, legal, action: reply }) => {
-      if (replied || actor === playerId) return;
+      if (actor === playerId) return;
+      if (reply?.type === "fold") folded.add(actor);
+      if (replied) return;
       replied = true;
       // Shoving is its own action type in poker-sim, and leaving it uncounted
       // lost nearly half the replies on some spots - a hand where the opponent
@@ -197,6 +224,7 @@ export function rollout({ game, profiles, playerId, action, trials, seed, oppone
       if (type === "all-in") type = (legal?.toCall ?? 0) > 0 ? "raise" : "bet";
       if (type in answered) answered[type] += 1;
     });
+    if (draws.length > 0 && folded.size >= draws.length) uncontested += 1;
     total += finalStack(g, playerId) - before;
     completed += 1;
   }
@@ -208,6 +236,7 @@ export function rollout({ game, profiles, playerId, action, trials, seed, oppone
     answered: Object.fromEntries(
       Object.entries(answered).map(([type, n]) => [type, n / completed]),
     ),
+    uncontested: uncontested / completed,
   };
 }
 
@@ -386,4 +415,80 @@ export function rangeBreakdown({ heroCards, board, holdings }) {
     rows.set(label, row);
   }
   return [...rows.values()].sort((a, b) => a.order - b.order);
+}
+
+// ------------------------------------------------------- the field
+/**
+ * How the hero fares against TWO opponents at once, counted exactly.
+ *
+ * Heads-up, "how many of his hands beat you" is a count over one range. Against
+ * a field it has to mean "beats you AND everyone else still in", which is a
+ * count over PAIRS of holdings - and the two of them cannot hold the same card,
+ * so the pairs are not simply |A| x |B|.
+ *
+ * Enumerating every pair would be ~90,000 hand evaluations per spot. It is not
+ * needed. For each opponent, split the range into the holdings the hero is not
+ * behind (score <= hero) and the rest. Then, for any two sets A and B:
+ *
+ *   disjointPairs(A, B) = |A|*|B| - (pairs sharing at least one card)
+ *
+ * and a holding has only two cards, so the pairs sharing a card can be counted
+ * from a per-card tally of B: for a = {c1,c2}, the b's that clash are those
+ * containing c1 or c2, which is tally(c1) + tally(c2), minus one for b = a
+ * itself if a is in B (that b was counted twice). Linear, and exact.
+ *
+ * Returned in the same shape as `showdownSplit` so the copy can treat one
+ * opponent and two the same way: `total` is the number of ways the field can be
+ * dealt, `beats` the number in which at least one of them has you beaten.
+ */
+export function showdownVsField({ heroCards, board, ranges }) {
+  if (ranges.length === 1) return showdownSplit({ heroCards, board, holdings: ranges[0] });
+  if (ranges.length !== 2) throw new Error(`showdownVsField supports one or two opponents, got ${ranges.length}`);
+
+  const boardIdx = cardIndexes(board);
+  const heroScore = scoreCards([...cardIndexes(heroCards), ...boardIdx]);
+  const scoreOf = (holding) => scoreCards([...cardIndexes(holding.cards), ...boardIdx]);
+
+  // "Safe" = this opponent does not have the hero beaten. Ties are safe: a tie
+  // does not put the hero behind, and calling a chopped pot "beaten" would
+  // teach the wrong thing.
+  const split = (holdings) => {
+    const safe = [];
+    for (const holding of holdings) if (scoreOf(holding) <= heroScore) safe.push(holding);
+    return safe;
+  };
+  const [rangeA, rangeB] = ranges;
+  const safeA = split(rangeA);
+  const safeB = split(rangeB);
+
+  const disjointPairs = (setA, setB) => {
+    const perCard = new Map();
+    const exact = new Set();
+    for (const holding of setB) {
+      exact.add(holding.cards.join("|"));
+      for (const card of holding.cards) perCard.set(card, (perCard.get(card) ?? 0) + 1);
+    }
+    let clashes = 0;
+    for (const holding of setA) {
+      const [c1, c2] = holding.cards;
+      clashes += (perCard.get(c1) ?? 0) + (perCard.get(c2) ?? 0);
+      // b === a was counted once under each of its two cards; it is one pair.
+      if (exact.has(holding.cards.join("|"))) clashes -= 1;
+    }
+    return setA.length * setB.length - clashes;
+  };
+
+  const total = disjointPairs(rangeA, rangeB);
+  const notBeaten = disjointPairs(safeA, safeB);
+  const beats = total - notBeaten;
+  return {
+    total,
+    beats,
+    // A tie against a FIELD is not a clean idea - you can chop with one and lose
+    // to the other - so it is not reported rather than reported wrongly.
+    ties: null,
+    loses: notBeaten,
+    beatsPct: total ? Number(((beats / total) * 100).toFixed(1)) : null,
+    opponents: 2,
+  };
 }
