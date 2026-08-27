@@ -209,7 +209,9 @@ function readStep(hand) {
   const n = hand.numbers;
 
   const wrap = el("div", {},
-    el("div", { class: "spot-head" }, el("p", { class: "eyebrow" }, hand.leakLabel), stepDots(1)),
+    // The leak name used to sit here, above the question. It described the
+    // mistake, so printing it before the answer gave the answer away.
+    el("div", { class: "spot-head" }, el("p", { class: "eyebrow" }, `${hand.street}${hand.players >= 3 ? " · three-handed" : ""}`), stepDots(1)),
     el("h1", {}, hand.title),
     contextEl(hand, { step: "read" }),
     el("section", { class: "card" },
@@ -274,7 +276,7 @@ function actionStep(hand) {
   const right = correctIds.includes(chosen);
 
   const wrap = el("div", {},
-    el("div", { class: "spot-head" }, el("p", { class: "eyebrow" }, hand.leakLabel), stepDots(2)),
+    el("div", { class: "spot-head" }, el("p", { class: "eyebrow" }, `${hand.street}${hand.players >= 3 ? " · three-handed" : ""}`), stepDots(2)),
     el("h1", {}, hand.title),
     contextEl(hand, { step: "action" }),
     el("section", { class: "card" },
@@ -340,7 +342,9 @@ function continueEls(hand) {
             render();
             scrollTop();
           },
-        }, branch.street === "River" ? "Now the river →" : "He's not done — now what? →")),
+        }, branch.street === "River" ? "Now the river →"
+           : branch.street === "Turn" ? "Now the turn →"
+           : "He's not done — now what? →")),
     ];
   }
   return [
@@ -360,6 +364,9 @@ function resultEl(hand, right) {
 
   return el("div", { class: `feedback ${right ? "ok" : "no"}`, id: "fb", "aria-live": "polite" },
     el("div", { class: "verdict" }, right ? "✓ That line holds up" : `✕ ${best.label} does better here`),
+    // What that mistake is called, in words with nothing to look up. Only for
+    // someone who made it - it describes the error, not the spot.
+    right || !hand.leakPlain ? null : el("p", { class: "leak-plain" }, hand.leakPlain),
     // The numbers that decide the spot, out of the prose and into a small table
     // so the two that matter sit next to each other and can be compared. This
     // replaced a second paragraph that restated the same count in words - when

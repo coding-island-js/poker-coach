@@ -29,6 +29,28 @@ const COUNT = Number.parseInt(arg("count", "100"), 10);
 // of 838). Each is a mistake a player would recognise being talked out of.
 const LEAKS = ["missed-value", "missed-bluff", "bet-no-caller", "bet-away-showdown", "wrong-size", "wrong-price"];
 
+/**
+ * The same six leaks, said in words nobody has to look up.
+ *
+ * Raj 2026-08-27, on being shown "Betting with nothing worse to call": a term
+ * read once is not learned - it has to appear in context repeatedly, and
+ * flipping to a glossary is the frustrating part. So there is nothing to look
+ * up: the sentence IS the definition.
+ *
+ * These describe the MISTAKE, so they are shown only to someone who made it,
+ * and only after they have answered. Printed above the question they would give
+ * the answer away - which the jargon version was also doing, hidden behind
+ * vocabulary.
+ */
+export const LEAK_PLAIN = {
+  "missed-value": "You checked a hand that worse hands would have paid off.",
+  "missed-bluff": "You checked where a bet would have won it.",
+  "bet-no-caller": "You bet where only the hands that beat you would call.",
+  "bet-away-showdown": "You bet a hand that was already winning.",
+  "wrong-size": "Right idea, wrong amount.",
+  "wrong-price": "This one was about the price you were being offered.",
+};
+
 export const LEAK_LABELS = {
   "missed-value": "Leaving value behind",
   "missed-bluff": "A bluff you didn't make",
@@ -58,6 +80,59 @@ const OPPONENT_NOTES = {
   "short-buy-gambler": "short stack, jams at awkward moments",
 };
 const opponentNote = (id) => OPPONENT_NOTES[id] ?? "unknown — no reliable read";
+
+/**
+ * The one thing about this opponent that changes the answer, as a clause that
+ * can be dropped into a sentence.
+ *
+ * The read was displayed on the action step and then never referenced anywhere,
+ * which two reviewers and Raj all noticed independently: told something, it
+ * changes the answer, nobody says how. `null` means this player type does not
+ * push the decision either way, and the sentence should not pretend it does.
+ */
+const OPPONENT_CLAUSE = {
+  "calling-station": { pays: "he calls far too much", folds: null },
+  "loose-passive-rec": { pays: "he plays too many hands and rarely raises", folds: null },
+  "passive-rec": { pays: "he is passive and pays off", folds: null },
+  "gambler": { pays: "he chases and likes big pots", folds: null },
+  "drunk-splashy": { pays: "he is loose tonight", folds: null },
+  "ego-rec": { pays: "he hates being pushed around", folds: null },
+  "nit-rock": { pays: null, folds: "he is very tight" },
+  "rules-nit": { pays: null, folds: "he plays by rigid rules" },
+  "omc": { pays: null, folds: "he almost never bluffs" },
+  "scared-money": { pays: null, folds: "he folds too often in big pots" },
+  "maniac": { pays: "he bluffs constantly", folds: null },
+  "lag-reg": { pays: "he is loose and aggressive", folds: null },
+};
+
+/**
+ * A clause naming the read, but only when the measurement AGREES with it.
+ *
+ * Reviewers found hands where the stated read and the measured frequency point
+ * opposite ways - a player described as "almost never bluffs" raising 56% of the
+ * time. Quoting the read there would compound the problem, so the read is only
+ * invoked when the numbers back it up.
+ */
+export function readClause(archetype, { paysOff = null, foldsOut = null } = {}) {
+  const clause = OPPONENT_CLAUSE[archetype];
+  if (!clause) return null;
+  if (clause.pays && paysOff !== null && paysOff >= 0.5) return clause.pays;
+  if (clause.folds && foldsOut !== null && foldsOut >= 0.5) return clause.folds;
+  return null;
+}
+
+/** "out of position" is the fact; this is what it costs you. */
+export function positionClause({ inPosition, street, facing }) {
+  if (facing) return null;
+  if (street === "River") {
+    return inPosition
+      ? "you act last, so nothing can come back at you"
+      : "you act first, so a bet can be raised";
+  }
+  return inPosition
+    ? "you act last on every street from here"
+    : "you act first on every street from here";
+}
 
 // ------------------------------------------------------------------ writing
 // Rounding 99.8 to "100%" told a learner that every hand beats them one line
@@ -378,13 +453,19 @@ export function decidingFacts({ options, best, facing, standingNow, beats, youBe
  * One sentence saying what THIS option does. The numbers live in `facts`, so
  * these do not repeat them; they carry the judgment instead.
  */
-export function reasonFor({ chosen, best, options = [], isCorrect, facing, standingNow, beats, youBeat, total, pot, toCall, players = 2 }) {
+export function reasonFor({ chosen, best, options = [], isCorrect, facing, standingNow, beats, youBeat, total, pot, toCall, players = 2, archetype = null, inPosition = null, street = null }) {
   const voice = voiceFor(players);
   const multiway = players >= 3;
   const amount = amountOf(chosen.label);
   const bestAmount = amountOf(best.label);
   const price = priceOf(pot, toCall);
   const yourShare = pctOf(youBeat, total);
+  // Named only where the measurement agrees with it, and only where it is what
+  // makes the answer what it is.
+  const because = (option) => readClause(archetype, {
+    paysOff: paysYou(option), foldsOut: foldsTo(option),
+  });
+  const seat = positionClause({ inPosition, street, facing });
 
   if (facing) {
     const clears = price ? yourShare >= price.percent : false;
@@ -412,7 +493,10 @@ export function reasonFor({ chosen, best, options = [], isCorrect, facing, stand
     if (isCorrect) {
       const induced = answeredWith(chosen, "bet");
       if (induced >= 0.4) return `Checking lets a bet come to you, which is more than betting collects.`;
-      if (standingNow === "behind") return `You still beat the hands ${voice.subj} ${voice.plural ? "miss" : "misses"} with. Checking wins those; betting does not.`;
+      if (standingNow === "behind") {
+        const tail = seat && !inPosition ? ` And ${seat}.` : "";
+        return `You still beat the hands ${voice.subj} ${voice.plural ? "miss" : "misses"} with. Checking wins those; betting does not.${tail}`;
+      }
       // There ARE worse hands - the table lists hundreds of them. They do not
       // CALL, which is a different and checkable claim.
       return `The worse hands are there, but they fold rather than pay, so a bet wins nothing extra.`;
@@ -433,14 +517,24 @@ export function reasonFor({ chosen, best, options = [], isCorrect, facing, stand
         : `Two players can pay you here, and betting charges both of them.`;
     }
     return standingNow === "behind"
-      ? `Betting folds ${voice.obj} out often enough to win pots that checking never wins.`
-      : `There are worse hands that call this. That is who pays you.`;
+      ? (because(chosen)
+          ? `${because(chosen)[0].toUpperCase()}${because(chosen).slice(1)}, so betting folds ${voice.obj} out often enough to win pots checking never wins.`
+          : `Betting folds ${voice.obj} out often enough to win pots that checking never wins.`)
+      : (because(chosen)
+          ? `There are worse hands that call this, and ${because(chosen)}. That is who pays you.`
+          : inPosition === false
+            ? `There are worse hands that call this. Out of position, betting is how you get paid before he sets the price.`
+            : `There are worse hands that call this. That is who pays you.`);
   }
   if (isBetId(best.id)) return sizingSentence({ chosen, best, standingNow, voice, multiway });
 
   const raised = answeredWith(chosen, "raise");
   if (raised >= 0.25) {
-    return `This gets raised too often. It turns a hand you could have shown down into one you must defend.`;
+    // Being raised is worse out of position, because every later street is then
+    // decided after him rather than before.
+    return inPosition === false
+      ? `This gets raised too often, and out of position you then play every later street second. It turns a hand you could have shown down into one you must defend.`
+      : `This gets raised too often. It turns a hand you could have shown down into one you must defend.`;
   }
   return standingNow === "behind"
     ? `This does not fold out enough to be a bluff, and it is not winning a showdown.`
@@ -883,6 +977,9 @@ export function toLesson(candidate, index) {
     const reason = reasonFor({
       chosen: option, best: opts[0], options: opts, isCorrect,
       players,
+      archetype: candidate.opponentArchetype,
+      inPosition: candidate.inPosition,
+      street: candidate.street,
       facing: candidate.facingBet,
       standingNow,
       beats: showdown.beats,
@@ -928,6 +1025,7 @@ export function toLesson(candidate, index) {
     },
     leak,
     leakLabel: LEAK_LABELS[leak] ?? leak,
+    leakPlain: LEAK_PLAIN[leak] ?? null,
     title: handTitle(candidate, shape),
     street: candidate.street,
     pot: candidate.pot,

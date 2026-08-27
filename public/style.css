@@ -386,3 +386,6 @@ button { font-family: inherit; }
 
 .landing .footer { max-width: 720px; margin: 0 auto; }
 .topnav a.ghost { text-decoration: none; }
+
+/* The leak, in plain words, shown only to someone who just made it. */
+.leak-plain { margin: 0 0 10px; font-size: 15px; font-weight: 600; color: var(--warn); }

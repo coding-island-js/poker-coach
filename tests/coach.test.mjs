@@ -547,7 +547,10 @@ test("a chain gives every action its own branch, and questions their own ids", (
 
   const ids = new Set();
   for (const hand of chained) {
-    assert.equal(hand.street, "Turn", `${hand.id} chains but is not a turn spot`);
+    // Flop and turn hands both continue one street; the river has nothing after
+    // it, and a hand is deliberately never carried flop-to-turn-to-river.
+    assert.ok(["Flop", "Turn"].includes(hand.street),
+      `${hand.id} chains from the ${hand.street}, which has nothing after it`);
     for (const option of hand.action.options) {
       assert.ok(hand.chain.branches[option.id], `${hand.id} has no branch for "${option.id}"`);
     }

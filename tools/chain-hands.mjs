@@ -242,9 +242,11 @@ async function main() {
   const skip = (why) => { skipped[why] = (skipped[why] ?? 0) + 1; };
 
   for (const lesson of hands) {
-    // Only turn spots: the flop would need two links and the river has nothing
-    // after it. Get one link right before building a chain.
-    if (lesson.street !== "Turn") continue;
+    // Flop and turn spots continue one street. The river has nothing after it,
+    // and a hand is deliberately never carried all the way from flop to river:
+    // three decisions means up to 27 pre-computed versions of one hand, and the
+    // app already asks a lot per hand. Decided with Raj 2026-08-27.
+    if (lesson.street !== "Turn" && lesson.street !== "Flop") continue;
     if (!lesson.source || lesson.source.seed === null) { skip("no source coordinates"); continue; }
 
     const spot = replaySpot(lesson.source);
@@ -389,8 +391,8 @@ async function main() {
   }
 
   await writeFile(OUT, JSON.stringify({ ...data, hands }, null, 2));
-  const turns = hands.filter((hand) => hand.street === "Turn").length;
-  console.log(`chained ${chained} of ${turns} turn hands`);
+  const turns = hands.filter((hand) => hand.street === "Turn" || hand.street === "Flop").length;
+  console.log(`chained ${chained} of ${turns} flop and turn hands`);
   console.log(`  branches: ${branches} second questions, ${terminal} end the hand, ${played} play on without a question`);
   for (const [why, n] of Object.entries(skipped)) console.log(`  skipped: ${why}: ${n}`);
   console.log(`wrote ${OUT}`);
