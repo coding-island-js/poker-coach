@@ -10,7 +10,8 @@ import { readFile, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 
 const root = new URL("../public/", import.meta.url);
-const indexPath = new URL("index.html", root);
+// Both shells: the landing page at / and the trainer at /play.
+const SHELLS = ["index.html", "play.html"];
 
 const hashOf = async (name) => {
   const body = await readFile(new URL(name, root));
@@ -18,16 +19,18 @@ const hashOf = async (name) => {
 };
 
 const [cssHash, jsHash] = await Promise.all([hashOf("style.css"), hashOf("app.js")]);
-let html = await readFile(indexPath, "utf8");
-const before = html;
+for (const shell of SHELLS) {
+  const path = new URL(shell, root);
+  let html = await readFile(path, "utf8");
+  const before = html;
 
-html = html.replace(/href="style\.css(?:\?v=[a-f0-9]+)?"/, `href="style.css?v=${cssHash}"`);
-html = html.replace(/src="app\.js(?:\?v=[a-f0-9]+)?"/, `src="app.js?v=${jsHash}"`);
+  html = html.replace(/href="style\.css(?:\?v=[a-f0-9]+)?"/, `href="style.css?v=${cssHash}"`);
+  html = html.replace(/src="app\.js(?:\?v=[a-f0-9]+)?"/, `src="app.js?v=${jsHash}"`);
 
-if (!html.includes(`style.css?v=${cssHash}`) || !html.includes(`app.js?v=${jsHash}`)) {
-  console.error("Could not stamp index.html - the asset links did not match the expected shape.");
-  process.exit(1);
+  if (!html.includes(`style.css?v=${cssHash}`)) {
+    console.error(`Could not stamp ${shell} - the stylesheet link did not match the expected shape.`);
+    process.exit(1);
+  }
+  if (html !== before) await writeFile(path, html);
 }
-
-if (html !== before) await writeFile(indexPath, html);
 console.log(`Stamped assets: style.css?v=${cssHash} app.js?v=${jsHash}`);

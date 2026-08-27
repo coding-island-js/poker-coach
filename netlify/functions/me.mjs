@@ -12,9 +12,13 @@ export default async (request) => {
   }
 
   const googleEnabled = process.env.GOOGLE_SIGNIN_ENABLED === "true";
+  // The paywall exists but stays off until Stripe is wired and Raj turns it on.
+  // Shipping the machinery dark means switching it on later is a flag, not a
+  // rewrite - and nobody is locked out of anything in the meantime.
+  const paywall = process.env.PAYWALL_ENABLED === "true";
 
   const user = await currentUser(request);
-  if (!user) return json({ signedIn: false, googleEnabled });
+  if (!user) return json({ signedIn: false, googleEnabled, paywall, paid: false });
 
   const [leaks, calibration, totals, seen] = await Promise.all([
     sql`select leak, attempts, clean, read_missed, action_missed
@@ -33,6 +37,10 @@ export default async (request) => {
   return json({
     signedIn: true,
     googleEnabled,
+    paywall,
+    // No payments yet, so nobody has paid. When Stripe lands this reads from
+    // the purchase record rather than being hardcoded.
+    paid: false,
     user: { email: user.email, name: user.display_name },
     totals: totals[0],
     leaks,

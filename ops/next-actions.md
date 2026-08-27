@@ -31,6 +31,34 @@ and the range-monotonicity gate. On completion: verify, commit, push, deploy.
 
 ---
 
+## 💰 REVENUE — decided 2026-08-27, detail in `ops/revenue.md`
+
+**Free: first 10 hands, no account. Paid: $39 one time for the rest, forever.**
+The account is the paid half, which is what pays for the database. One time rather than a
+subscription because the audience is recreational and a hundred fixed hands is a product, not
+a service. A "new hands monthly" tier is a LATER idea, only if people finish the set.
+
+Build everything with the paid tier in mind but not blocked on it: a price on the page, a
+button that can be wired to Stripe later, and the hand gate as one flag.
+
+**Blocked on Raj:** Stripe keys into `.env.master` as `STRIPE_SECRET_POKERCOACH` and
+`STRIPE_PRICE_POKERCOACH`.
+
+---
+
+## 🔥 V1 — what has to exist before anyone else can use this
+
+### 0. The pages that do not exist yet  `#now`
+A stranger currently lands directly on a poker hand, and there is no way to sign out.
+- **Landing page.** What this is, who it is for, why the numbers can be trusted, the price.
+  Simple and plain. No testimonials, no fake numbers, no SaaS-template look, no purple
+  gradients. Raj 2026-08-27: "nothing fake."
+- **Sign in / sign out.** Magic link exists and works; it has no home of its own and no way
+  out.
+- **Account page.** Who you are, what you have bought, your progress, sign out, delete.
+
+---
+
 ## 🔥 NOW — no decision needed from Raj
 
 ### 1. Use position in the coaching  `#now`
@@ -114,7 +142,6 @@ reviewer, not yet verified.
 - **Weight the fallback range** instead of uniform. More accurate, costs the clean integer
   count the copy depends on. added:2026-08-25
 - **Draw the six seats as a table** rather than a sentence. added:2026-08-25
-- **A landing page.** The app is the whole site. added:2026-08-25
 - **Countdown timer on the action question.** Forces commitment. added:2026-08-25
 - **Rewrite `docs/`** rather than annotating the superseded V2 taxonomy. added:2026-08-25
 
@@ -125,6 +152,35 @@ reviewer, not yet verified.
 - **Preflop questions.** Raj 2026-08-25: "nothing preflop". A scope call, not settled truth.
 - **A solver baseline layer.** Decided 2026-08-25: GTO serves the audience we retargeted away
   from, and TexasSolver is slow and unmaintained.
+
+---
+
+## 📦 V2 — depth on what is already here
+
+- Flop hands continue to the turn (item 4 above)
+- Check-raise offered as a choice (item 7)
+- Draws named in the coaching (item 8)
+- Difficulty made deliberate rather than accidental, once Raj has played enough to say
+  whether the current clearest-first order feels right
+- A bigger pool so the hundred can be refreshed
+
+## 📦 V3 — closer to real poker
+
+- Advanced mode: HIDE the opponent read and make the learner infer it from the betting.
+  Raj 2026-08-27 wanted this; it is the realistic version of the read.
+- The six seats drawn as a table rather than described in a sentence
+- A countdown on the action question - unlimited deliberation is not the game
+
+## 📦 V4 — new territory
+
+- Preflop (parked 2026-08-25; Hungry Horse spends 3 of 20 questions there)
+- Four and five handed pots. Needs different counting maths: the exact pair method only
+  covers two opponents, and four mutually card-disjoint holdings is a different problem.
+
+## 📦 V5 — speculative, would need usage data first
+
+- Serve hands targeting the learner's OWN weakest leak instead of everyone getting the same
+  hundred in the same order. The only v5 idea with real substance behind it.
 
 ---
 

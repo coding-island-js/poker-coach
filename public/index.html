@@ -3,35 +3,175 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Poker Coach — find the leak in your thinking</title>
-<meta name="description" content="A No-Limit Hold'em coach that grades your reasoning, not just your answer. Every hand is a real dealt spot, and every number is counted rather than claimed.">
+<title>Poker Coach — it marks your reasoning, not just your answer</title>
+<meta name="description" content="A No-Limit Hold'em trainer for $1/$2 players. Every hand asks where you stand and what you'd do, and marks both. The counts are exact, the money is measured by replaying the hand 250 times, and nothing is opinion.">
 <meta name="color-scheme" content="light">
+<link rel="canonical" href="https://pokercoach.withmagic.ai/">
+<meta property="og:title" content="Poker Coach — it marks your reasoning, not just your answer">
+<meta property="og:description" content="Two questions a hand: where do you stand, and what do you do. Both get marked, because the right answer for the wrong reason is how a leak survives.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://pokercoach.withmagic.ai/">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>♠</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=45328d2f07">
+<link rel="stylesheet" href="style.css?v=0a8f058e6a">
 </head>
-<body>
-<a class="skip" href="#main">Skip to content</a>
+<body class="landing">
+<a class="skip" href="#start">Skip to content</a>
 
 <header class="topbar">
-  <button class="brand" id="home-link" aria-label="Poker Coach home">
+  <a class="brand" href="/" aria-label="Poker Coach home">
     <span class="pip" aria-hidden="true">♠</span> Poker&nbsp;Coach
-  </button>
+  </a>
   <nav class="topnav">
-    <button id="nav-progress" class="ghost">Progress</button>
+    <a class="ghost" href="/play">Start free</a>
     <span class="study-flag">Study only</span>
   </nav>
 </header>
 
-<main id="main"></main>
+<main id="start">
+
+  <section class="lede">
+    <h1>Most poker training marks your answer.<br>This one marks your reasoning.</h1>
+    <p class="sub">Every hand asks you two things: where your hand actually stands against
+      what he can have, and what you'd do about it. Both get marked — because getting the
+      right answer for the wrong reason is exactly how a leak survives.</p>
+    <p class="cta-row">
+      <a class="primary big" href="/play">Play ten hands free</a>
+      <span class="cta-note">No account needed. Nothing to cancel.</span>
+    </p>
+  </section>
+
+  <section class="band">
+    <h2>The problem isn't that you don't know the answer</h2>
+    <p>You fold, he shows a bluff, and you spend the drive home deciding you're unlucky.
+      You call, he has it, and you decide you're a calling station. Neither is a lesson,
+      because in both cases the only thing you learned was the card.</p>
+    <p>What you needed was the count: how many of the hands he can hold actually beat yours,
+      and what price you were being offered. That number exists. Nobody ever shows it to you.</p>
+  </section>
+
+  <section class="anatomy">
+    <h2>So here is one, in full</h2>
+    <p class="sub">This is a real hand from the set, exactly as it appears. Nothing here is
+      an illustration.</p>
+
+    <div class="demo">
+      <div class="demo-felt">
+        <div class="demo-row"><span>River · pot $106</span><span>Small blind</span></div>
+        <div class="demo-hand">
+          <span class="demo-lab">You</span>
+          <div class="demo-cards">
+            <b class="pc"><b>10</b><i>♦</i></b><b class="pc"><b>10</b><i>♠</i></b>
+          </div>
+        </div>
+        <div class="demo-hand">
+          <span class="demo-lab">Board</span>
+          <div class="demo-cards">
+            <b class="pc"><b>Q</b><i>♣</i></b><b class="pc red"><b>4</b><i>♥</i></b><b class="pc"><b>K</b><i>♠</i></b><b class="pc"><b>7</b><i>♠</i></b><b class="pc red"><b>J</b><i>♥</i></b>
+          </div>
+        </div>
+      </div>
+      <p class="demo-line">He bets $37 into $69. It's on you.</p>
+
+      <p class="demo-q">Most players fold here. Pocket tens, four overcards, and a bet.</p>
+
+      <div class="facts demo-facts">
+        <div class="fact"><span class="flabel">Calling needs</span><span class="fvalue">26%</span><span class="fnote">$37 into a $106 pot</span></div>
+        <div class="fact"><span class="flabel">You win</span><span class="fvalue">60%</span><span class="fnote">592 of his 990 hands</span></div>
+      </div>
+
+      <p class="demo-verdict">Calling is right, and it isn't close. You're ahead far more
+        often than the price needs.</p>
+      <p class="demo-take"><span>Take this to the table</span>
+        You are best in 592 of his 990. Price the call on that, not on how strong the bet
+        looked.</p>
+    </div>
+  </section>
+
+  <section class="band">
+    <h2>Where the numbers come from</h2>
+    <p>This is the part that matters, so it's worth being exact about which bits are
+      arithmetic and which are judgement.</p>
+    <dl class="evidence-list">
+      <dt>Counting: exact</dt>
+      <dd>Every hand he can hold is enumerated and compared to yours, card by card. "592 of
+        his 990" is a count, not an estimate. Chops are counted separately and said out loud.</dd>
+
+      <dt>The money: measured</dt>
+      <dd>Each option is played to the end of the hand 250 times by a real poker engine, with
+        him dealt a fresh hand from that same range every time. The dollar figures are what
+        actually happened, averaged — not a formula.</dd>
+
+      <dt>The opponent: a model</dt>
+      <dd>He's a simulated player type, and you're told which one before you act, because the
+        same cards against someone who never folds and someone who never calls have opposite
+        right answers. It's labelled a model because that's what it is.</dd>
+
+      <dt>The coaching: written</dt>
+      <dd>The sentences are written by us over the measured numbers. They're labelled as
+        written so you know which part is arithmetic and which part is a human being making
+        a call.</dd>
+    </dl>
+    <p class="small muted">Every hand carries those four labels on screen. If a number can't
+      be defended, it doesn't ship — the build refuses it.</p>
+  </section>
+
+  <section class="band">
+    <h2>What you get</h2>
+    <ul class="plain-list">
+      <li><b>100 hands</b>, across the flop, turn and river, heads-up and three-handed.</li>
+      <li><b>Two questions each</b> — the read and the decision — marked separately.</li>
+      <li><b>Some hands keep going.</b> Answer the turn, see what he actually did, then play
+        the river of that same hand on the line <em>you</em> chose.</li>
+      <li><b>A profile of which link in your thinking breaks first</b>, and how often being
+        certain meant being right.</li>
+    </ul>
+  </section>
+
+  <section class="pricing" id="price">
+    <h2>One price</h2>
+    <p class="price-line"><b>$39</b> once. Not a subscription.</p>
+    <p>The first ten hands are free and need no account. If they're worth your time, $39 buys
+      the other ninety and keeps your progress against your account so it follows you between
+      your phone and your laptop.</p>
+    <p class="small muted">Payment isn't switched on yet — the first ten hands are live now
+      and the rest follows shortly.</p>
+    <p class="cta-row"><a class="primary big" href="/play">Play ten hands free</a></p>
+  </section>
+
+  <section class="band faq">
+    <h2>Fair questions</h2>
+
+    <h3>Is this a GTO trainer?</h3>
+    <p>No, and deliberately. Solver output is built for players studying balanced ranges
+      against other studied players. At $1/$2 the money comes from ordinary mistakes against
+      ordinary opponents, so the coaching is about what actually beats the player in front of
+      you.</p>
+
+    <h3>How do I know the numbers aren't made up?</h3>
+    <p>You don't have to take it on trust — the counts are shown broken down by hand type, so
+      you can check them against the board yourself. Every build re-derives every claim from
+      the cards independently of the code that produced it, and fails if anything disagrees.</p>
+
+    <h3>Will this work if I've never studied poker?</h3>
+    <p>It's written for someone who plays and wants to think better, not for someone learning
+      the rules. If you know what a flush beats, you can use it. There is no jargon you have
+      to look up.</p>
+
+    <h3>Can I use it while I'm playing?</h3>
+    <p>No. It's a study tool, the hands are pre-computed, and using anything like this during
+      a live hand is cheating in most rooms. That's why every screen says study only.</p>
+  </section>
+
+</main>
 
 <footer class="footer">
-  <p>Hands are dealt by a simulation and scored by replaying them. Counts are exact; opponent behaviour is a model; the coaching lines are written.</p>
+  <p>Hands are dealt by a simulation and scored by replaying them. Counts are exact; opponent
+    behaviour is a model; the coaching lines are written.</p>
   <p>Adults 18+ · Not for use during live play · No real-money gambling</p>
 </footer>
 
-<script type="module" src="app.js?v=405696e2f3"></script>
 </body>
 </html>

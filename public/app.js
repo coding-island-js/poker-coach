@@ -68,6 +68,14 @@ const RANK_NAMES = { A: "ace", K: "king", Q: "queen", J: "jack" };
 const cardName = (rank, suit) => `${RANK_NAMES[rank] ?? rank} of ${SUIT_NAMES[suit] ?? suit}`;
 const scrollTop = () => window.requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
 
+// Free visitors get the first ten hands. The gate is one flag rather than a
+// separate build, and it stays open until the server says the paywall is on.
+const FREE_HANDS = 10;
+const gated = () => account.paywall && !account.paid;
+const availableHands = () => (gated() ? content.hands.slice(0, FREE_HANDS) : content.hands);
+/** True once a free visitor has reached the end of what they can play. */
+const atFreeLimit = () => gated() && view.handIndex >= FREE_HANDS - 1;
+
 const currentHand = () => content.hands[view.handIndex] ?? content.hands[0];
 
 /**
@@ -383,6 +391,13 @@ function resultEl(hand, right) {
       el("span", { class: "tag" }, "Coaching: written")),
 
     ...continueEls(hand),
+    atFreeLimit()
+      ? el("div", { class: "chain-next" },
+          el("p", { class: "chain-reply" }, "That is the last of the ten free hands."),
+          el("p", { class: "small muted" },
+            "The other ninety are $39 once, and your progress starts following your account."),
+          el("a", { class: "primary", href: "/#price" }, "See the full set"))
+      : null,
     el("button", { class: "linkish", onclick: () => { resetHand(); render(); scrollTop(); } }, "Try this one again"));
 }
 
@@ -423,7 +438,7 @@ function record(hand) {
 // ------------------------------------------------------------------ account
 // Progress is always written locally first and uploaded afterwards, so the app
 // keeps working signed-out, offline, or when the API is down.
-let account = { signedIn: false };
+let account = { signedIn: false, paywall: false, paid: false };
 let syncTimer = null;
 
 async function loadAccount() {
@@ -447,7 +462,7 @@ async function loadAccount() {
 function resumeFromAccount() {
   const seen = new Set(account.seen ?? []);
   if (!seen.size || !content) return;
-  const next = content.hands.findIndex((hand) => !seen.has(hand.sourceId ?? hand.id));
+  const next = availableHands().findIndex((hand) => !seen.has(hand.sourceId ?? hand.id));
   // Every hand done: leave them where they are rather than dumping them at the
   // start of a set they have finished.
   if (next < 0 || next === view.handIndex) return;
@@ -549,12 +564,66 @@ function resetHand() {
 }
 
 function nextHand() {
-  view.handIndex = (view.handIndex + 1) % content.hands.length;
+  // A free visitor wraps inside the free ten rather than being dumped at a wall.
+  const pool = availableHands().length;
+  view.handIndex = (view.handIndex + 1) % pool;
   resetHand();
   profile.lastHand = view.handIndex;
   save();
   render();
   scrollTop();
+}
+
+/**
+ * Who you are, what you have, and the way out.
+ *
+ * Sign-out existed only inside the progress screen's account card, which is to
+ * say it existed and nobody could find it. Raj 2026-08-27: "There's no way to
+ * log out."
+ */
+function accountScreen() {
+  const attempts = profile.attempts;
+  const done = new Set(attempts.map((a) => a.handId)).size;
+  const total = availableHands().length;
+
+  return el("div", {},
+    el("h1", {}, "Your account"),
+    view.notice ? el("div", { class: "notice", role: "status" }, view.notice) : null,
+
+    account.signedIn
+      ? el("section", { class: "card" },
+          el("p", { class: "eyebrow" }, "Signed in as"),
+          el("h2", {}, account.user?.name || account.user?.email || "You"),
+          el("p", { class: "small muted" },
+            "Your progress is saved to this account, so it follows you to any device you sign in on."),
+          el("button", { class: "linkish", onclick: signOut }, "Sign out"))
+      : accountCard(),
+
+    el("section", { class: "card" },
+      el("p", { class: "eyebrow" }, "Your plan"),
+      el("h2", {}, gated() ? "Free — the first ten hands" : "Full set — all 100 hands"),
+      gated()
+        ? el("div", {},
+            el("p", { class: "small muted" },
+              "$39 once buys the other ninety and keeps your progress against your account. Not a subscription."),
+            el("a", { class: "primary", href: "/#price" }, "See what's in the full set"))
+        : el("p", { class: "small muted" },
+            "You have every hand. Payments are not switched on yet, so nothing is locked."),
+    ),
+
+    el("section", { class: "card" },
+      el("p", { class: "eyebrow" }, "Progress"),
+      el("h2", {}, `${done} of ${total} hands`),
+      el("p", { class: "small muted" },
+        attempts.length
+          ? `${attempts.length} answers recorded. The detail is on the Progress screen.`
+          : "Nothing recorded yet."),
+      el("button", { class: "linkish", onclick: () => { view.screen = "progress"; render(); scrollTop(); } },
+        "See the detail →"),
+      el("button", { class: "linkish", onclick: clearProfile }, "Clear my saved progress")),
+
+    el("button", { class: "primary", onclick: () => { view.screen = "hand"; render(); scrollTop(); } },
+      "Back to training →"));
 }
 
 function progressScreen() {
@@ -629,6 +698,7 @@ function render() {
     return;
   }
   if (view.screen === "progress") { main.append(progressScreen()); return; }
+  if (view.screen === "account") { main.append(accountScreen()); return; }
   const hand = activeLesson();
   main.append(view.step === "read" ? readStep(hand) : actionStep(hand));
 }
@@ -638,11 +708,12 @@ document.getElementById("nav-progress").addEventListener("click", () => {
   render();
   scrollTop();
 });
-document.getElementById("home-link").addEventListener("click", () => {
-  view.screen = "hand";
+document.getElementById("nav-account")?.addEventListener("click", () => {
+  view.screen = view.screen === "account" ? "hand" : "account";
   render();
   scrollTop();
 });
+
 
 // A sign-in round trip comes back as ?signin=... - say what happened, then
 // tidy the URL so a refresh does not repeat the message.
@@ -670,7 +741,7 @@ fetch("hands.json")
     // replaces it with the first hand the ACCOUNT has not done.
     view.handIndex = Math.min(profile.lastHand ?? 0, content.hands.length - 1);
     const notice = signinNotice();
-    if (notice) { view.screen = "progress"; view.notice = notice; }
+    if (notice) { view.screen = "account"; view.notice = notice; }
     render();
     loadAccount();
   })

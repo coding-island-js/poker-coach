@@ -329,3 +329,60 @@ button { font-family: inherit; }
   .brow { grid-template-columns: 1fr auto auto; gap: 7px; }
   .bbar { display: none; }
 }
+
+/* ---------------------------------------------------------------- landing
+   The shop window. Same tokens as the trainer so the two do not feel like
+   different products: felt green on warm paper, DM Serif headings, Inter body.
+   Deliberately not a centred hero over three feature cards. */
+.landing main { max-width: 720px; margin: 0 auto; padding: 0 18px 8px; }
+.landing section { padding: 34px 0; border-bottom: 1px solid var(--line-soft); }
+.landing section:last-of-type { border-bottom: 0; }
+
+.lede { padding-top: 40px; }
+.lede h1 { font-size: clamp(30px, 7vw, 46px); line-height: 1.08; margin-bottom: 14px; }
+.sub { font-size: 17px; color: var(--ink-2); line-height: 1.5; max-width: 56ch; }
+.cta-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 22px; }
+.cta-note { font-size: 13.5px; color: var(--ink-3); }
+.primary.big { font-size: 16px; padding: 13px 22px; text-decoration: none; display: inline-block; }
+
+.band h2, .anatomy h2, .pricing h2 { margin-bottom: 12px; }
+.band p { max-width: 62ch; color: var(--ink-2); }
+.band h3 { font-family: Inter, sans-serif; font-size: 15.5px; font-weight: 600;
+  color: var(--ink); margin: 20px 0 6px; }
+
+/* The real hand, shown rather than described. */
+.demo { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden;
+  background: var(--surface); box-shadow: var(--shadow); margin-top: 18px; }
+.demo-felt { background: var(--felt); color: #eaf4f0; padding: 14px 16px; }
+.demo-row { display: flex; justify-content: space-between; font-size: 12px;
+  text-transform: uppercase; letter-spacing: .06em; opacity: .85; margin-bottom: 10px; }
+.demo-hand { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.demo-hand:last-child { margin-bottom: 0; }
+.demo-cards { display: flex; align-items: center; gap: 5px; }
+.demo-lab { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em;
+  opacity: .8; width: 44px; flex: none; }
+.demo-line, .demo-q, .demo-verdict { margin: 0; padding: 12px 16px;
+  border-bottom: 1px solid var(--line-soft); }
+.demo-line { font-weight: 600; background: var(--felt-soft); }
+.demo-q { color: var(--ink-3); font-size: 14.5px; }
+.demo-facts { margin: 14px 16px; }
+.demo-verdict { font-weight: 500; }
+.demo-take { margin: 0; padding: 14px 16px; background: var(--gold-soft); font-size: 15.5px; }
+.demo-take span { display: block; font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--gold); margin-bottom: 4px; }
+
+.evidence-list { margin: 16px 0 12px; }
+.evidence-list dt { font-weight: 700; font-size: 14.5px; margin-top: 14px; }
+.evidence-list dd { margin: 4px 0 0; color: var(--ink-2); max-width: 62ch; }
+
+.plain-list { margin: 12px 0; padding-left: 20px; color: var(--ink-2); }
+.plain-list li { margin-bottom: 8px; max-width: 62ch; }
+
+.pricing { background: var(--felt-soft); border-radius: var(--radius);
+  padding: 26px 22px !important; margin: 28px 0; border-bottom: 0 !important; }
+.price-line { font-size: 20px; color: var(--ink); }
+.price-line b { font-family: "DM Serif Display", Georgia, serif; font-size: 34px;
+  line-height: 1; margin-right: 4px; }
+
+.landing .footer { max-width: 720px; margin: 0 auto; }
+.topnav a.ghost { text-decoration: none; }
