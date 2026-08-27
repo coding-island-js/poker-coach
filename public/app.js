@@ -234,7 +234,12 @@ function resultEl(hand, right) {
 
   return el("div", { class: `feedback ${right ? "ok" : "no"}`, id: "fb", "aria-live": "polite" },
     el("div", { class: "verdict" }, right ? "✓ That line holds up" : `✕ ${best.label} does better here`),
-    el("p", { class: "small" }, hand.action.why[chosen]),
+    el("p", { class: "reason" }, hand.action.why[chosen]),
+    // Getting it wrong used to explain only the wrong answer, which leaves the
+    // learner knowing what not to do and not what to do. Both sides now.
+    right ? null : el("p", { class: "reason alt" },
+      el("b", {}, `Why ${best.label.toLowerCase()} instead: `),
+      hand.action.why[best.id]),
 
     el("p", { class: "eyebrow", style: "margin-top:14px" }, `Measured over ${hand.numbers.rollouts} play-outs`),
     el("div", { class: "evbar" },

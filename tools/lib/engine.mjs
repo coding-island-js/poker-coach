@@ -88,33 +88,127 @@ export function finalStack(game, playerId) {
 }
 
 /**
+ * A copy of the game with `playerId` holding `cards`, and the deck corrected so
+ * that no card is in two places at once.
+ */
+export function dealTo(game, playerId, cards) {
+  const hand = game.table.currentHand;
+  const player = playerOf(hand, playerId);
+  if (!player) return game;
+  const taking = new Set(cards);
+  const had = player.holeCards ?? [];
+  // Whatever they were holding goes back into the deck, unless they are still
+  // holding it; whatever they are being dealt comes out of it.
+  const deck = [
+    ...(hand.deck ?? []).filter((card) => !taking.has(card)),
+    ...had.filter((card) => !taking.has(card)),
+  ];
+  const players = hand.players.map((p) => (p.id === playerId ? { ...p, holeCards: [...cards] } : p));
+  return { ...game, table: { ...game.table, currentHand: { ...hand, deck, players } } };
+}
+
+/**
+ * The holdings that can actually be dealt to this player without duplicating a
+ * card. A range is built from every card not on the board and not in the hero's
+ * hand, which includes cards sitting in folded players' hands - those are gone,
+ * and dealing one would put it in two hands at once.
+ */
+export function dealableHoldings(game, playerId, holdings) {
+  const hand = game.table.currentHand;
+  const available = new Set([
+    ...(hand.deck ?? []),
+    ...(playerOf(hand, playerId)?.holeCards ?? []),
+  ]);
+  return (holdings ?? []).filter((holding) => holding.cards.every((card) => available.has(card)));
+}
+
+/**
  * Average net chips a player gains from this point forward if `action` is
  * forced now, measured over `trials` independent play-outs.
  *
  * Net is measured against the stack at the decision point, so it already
  * accounts for whatever the forced action costs.
+ *
+ * `opponents` is [{playerId, holdings}]. Each one is dealt a FRESH hand from
+ * `holdings` every trial. Without this the opponent's cards - dealt before the
+ * decision point and never touched by the deck shuffle - stay identical across
+ * all N trials, and the EV stops being a measurement against his range and
+ * becomes a measurement against the one hand he happened to have. On the river,
+ * where the runout has nothing left to vary, that made every number a coin
+ * already flipped: hero folded a flush that beat 305 of the 355 hands in the
+ * range, because this particular villain held one of the other 50.
+ *
+ * The holdings passed in are the SAME ones the coaching counts against, so
+ * "71 of his 1035 hands beat you" and the EV beside it describe one opponent.
  */
-export function rollout({ game, profiles, playerId, action, trials, seed }) {
+export function rollout({ game, profiles, playerId, action, trials, seed, opponents = [], heroProfile = null }) {
   const before = playerOf(game.table.currentHand, playerId)?.stack ?? 0;
+  // After the forced action, the hero's REMAINING decisions are played by a bot
+  // too - and that bot was whatever archetype the hero's seat happened to draw.
+  // A seat dealt "calling-station" then called down every later street, so the
+  // measured EV of a flop bet included a stranger's mistakes on the learner's
+  // behalf. Play the rest out with one competent policy instead, so the number
+  // means "what this action is worth if you play on sensibly".
+  const table = heroProfile ? new Map(profiles) : profiles;
+  if (heroProfile) table.set(playerId, heroProfile);
+  const draws = opponents
+    .map((opponent) => ({
+      playerId: opponent.playerId,
+      holdings: dealableHoldings(game, opponent.playerId, opponent.holdings),
+    }))
+    .filter((draw) => draw.holdings.length > 0);
+
   let total = 0;
   let completed = 0;
+  // How the opponent answered THIS action, counted across the trials. Without
+  // it the coaching can only say that one option earned more than another,
+  // which is a result, not a reason. "He folds 964 of the 1035 hands you beat
+  // and calls with the 71 that beat you" is the reason.
+  const answered = { fold: 0, call: 0, raise: 0, bet: 0, check: 0 };
+
   for (let trial = 0; trial < trials; trial += 1) {
     const trialRng = createSeededRng(seed + trial * 7919);
-    let g;
+    let g = game;
+    for (const draw of draws) {
+      const holding = draw.holdings[Math.floor(trialRng() * draw.holdings.length)];
+      g = dealTo(g, draw.playerId, holding.cards);
+    }
     try {
-      // Shuffle the undealt remainder FIRST. Without this the turn and river
+      // Shuffle the undealt remainder too. Without this the turn and river
       // are already fixed in the deck, every trial deals the same runout, and a
       // flop decision would be scored against one lucky card. This is what
       // makes anything before the river measurable at all.
-      g = act(reshuffleUndealt(game, trialRng), action);
+      g = act(reshuffleUndealt(g, trialRng), action);
     } catch {
       return null; // action was not legal here
     }
-    g = playOut(g, profiles, trialRng);
+    // Only the FIRST reply counts. Later streets are a different question from
+    // "what did this bet do", and folding the river after calling the turn
+    // would otherwise be recorded as folding to the turn bet.
+    let replied = false;
+    g = playOut(g, table, trialRng, ({ playerId: actor, legal, action: reply }) => {
+      if (replied || actor === playerId) return;
+      replied = true;
+      // Shoving is its own action type in poker-sim, and leaving it uncounted
+      // lost nearly half the replies on some spots - a hand where the opponent
+      // jammed over the hero's bet 46% of the time read as "he folds 0% of the
+      // time and calls 7%", which describes a spot that did not happen.
+      let type = reply?.type;
+      if (type === "all-in") type = (legal?.toCall ?? 0) > 0 ? "raise" : "bet";
+      if (type in answered) answered[type] += 1;
+    });
     total += finalStack(g, playerId) - before;
     completed += 1;
   }
-  return completed ? total / completed : null;
+  if (!completed) return null;
+  return {
+    ev: total / completed,
+    trials: completed,
+    // Shares, not counts, so the copy does not have to know the trial count.
+    answered: Object.fromEntries(
+      Object.entries(answered).map(([type, n]) => [type, n / completed]),
+    ),
+  };
 }
 
 /** A copy of the game whose undealt cards are in a fresh order. */

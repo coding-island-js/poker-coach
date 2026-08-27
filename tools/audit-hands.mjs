@@ -71,9 +71,41 @@ for (const hand of hands) {
   if (/you'?re ahead|^ahead/.test(t) && expected === "behind") note(hand, "copy", `title says ahead, ${pct}% beat you`);
   if (/^behind/.test(t) && expected === "ahead") note(hand, "copy", `title says behind, only ${pct}% beat you`);
   if (/coin flip/.test(t) && expected !== "mixed") note(hand, "copy", `title says coin flip, ${pct}% beat you`);
-  if (hand.takeaway.includes(`${shipped.beats} of his ${shipped.total}`) === false
-      && hand.takeaway.includes("%") === false) {
+  // A takeaway has to carry THIS hand's numbers, or it is one of six maxims
+  // read a hundred times. Either count is a real one: how many of his hands
+  // beat you, or how many you beat. Accepting only the first flagged twelve
+  // takeaways that were correctly quoting the second.
+  const heroBeatsCount = shipped.total - shipped.beats - (shipped.ties ?? 0);
+  const carriesCount = [shipped.beats, heroBeatsCount]
+    .some((n) => hand.takeaway.includes(`${n} of his ${shipped.total}`));
+  if (!carriesCount && !hand.takeaway.includes("%")) {
     note(hand, "copy", "takeaway carries neither the count nor a percentage");
+  }
+
+  // --- 4b. every count quoted in prose must be a count this hand has ---
+  // The feedback lines are templated over the numbers, so a sentence saying
+  // "462 of his 513 hands" is checkable: 513 has to BE the range, and 462 has
+  // to be either the hands that beat the hero or the hands the hero beats.
+  // Nothing else is a real quantity, and a mismatch means the copy drifted off
+  // the data it claims to be reading.
+  const youBeat = shipped.total - shipped.beats - (shipped.ties ?? 0);
+  const prose = [hand.takeaway, ...Object.values(hand.action.why ?? {}), ...Object.values(hand.read.why ?? {})];
+  for (const sentence of prose) {
+    for (const [, some, all] of String(sentence).matchAll(/(\d+) of (?:his |the )?(\d+)/g)) {
+      if (Number(all) !== shipped.total) {
+        note(hand, "copy", `prose quotes a range of ${all}, but the range is ${shipped.total}: "${sentence}"`);
+      } else if (Number(some) !== shipped.beats && Number(some) !== youBeat) {
+        note(hand, "copy", `prose quotes ${some} of ${all}, which is neither ${shipped.beats} beating you nor ${youBeat} you beat: "${sentence}"`);
+      }
+    }
+  }
+
+  // Percentages in the feedback are opponent-response frequencies, which are
+  // shares of the play-outs and therefore cannot exceed 100.
+  for (const [id, sentence] of Object.entries(hand.action.why ?? {})) {
+    for (const [, value] of String(sentence).matchAll(/(\d+)%/g)) {
+      if (Number(value) > 100) note(hand, "copy", `"${id}" feedback quotes ${value}%`);
+    }
   }
 
   // --- 5. the marked-correct action must be the best measured one ------
@@ -119,7 +151,9 @@ for (const hand of hands) {
   }
   if (!hand.opponentPosition) note(hand, "story", "no opponent position named");
   if (hand.heroPosition === hand.opponentPosition) note(hand, "story", "both players in the same seat");
-  const facing = /bets \$/.test(hand.decisionNow);
+  // "raises to $20" is facing a bet too - matching only "bets $" made every
+  // raise-facing hand look like it had been offered a fold it should not have.
+  const facing = /(bets|raises to) \$/.test(hand.decisionNow);
   const hasFold = options.some((o) => o.id === "fold");
   if (facing !== hasFold) {
     note(hand, "story", facing ? "facing a bet but cannot fold" : "not facing a bet but offered a fold");

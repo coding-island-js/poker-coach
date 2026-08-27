@@ -9,10 +9,10 @@
   },
   "scripts": {
     "build": "node tools/stamp-assets.mjs && node tools/verify-content.mjs && node tools/audit-hands.mjs",
-    "test": "node --test tests/",
+    "test": "node --test tests/*.test.mjs",
     "serve": "node tools/serve.mjs",
     "generate": "node tools/generate-hands.mjs --hands 30000 --rollouts 250 --out work/candidates.json",
-    "curate": "node tools/curate.mjs --in work/candidates.json --out public/hands.json --count 100",
+    "curate": "node tools/curate.mjs --in work/candidates.json,work/candidates-b.json --out public/hands.json --count 100",
     "content": "npm run generate && npm run generate:more && npm run curate && npm run build",
     "audit": "node tools/audit-hands.mjs",
     "generate:more": "node tools/generate-hands.mjs --hands 45000 --rollouts 250 --seed 771030 --out work/candidates-b.json"

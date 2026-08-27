@@ -56,6 +56,34 @@ for (const hand of hands) {
   for (const option of action.options ?? []) {
     if (!action.why?.[option.id]) fail(id, `no feedback line for option "${option.id}"`);
     if (!option.purpose) fail(id, `option "${option.id}" has no stated purpose`);
+    // "Call $$17" shipped in all 100 hands: the label already carried a dollar
+    // sign and the curator added another.
+    if (/\$\$/.test(option.label ?? "")) fail(id, `option "${option.id}" label has a doubled dollar sign: ${option.label}`);
+    // The whole point of the feedback line is to say WHY. A line with no number
+    // in it is not counting anything, and a very short one is quoting the money
+    // rather than naming the mechanism.
+    const why = action.why?.[option.id] ?? "";
+    if (why && !/\d/.test(why)) fail(id, `feedback for "${option.id}" cites no number`);
+    // Short SENTENCES are the goal; a short whole line means no mechanism named.
+    if (why && why.length < 55) fail(id, `feedback for "${option.id}" is too thin to be a reason: "${why}"`);
+    // A template that fell through to its placeholder.
+    if (/that much|undefined|NaN|\$null/.test(why)) fail(id, `feedback for "${option.id}" has an unfilled placeholder: "${why}"`);
+    // "$-22": a negative number formatted as if it were positive.
+    if (/\$-/.test(why)) fail(id, `feedback for "${option.id}" has a malformed negative amount: "${why}"`);
+  }
+
+  // Rank names built by stripping letters off the plural: aces -> "Ac",
+  // nines -> "Nin", fives -> "Fiv", threes -> "Thre".
+  for (const [field, text] of [["title", hand.title], ["takeaway", hand.takeaway]]) {
+    if (/\b(Ac|Nin|Fiv|Thre)\b/.test(text ?? "")) fail(id, `${field} has a mangled rank name: "${text}"`);
+  }
+
+  // The coaching must not contradict the answer it is printed beside. A hand
+  // shipped whose takeaway read "you beat 86% of what he can hold" directly
+  // above a verdict of "fold does better here".
+  const mustFold = action.correctIds?.length === 1 && action.correctIds[0] === "fold";
+  if (mustFold && read.correctId === "ahead") {
+    fail(id, "folding is the only right answer, but the read says you are ahead");
   }
 
   // Numbers must be internally consistent - this is the claim the app makes.

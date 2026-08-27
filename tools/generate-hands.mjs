@@ -46,6 +46,11 @@ const pretty = (code) => `${code[0] === "T" ? "10" : code[0]}${SUITS[code[1]] ??
 const prettyAll = (codes) => (codes ?? []).map(pretty);
 const money = (n) => `$${Math.round(n)}`;
 
+// The policy that finishes the hand on the hero's behalf inside a rollout.
+// Without this the hero's later streets were played by whichever archetype the
+// seat drew, so a flop bet's EV included a stranger's mistakes.
+const HERO_POLICY = "grinder-pro";
+
 // The naive players whose instincts we measure against. These are the
 // temptations: what an ordinary low-stakes opponent actually does here.
 const NAIVE_ARCHETYPES = ["calling-station", "passive-rec", "loose-passive-rec", "ego-rec"];
@@ -72,6 +77,23 @@ function positionName(hand, playerId) {
   if (beforeButton === 2) return "Hijack";
   if (beforeButton === 3) return "Lojack";
   return "Early position";
+}
+
+/**
+ * The opponent's last aggressive action on the street being decided, so the
+ * decision line can name it correctly. A raise and a bet cost the hero the same
+ * amount to call and are not the same event to read.
+ */
+function facingActionOf(hand, villainId, street) {
+  let last = null;
+  for (const event of hand.events ?? []) {
+    if (event.type !== "ACTION" || event.street !== street) continue;
+    if (event.playerId !== villainId) continue;
+    if (event.action === "bet" || event.action === "raise") {
+      last = { type: event.action, to: Math.round(event.streetTotal ?? event.paid ?? 0) };
+    }
+  }
+  return last;
 }
 
 // --------------------------------------------------------------- spot search
@@ -296,26 +318,9 @@ async function main() {
     const actions = candidateActions(legal, pot);
     if (actions.length < 2) continue;
 
-    // --- EV of every candidate action, by play-out ------------------------
-    const evs = [];
-    for (const entry of actions) {
-      const ev = rollout({
-        game, profiles, playerId: heroId, action: entry.action,
-        trials: ROLLOUTS, seed: SEED + handIndex * 31 + entry.id.length,
-      });
-      if (ev === null) continue;
-      evs.push({ ...entry, ev });
-    }
-    if (evs.length < 2) continue;
-
-    evs.sort((a, b) => b.ev - a.ev);
-    const best = evs[0];
-    const temptId = temptingAction({ game, legal, heroId, candidates: evs, seed: SEED + handIndex });
-    const tempt = evs.find((entry) => entry.id === temptId) ?? evs[evs.length - 1];
-    const gap = best.ev - tempt.ev;
-    if (pot <= 0 || gap / pot < MIN_GAP_POT) continue;
-
     // --- what the opponent's actions actually imply -----------------------
+    // This runs BEFORE the EV, because the EV is measured against this range.
+    // Computing it afterwards is what let the two describe different opponents.
     const villainProfile = profiles.get(villainId);
     const known = [...board, ...heroCards];
     let range = null;
@@ -351,6 +356,42 @@ async function main() {
     const heroBucket = bucketOfHolding(heroCards, board);
     const quoted = quotedHoldings ?? plausibleRange(board, known);
     const split = showdownSplit({ heroCards, board, holdings: quoted });
+    // A range the hero beats all of, or none of, makes the read question answer
+    // itself - and now that the EV is measured against this same range, it also
+    // makes the EV a foregone conclusion. Drop the spot here rather than let
+    // curation quietly recount it against a different range later.
+    if (split.beats === 0 || split.beats === split.total) continue;
+
+    // --- EV of every candidate action, by play-out ------------------------
+    // The villain is dealt a fresh hand from `quoted` on every trial, so this
+    // measures the action against his whole range rather than against the one
+    // hand he was dealt before the decision point.
+    const opponents = [{ playerId: villainId, holdings: quoted }];
+    // One competent policy plays the hero's LATER streets, instead of whichever
+    // archetype the hero's seat drew. The EV should say what the action is worth
+    // if you play on sensibly, not what it is worth if a calling station
+    // finishes the hand for you.
+    const heroProfile = createBotProfile({
+      id: heroId, displayName: "hero", archetype: HERO_POLICY,
+      rng: createSeededRng(SEED + handIndex * 613), variance: 0,
+    });
+    const evs = [];
+    for (const entry of actions) {
+      const measured = rollout({
+        game, profiles, playerId: heroId, action: entry.action, opponents, heroProfile,
+        trials: ROLLOUTS, seed: SEED + handIndex * 31 + entry.id.length,
+      });
+      if (measured === null) continue;
+      evs.push({ ...entry, ev: measured.ev, answered: measured.answered });
+    }
+    if (evs.length < 2) continue;
+
+    evs.sort((a, b) => b.ev - a.ev);
+    const best = evs[0];
+    const temptId = temptingAction({ game, legal, heroId, candidates: evs, seed: SEED + handIndex });
+    const tempt = evs.find((entry) => entry.id === temptId) ?? evs[evs.length - 1];
+    const gap = best.ev - tempt.ev;
+    if (pot <= 0 || gap / pot < MIN_GAP_POT) continue;
     const leak = classifyLeak({
       legal, bestId: best.id, temptId: tempt.id,
       heroBeatsPct: split.beatsPct, villainChecks,
@@ -358,8 +399,14 @@ async function main() {
     });
 
     candidates.push({
-      id: `gen-${handIndex}`,
+      // Seeded, because two pools generated with different seeds both emit a
+      // hand at index 17 and the merge dedupes on cards, not id - so `gen-17`
+      // could ship twice meaning two different hands. The seed also makes a
+      // candidate replayable: seed + handIndex + street reproduces this exact
+      // game state.
+      id: `gen-${SEED}-${handIndex}`,
       handIndex,
+      seed: SEED,
       leak,
       street: street.charAt(0).toUpperCase() + street.slice(1),
       pot: money(pot),
@@ -379,8 +426,22 @@ async function main() {
       decisionNow: legal.toCall > 0
         ? `Opponent bets ${money(legal.toCall)} into ${money(pot - legal.toCall)}. You act now.`
         : "Opponent checks. You act now.",
+      // What he actually did, so the line above the timeline can agree with the
+      // timeline. Calling a raise a "bet" put "Opponent bets $13 into $26"
+      // directly above "Opponent raises to $20" in the history.
+      facingAction: facingActionOf(hand, villainId, street),
       history: renderHistory(hand, heroId, villainId),
-      options: evs.map((entry) => ({ id: entry.id, label: entry.label, ev: Number(entry.ev.toFixed(2)) })),
+      options: evs.map((entry) => ({
+        id: entry.id,
+        label: entry.label,
+        ev: Number(entry.ev.toFixed(2)),
+        // What he did about it: the share of play-outs in which his first reply
+        // to this action was a fold, a call, a raise, a bet or a check. This is
+        // what lets the coaching name the reason instead of quoting the result.
+        answered: Object.fromEntries(
+          Object.entries(entry.answered ?? {}).map(([type, share]) => [type, Number(share.toFixed(3))]),
+        ),
+      })),
       best: { id: best.id, label: best.label, ev: Number(best.ev.toFixed(2)) },
       tempting: { id: tempt.id, label: tempt.label, ev: Number(tempt.ev.toFixed(2)) },
       evGap: Number(gap.toFixed(2)),

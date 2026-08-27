@@ -1,4 +1,12 @@
 # Poker Coach - static vanilla site. No build step: public/ ships as-is.
+#
+# `command` runs LOCALLY before `netlify deploy`, never on Netlify: the site is
+# deliberately not linked to git, and `npm run build` imports the poker-sim
+# sibling checkout, which does not exist on a Netlify build machine. If this site
+# is ever connected to git for auto-deploys, this command has to go first.
+#
+# Deploy with:  npm run build && netlify deploy --prod --skip-functions-cache
+# The flag is not optional - without it Netlify silently ships cached functions.
 [build]
   publish = "public"
   command = "npm run build"

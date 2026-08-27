@@ -193,6 +193,12 @@ button { font-family: inherit; }
 .evrow .fill.neg { background: var(--warn); }
 .evrow .val { font-variant-numeric: tabular-nums; color: var(--ink-2); }
 
+/* The reason a line is right or wrong. This is the lesson, so it is set at
+   reading size rather than in the fine print the money used to share. */
+.reason { margin: 0 0 10px; font-size: 15px; line-height: 1.5; }
+.reason.alt { padding-top: 10px; border-top: 1px solid var(--line); color: var(--ink-2); }
+.reason.alt b { font-weight: 700; }
+
 .takeaway {
   border-left: 3px solid var(--felt); background: var(--surface);
   border-radius: 0 10px 10px 0; padding: 12px 14px; margin: 14px 0;

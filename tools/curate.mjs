@@ -121,23 +121,233 @@ export function purposeOf(optionId, standingNow) {
  * produced a hand that said "name a worse hand that would have called" on a
  * pure bluff, which teaches the exact opposite of what the numbers showed.
  */
-function takeawayFor({ facing, bestIsBet, standingNow, beats, total, losesPct }) {
+function takeawayFor({ facing, bestIsBet, bestId, standingNow, beats, youBeat, total }) {
   // Each sentence carries this hand's own count, so a learner doing a hundred
   // of these gets a hundred concrete lines rather than six repeated maxims.
+  //
+  // Every branch keys off the line that actually won, not off the standing
+  // alone. Keying off standing shipped a hand whose takeaway read "you beat 86%
+  // of what he can hold" directly above a verdict of "fold does better here".
   const count = `${beats} of his ${total}`;
   if (facing) {
-    return standingNow === "behind"
-      ? `${count} hands beat you. Decide on that price before you call, not after.`
-      : `You beat ${losesPct}% of what he can hold. Price the call on that, not on how strong the bet looked.`;
+    if (bestId === "fold") return `${count} hands beat you. Work out the price before you call, not after.`;
+    if (bestId === "call") return `You beat ${youBeat} of his ${total}. Price the call on that, not on how strong his bet looked.`;
+    return `You beat ${youBeat} of his ${total}. Too many to just call. Charge the ones that are worse.`;
   }
   if (bestIsBet) {
-    return standingNow === "ahead"
-      ? `Only ${count} hands beat you — so name the worse ones that will actually call before you check.`
-      : `${count} hands beat you. Checking wins none of those; a bet can. Name the better hands that fold.`;
+    return standingNow === "behind"
+      ? `${count} hands beat you. Checking wins none of those. A bet can. Name the better hands that fold.`
+      : `Only ${count} hands beat you. So name the worse ones that will actually call before you check.`;
   }
-  return standingNow === "ahead"
-    ? `You're ahead of ${losesPct}% of his range, but a bet still needs a worse caller. Without one, checking keeps what you have.`
-    : `${count} hands beat you — but you still beat his misses. Checking wins those; bluffing into him does not.`;
+  // Checking was best. All three standings need their own line: telling someone
+  // holding a flush that "bluffing into him does not" win describes a hand they
+  // are not holding.
+  if (standingNow === "ahead") {
+    // The count has to travel with the sentence. A takeaway that states a
+    // principle and no numbers is one of six maxims a learner will read a
+    // hundred times, which is exactly what these are meant not to be.
+    return `Only ${count} hands beat you. But a bet still needs a worse one to call it, and there isn't one. Checking keeps the pot you already have.`;
+  }
+  if (standingNow === "mixed") {
+    return `${count} hands beat you and you beat the rest. A bet mostly gets called by the better half, so checking is how this hand gets to showdown.`;
+  }
+  return `${count} hands beat you. But you still beat his misses. Checking wins those. Bluffing into him does not.`;
+}
+
+// --------------------------------------------------------------- reasons
+// Why an answer is right or wrong, in the words a player would use.
+//
+// The first version of these only stated the size of the mistake - "costs about
+// $190 against the best line, measured over 250 play-outs" - which tells a
+// learner how wrong they were and nothing about why. The second named the
+// mechanism but buried it in long clauses, and Raj's verdict on reading it was
+// "this still reads hard".
+//
+// So: short sentences, one idea each, no dashes, and the money last. Extreme
+// frequencies are words rather than digits, because "he never folds" lands and
+// "he folds 0% of the time" makes a reader stop and parse.
+//
+// Every number in here was measured. How many of his hands you beat is counted
+// from the cards; how often he folds, calls or raises is the share of play-outs
+// in which he did.
+
+const answeredWith = (option, type) => option?.answered?.[type] ?? 0;
+const paysYou = (option) => answeredWith(option, "call");
+const foldsTo = (option) => answeredWith(option, "fold");
+
+/** "never folds", "calls 62% of the time", "calls every time". */
+function does(verb, n) {
+  const p = Math.round((n ?? 0) * 100);
+  if (p <= 0) return `never ${verb}s`;
+  if (p <= 4) return `almost never ${verb}s`;
+  if (p >= 100) return `${verb}s every time`;
+  if (p >= 96) return `${verb}s almost every time`;
+  return `${verb}s ${p}% of the time`;
+}
+
+const pctOf = (some, all) => (all > 0 ? Math.round((some / all) * 100) : 0);
+
+/**
+ * The price a call is being offered, as the plain fraction a player would say
+ * at the table: "1 time in 4".
+ */
+function priceOf(pot, toCall) {
+  if (!toCall || toCall <= 0) return null;
+  const breakEven = toCall / (pot + toCall);
+  return {
+    percent: Math.round(breakEven * 100),
+    phrase: `1 time in ${Math.max(2, Math.round(1 / breakEven))}`,
+  };
+}
+
+const amountOf = (label) => (/\$\d+/.exec(label) ?? ["that much"])[0];
+const numAmount = (label) => {
+  const found = /\$(\d+)/.exec(label);
+  return found ? Number(found[1]) : null;
+};
+
+/**
+ * Why one bet size beat another - the question a learner asks first, and the one
+ * the app could not answer at all, because both sizes carried the identical
+ * purpose line ("to get called by something worse") and identical EVs.
+ *
+ * Answered from the measured call rates rather than asserted, because it
+ * genuinely goes both ways: sometimes the big bet folds out the very hands you
+ * wanted paying you, and sometimes it is called just as often and the small one
+ * simply collects less.
+ */
+function sizingReason({ chosen, best, standingNow }) {
+  const mine = numAmount(chosen.label);
+  const theirs = numAmount(best.label);
+  const myAmount = amountOf(chosen.label);
+  const bestAmount = amountOf(best.label);
+  const bigger = mine !== null && theirs !== null && mine > theirs;
+
+  // A bluff and a value bet want opposite things from a size, so they cannot
+  // share one explanation. Judging a bluff by its call rate printed "fewer hands
+  // call $105 than $46, the ones that do pay a lot more" on a hand where the
+  // whole point of the bet was that he folds.
+  if (standingNow === "behind") {
+    const foldsBest = foldsTo(best);
+    const foldsMine = foldsTo(chosen);
+    if (foldsBest > foldsMine + 0.05) {
+      return `He ${does("fold", foldsBest)} against ${bestAmount}. Against ${myAmount} he ${does("fold", foldsMine)}. A bluff has to actually fold him out.`;
+    }
+    return bigger
+      ? `${bestAmount} folds him out about as often as ${myAmount}. It risks less to do the same job.`
+      : `He ${does("fold", foldsBest)} against ${bestAmount}. ${myAmount} is not enough to move him off the hands that beat you.`;
+  }
+
+  const callsMine = paysYou(chosen);
+  const callsBest = paysYou(best);
+  if (bigger) {
+    return `He ${does("call", callsBest)} against ${bestAmount}. Against ${myAmount} he ${does("call", callsMine)}. The hands you want paying you fold to the bigger bet.`;
+  }
+  if (callsBest >= callsMine - 0.05) {
+    return `He ${does("call", callsBest)} against ${bestAmount}. That is about as often as ${myAmount}. The same hands pay you either way, so take the bigger one.`;
+  }
+  return `Fewer hands call ${bestAmount} than ${myAmount}. The ones that do pay a lot more. That is worth the extra folds.`;
+}
+
+/**
+ * The sentence explaining one option, given how the whole spot measured.
+ *
+ * `chosen` is the option being explained; `best` is the highest-EV one. Both
+ * carry `answered`, the share of play-outs in which the opponent's first reply
+ * was a fold, a call, a raise, a bet or a check.
+ */
+export function reasonFor({ chosen, best, options = [], isCorrect, facing, standingNow, beats, youBeat, total, pot, toCall }) {
+  const isBet = (id) => id.startsWith("bet") || id.startsWith("raise");
+  const price = priceOf(pot, toCall);
+  const amount = amountOf(chosen.label);
+  const yourShare = pctOf(youBeat, total);
+  // When checking is the answer there is no "best bet" to quote a price from,
+  // so the sentence has to reach for the cheapest bet that WAS on offer. Using
+  // `best` here printed "he folds 0% of the time against that much".
+  const cheapestBet = options
+    .filter((option) => isBet(option.id) && numAmount(option.label) !== null)
+    .sort((a, b) => numAmount(a.label) - numAmount(b.label))[0] ?? null;
+
+  if (facing) {
+    const cost = `You pay $${toCall} to win $${Math.round(pot)}.`;
+    const need = price ? `That needs to be right ${price.phrase}.` : "";
+    const yours = `You beat ${youBeat} of his ${total} hands, or ${yourShare}%.`;
+
+    if (chosen.id === "fold") {
+      return isCorrect
+        ? `${cost} ${need} You only beat ${youBeat} of his ${total} hands, or ${yourShare}%. Not enough.`
+        : `${yours} You only needed ${price?.percent ?? 0}%. Folding throws away a pot you usually win.`;
+    }
+    if (chosen.id === "call") {
+      if (isCorrect) return `${cost} ${need} ${yours} That clears it.`;
+      if (isBet(best.id)) {
+        return `${yours} He ${does("call", paysYou(best))} when you raise. Calling only wins what he has already put in.`;
+      }
+      return `${cost} ${need} You only beat ${youBeat} of his ${total}, or ${yourShare}%. Not enough.`;
+    }
+    // Raising into a bet.
+    if (isCorrect) {
+      return `${yours} He ${does("call", paysYou(chosen))} when you raise. That is money a call leaves with him.`;
+    }
+    // Both raises: the size is the whole mistake, not the raise itself.
+    if (isBet(best.id)) return sizingReason({ chosen, best, standingNow });
+    return `He ${does("fold", foldsTo(chosen))} to this. What calls you is the ${beats} hands that beat you. So it wins little and loses a lot.`;
+  }
+
+  // Nobody has bet: the choice is between checking and betting.
+  if (chosen.id === "check") {
+    if (isCorrect) {
+      // The commonest reason checking wins is that it lets HIM bet. Say that
+      // first when it is what actually happened, rather than reaching for a
+      // general principle these numbers do not illustrate.
+      const induced = answeredWith(chosen, "bet");
+      if (induced >= 0.4) {
+        return `Check and he ${does("bet", induced)}. You get his money without giving him a chance to raise you off the hand.`;
+      }
+      if (standingNow === "behind") {
+        return `${beats} of his ${total} hands beat you. You still beat the other ${youBeat}. Checking wins those. Betting does not.`;
+      }
+      const raisedAt = cheapestBet ? answeredWith(cheapestBet, "raise") : 0;
+      if (raisedAt >= 0.25) {
+        return `Bet ${amountOf(cheapestBet.label)} and he ${does("raise", raisedAt)}. Then you have to defend a hand you were happy to just show down.`;
+      }
+      return cheapestBet
+        ? `Only ${beats} of his ${total} hands beat you. But nothing worse will pay. He ${does("fold", foldsTo(cheapestBet))} against ${amountOf(cheapestBet.label)}. A bet wins nothing extra.`
+        : `Only ${beats} of his ${total} hands beat you. But a bet needs a worse hand to call it, and there is not one here.`;
+    }
+    if (standingNow === "behind") {
+      return `${beats} of his ${total} hands beat you. Checking just gives up. He ${does("fold", foldsTo(best))} against ${amountOf(best.label)}.`;
+    }
+    return `${youBeat} of his ${total} hands are worse than yours. He ${does("call", paysYou(best))} against ${amountOf(best.label)}. Checking collects none of that.`;
+  }
+
+  // Betting or raising with nobody yet to call.
+  if (isCorrect) {
+    return standingNow === "behind"
+      ? `${beats} of his ${total} hands beat you. He ${does("fold", foldsTo(chosen))} against ${amount}. Checking never wins those pots. This does.`
+      : `${youBeat} of his ${total} hands are worse than yours. He ${does("call", paysYou(chosen))} against ${amount}. That is who pays you.`;
+  }
+  // Wrong, and the best line is a different SIZE. "Don't I want a size that
+  // keeps him in?" Yes, and here is the count either way.
+  if (isBet(best.id)) return sizingReason({ chosen, best, standingNow });
+
+  // Wrong, and checking was better. Which mistake that is depends entirely on
+  // whether the hand was winning: betting a hand that is behind is a failed
+  // bluff, and calling that "a pot you already had" is nonsense - it was not
+  // yours. That sentence shipped, reading "he folds 0% of the time, so this
+  // mostly wins a pot you already had".
+  const raised = answeredWith(chosen, "raise");
+  if (raised >= 0.25) {
+    return `He ${does("raise", raised)} against this. Now you have to defend a hand you could have just shown down. That is a much bigger pot to be wrong in.`;
+  }
+  if (standingNow === "behind") {
+    // "The hands that beat you ALL call" is only true when he barely folds. At a
+    // 32% fold rate it printed next to its own contradiction.
+    return foldsTo(chosen) <= 0.15
+      ? `He ${does("fold", foldsTo(chosen))} to this. The ${beats} hands that beat you all call. So it folds nothing out and just loses more.`
+      : `He ${does("fold", foldsTo(chosen))} to this, which is not enough. Most of the ${beats} hands that beat you still call, and now for more money.`;
+  }
+  return `He ${does("fold", foldsTo(chosen))} to this. So it mostly wins a pot you already had. What does call is the ${beats} hands that beat you.`;
 }
 
 const RANK_ORDER = "23456789TJQKA";
@@ -155,7 +365,15 @@ const RANK_NAMES = {
   7: "nines", 8: "tens", 9: "jacks", 10: "queens", 11: "kings", 12: "aces",
 };
 const nameOf = (value) => RANK_NAMES[value] ?? "cards";
-const singular = (plural) => (plural === "sixes" ? "six" : plural.replace(/es$/, "").replace(/s$/, ""));
+// Stripping "es" then "s" mangles half of these: aces -> "ac", nines -> "nin",
+// fives -> "fiv", threes -> "thre". That shipped, as titles reading "Ac high"
+// and "A fiv-high straight". Spelled out rather than derived.
+const RANK_SINGULAR = {
+  twos: "two", threes: "three", fours: "four", fives: "five", sixes: "six",
+  sevens: "seven", eights: "eight", nines: "nine", tens: "ten",
+  jacks: "jack", queens: "queen", kings: "king", aces: "ace",
+};
+const singular = (plural) => RANK_SINGULAR[plural] ?? plural.replace(/s$/, "");
 
 function describeHero(heroCodes, boardCodes) {
   const cards = [...heroCodes, ...boardCodes];
@@ -343,7 +561,17 @@ export function select(candidates, count, leakOf = (c) => c.leak) {
  * the opponent's range from the evidence.
  */
 function decisionLine(candidate) {
-  if (candidate.facingBet) return candidate.decisionNow;
+  if (candidate.facingBet) {
+    // A raise and a bet cost the same to call and are not the same story. The
+    // line used to say "Opponent bets $13 into $26" directly above a timeline
+    // reading "Opponent raises to $20", which is the kind of small contradiction
+    // that makes a learner stop trusting the screen.
+    const facing = candidate.facingAction;
+    if (facing?.type === "raise" && facing.to) {
+      return `Opponent raises to $${facing.to}. It is $${candidate.toCall} more to you.`;
+    }
+    return candidate.decisionNow;
+  }
   const street = (candidate.street ?? "River").toLowerCase();
   return candidate.inPosition
     ? "Opponent checks. You act now."
@@ -422,35 +650,58 @@ function toLesson(candidate, index) {
 
   const shape = {
     facing: candidate.facingBet,
+    bestId: opts[0].id,
     bestIsBet: opts[0].id.startsWith("bet") || opts[0].id.startsWith("raise"),
     standingNow,
     beats: showdown.beats,
+    youBeat: showdown.loses,
     total: showdown.total,
     losesPct: Math.round(100 - (beatsPct ?? 0)),
   };
 
   const actionOptions = opts.map((o) => ({
     id: o.id,
-    // Money formatting is a display concern, so it is applied here rather than
-    // baked into the candidate at generation time.
-    label: o.label.replace(/(\d+)/, "$$$1"),
+    // `candidateActions` already formats the money ("Call $17"). This used to
+    // add another dollar sign on top, so every priced option in all 100 hands
+    // shipped reading "Call $$17".
+    label: o.label,
     purpose: purposeOf(o.id, standingNow),
     ev: o.ev,
   }));
 
+  // Why, then how much. The reason is the lesson; the money is the evidence for
+  // it, so it goes second and in one short clause rather than being the whole
+  // sentence the way it used to be.
   const actionWhy = {};
   for (const option of opts) {
+    const isCorrect = correctIds.includes(option.id);
     const delta = bestEv - option.ev;
-    actionWhy[option.id] = correctIds.includes(option.id)
-      ? `Holds up: over ${candidate.rollouts} simulated play-outs this earned about $${option.ev.toFixed(0)}.`
-      : `Costs about $${delta.toFixed(0)} against the best line, measured over ${candidate.rollouts} play-outs.`;
+    const reason = reasonFor({
+      chosen: option, best: opts[0], options: opts, isCorrect,
+      facing: candidate.facingBet,
+      standingNow,
+      beats: showdown.beats,
+      youBeat: showdown.loses,
+      total: showdown.total,
+      pot: candidate.potRaw,
+      toCall: candidate.toCall,
+    });
+    // Some spots have no winning line - every option loses money and the skill
+    // is losing least. Saying "worth about $-22" there is both malformed and a
+    // lie about what happened.
+    const magnitude = isCorrect
+      ? (option.ev >= 0
+          ? `Makes about $${option.ev.toFixed(0)}.`
+          : `Loses about $${Math.abs(option.ev).toFixed(0)}, which is the least of any line here.`)
+      : `Costs about $${delta.toFixed(0)}.`;
+    actionWhy[option.id] = `${reason} ${magnitude}`;
   }
 
   const readWhy = {};
   for (const option of READ_OPTIONS(candidate.street)) {
     readWhy[option.id] = option.id === standingNow
       ? READ_WHY(candidate.street)[option.id]
-      : `Not quite. ${showdown.beats} of his ${showdown.total} possible hands beat you — ${pct(beatsPct)}.`;
+      : `Not quite. ${showdown.beats} of his ${showdown.total} hands beat you. That is ${pct(beatsPct)}.`;
   }
 
   const leak = classify(candidate, standingNow);
@@ -548,7 +799,18 @@ async function main() {
   // unweighted draw lands about 52/24/24.
   const leakOf = (candidate) =>
     `${classify(candidate, standing(candidate.showdown?.beatsPct ?? null))}|${candidate.street}`;
-  const chosen = select(raw.candidates, Math.round(COUNT * 1.6), leakOf);
+  // Spots where EVERY line loses money are damage control, not a leak. They are
+  // only 4% of the pool, but their EV gap is wide - when you are stuck, the
+  // spread between losing least and losing most is big - and selection ranks by
+  // gap, so they arrived at 21 of the shipped 100. "You got it right, and it
+  // still loses $22" is a confusing lesson, and it maps to none of the six
+  // leaks. Dropped before selection rather than trimmed after.
+  const winnable = raw.candidates.filter((candidate) =>
+    Math.max(...candidate.options.map((option) => option.ev)) > 0);
+  const dropped = raw.candidates.length - winnable.length;
+  if (dropped) console.log(`dropped ${dropped} spots where every line loses money`);
+
+  const chosen = select(winnable, Math.round(COUNT * 1.6), leakOf);
   const lessons = chosen
     .map(toLesson)
     .filter((lesson) => lesson.numbers.beats > 0 && lesson.numbers.beats < lesson.numbers.total)
