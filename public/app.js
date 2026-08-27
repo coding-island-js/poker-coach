@@ -441,12 +441,43 @@ function record(hand) {
 let account = { signedIn: false, paywall: false, paid: false };
 let syncTimer = null;
 
+/**
+ * The top bar has to answer "am I signed in?" without being asked.
+ *
+ * Raj 2026-08-27: "some indication that I'm the user logged in too, and also
+ * have logout button and login button on app and landing page." Signed out it
+ * offers the way in; signed in it names you and offers the way out.
+ */
+function updateTopbar() {
+  const auth = document.getElementById("nav-auth");
+  const who = document.getElementById("nav-account");
+  if (!auth) return;
+
+  if (account.signedIn) {
+    // First name, or the part of the email before the @ - enough to recognise
+    // yourself without spilling a full address across a phone's top bar.
+    const label = account.user?.name?.split(" ")[0]
+      ?? (account.user?.email ?? "").split("@")[0]
+      ?? "You";
+    if (who) who.textContent = label;
+    auth.textContent = "Sign out";
+    auth.onclick = signOut;
+    auth.hidden = false;
+  } else {
+    if (who) who.textContent = "Account";
+    auth.textContent = "Sign in";
+    auth.onclick = () => { view.screen = "account"; render(); scrollTop(); };
+    auth.hidden = false;
+  }
+}
+
 async function loadAccount() {
   try {
     const response = await fetch("/api/me", { credentials: "same-origin" });
     if (!response.ok) return;
     account = await response.json();
     if (account.signedIn) { syncNow(); resumeFromAccount(); }
+    updateTopbar();
   } catch { /* stay anonymous */ }
 }
 
@@ -498,7 +529,8 @@ async function syncNow() {
 
 async function signOut() {
   try { await fetch("/api/logout", { method: "POST", credentials: "same-origin" }); } catch { /* ignore */ }
-  account = { signedIn: false };
+  account = { signedIn: false, paywall: account.paywall, paid: false };
+  updateTopbar();
   render();
 }
 
@@ -744,6 +776,7 @@ fetch("hands.json")
     view.handIndex = Math.min(profile.lastHand ?? 0, content.hands.length - 1);
     const notice = signinNotice();
     if (notice) { view.screen = "account"; view.notice = notice; }
+    updateTopbar();
     render();
     loadAccount();
   })

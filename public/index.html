@@ -25,7 +25,8 @@
     <span class="pip" aria-hidden="true">♠</span> Poker&nbsp;Coach
   </a>
   <nav class="topnav">
-    <a class="ghost" href="/play">Start free</a>
+    <a class="ghost" href="/play" id="land-cta">Start free</a>
+    <a class="ghost" href="/play" id="land-auth" hidden></a>
     <span class="study-flag">Study only</span>
   </nav>
 </header>
@@ -173,5 +174,37 @@
   <p>Adults 18+ · Not for use during live play · No real-money gambling</p>
 </footer>
 
+<script>
+// The landing page is static HTML on purpose - it has to be readable and
+// shareable without running the app. This is the one thing it cannot know
+// without asking: whether the person reading it is already signed in.
+(async () => {
+  const auth = document.getElementById("land-auth");
+  const cta = document.getElementById("land-cta");
+  if (!auth) return;
+  // Show the signed-out state first, so the nav is never empty if the API is
+  // slow, blocked, or missing. Only a positive answer upgrades it.
+  auth.textContent = "Sign in";
+  auth.href = "/play";
+  auth.hidden = false;
+  try {
+    const response = await fetch("/api/me", { credentials: "same-origin" });
+    if (!response.ok) return;
+    const account = await response.json();
+    if (account.signedIn) {
+      const name = (account.user && (account.user.name || account.user.email) || "").split("@")[0];
+      if (cta) cta.textContent = "Keep training";
+      auth.textContent = "Sign out";
+      auth.href = "#";
+      auth.onclick = async (event) => {
+        event.preventDefault();
+        try { await fetch("/api/logout", { method: "POST", credentials: "same-origin" }); } catch (error) { /* ignore */ }
+        window.location.reload();
+      };
+      if (name) auth.title = `Signed in as ${name}`;
+    }
+  } catch (error) { /* the signed-out state is already showing */ }
+})();
+</script>
 </body>
 </html>
