@@ -102,14 +102,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "27%",
-          "note": "$10 to win $27"
-        },
-        {
           "label": "You win",
           "value": "93%",
           "note": "237 of his 254 hands"
+        },
+        {
+          "label": "He folds to $40",
+          "value": "17%"
+        },
+        {
+          "label": "He pays or re-raises",
+          "value": "83%"
         }
       ],
       "countSentence": "14 of his 254 hands beat you. That is 6%.",
@@ -197,7 +200,7 @@
         "why": {
           "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
           "raise": "$40 is called about as often and collects more. Costs about $31.",
-          "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $50.",
+          "call": "He folds 17% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $50.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $230."
         }
       },
@@ -506,14 +509,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "28%",
-          "note": "$22 to win $57"
-        },
-        {
           "label": "You win",
           "value": "87%",
           "note": "564 of his 649 hands"
+        },
+        {
+          "label": "He folds to $80",
+          "value": "0%"
+        },
+        {
+          "label": "He pays or re-raises",
+          "value": "100%"
         }
       ],
       "countSentence": "7 of his 649 hands beat you. That is 1%.",
@@ -610,7 +616,7 @@
         "why": {
           "raise": "You are ahead of most of what he can have, and he still pays a raise.",
           "raise-big": "The worse hands you want paying you fold to this. $80 keeps them in. Costs about $13.",
-          "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $80.",
+          "call": "He never fold to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $80.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $146."
         }
       },
@@ -952,14 +958,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "26%",
-                  "note": "$95 to win $270"
-                },
-                {
                   "label": "You win",
                   "value": "87%",
                   "note": "564 of his 649 hands"
+                },
+                {
+                  "label": "He folds to $335",
+                  "value": "0%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "100%"
                 }
               ],
               "countSentence": "7 of his 649 hands beat you. That is 1%.",
@@ -2324,14 +2333,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "27%",
-          "note": "$14 to win $38"
-        },
-        {
           "label": "You win",
           "value": "92%",
           "note": "915 of his 990 hands"
+        },
+        {
+          "label": "He folds to $80",
+          "value": "39%"
+        },
+        {
+          "label": "He pays or re-raises",
+          "value": "61%"
         }
       ],
       "countSentence": "71 of his 990 hands beat you. That is 7%.",
@@ -2436,7 +2448,7 @@
         "why": {
           "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
           "raise": "$80 is called about as often and collects more. Costs about $12.",
-          "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $32.",
+          "call": "He folds 39% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $32.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $65."
         }
       },
@@ -3220,14 +3232,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "24%",
-                  "note": "$30 to win $95"
-                },
-                {
                   "label": "You win",
                   "value": "53%",
                   "note": "148 of his 281 hands"
+                },
+                {
+                  "label": "He folds to $108",
+                  "value": "0%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "100%"
                 }
               ],
               "countSentence": "132 of his 281 hands beat you. That is 47%.",
@@ -3324,7 +3339,7 @@
                 "why": {
                   "raise": "You are ahead of most of what he can have, and he still pays a raise.",
                   "raise-big": "$108 folds him out about as often for less money. Costs about $10.",
-                  "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $17.",
+                  "call": "He never fold to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $17.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $41."
                 }
               },
@@ -3454,14 +3469,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "22%",
-                  "note": "$38 to win $135"
-                },
-                {
                   "label": "You win",
                   "value": "53%",
                   "note": "148 of his 281 hands"
+                },
+                {
+                  "label": "He folds to $168",
+                  "value": "1%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "99%"
                 }
               ],
               "countSentence": "132 of his 281 hands beat you. That is 47%.",
@@ -3558,7 +3576,7 @@
                 "why": {
                   "raise": "You are ahead of most of what he can have, and he still pays a raise.",
                   "raise-big": "$168 folds him out about as often for less money. Costs about $16.",
-                  "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $21.",
+                  "call": "He almost never fold to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $21.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $64."
                 }
               },
@@ -5404,14 +5422,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "15%",
-                  "note": "$13 to win $74"
-                },
-                {
                   "label": "You win",
                   "value": "96%",
                   "note": "325 of his 340 hands"
+                },
+                {
+                  "label": "He folds to $52",
+                  "value": "31%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "69%"
                 }
               ],
               "countSentence": "12 of his 340 hands beat you. That is 4%.",
@@ -5508,7 +5529,7 @@
                 "why": {
                   "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
                   "raise": "$52 is called about as often and collects more. Costs about $9.",
-                  "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $23.",
+                  "call": "He folds 31% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $23.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $128."
                 }
               },
@@ -6488,14 +6509,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "28%",
-          "note": "$16 to win $42"
-        },
-        {
           "label": "You win",
           "value": "91%",
           "note": "120 of his 132 hands"
+        },
+        {
+          "label": "He folds to $92",
+          "value": "0%"
+        },
+        {
+          "label": "He pays or re-raises",
+          "value": "100%"
         }
       ],
       "countSentence": "12 of his 132 hands beat you. That is 9%.",
@@ -6585,7 +6609,7 @@
         "why": {
           "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
           "raise": "You are ahead of most of what he can have, and he still pays a raise.",
-          "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $65.",
+          "call": "He never fold to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $65.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $242."
         }
       },
@@ -6908,14 +6932,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "27%",
-          "note": "$16 to win $43"
-        },
-        {
           "label": "You win",
           "value": "90%",
           "note": "288 of his 320 hands"
+        },
+        {
+          "label": "He folds to $88",
+          "value": "32%"
+        },
+        {
+          "label": "He pays or re-raises",
+          "value": "68%"
         }
       ],
       "countSentence": "26 of his 320 hands beat you. That is 8%.",
@@ -7012,7 +7039,7 @@
         "why": {
           "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
           "raise": "$88 is called about as often and collects more. Costs about $23.",
-          "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $56.",
+          "call": "He folds 32% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $56.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $88."
         }
       },
@@ -7368,14 +7395,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "22%",
-                  "note": "$50 to win $175"
-                },
-                {
                   "label": "You win",
                   "value": "90%",
                   "note": "288 of his 320 hands"
+                },
+                {
+                  "label": "He folds to $185",
+                  "value": "54%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "46%"
                 }
               ],
               "countSentence": "26 of his 320 hands beat you. That is 8%.",
@@ -8585,14 +8615,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "25%",
-          "note": "$12 to win $36"
-        },
-        {
           "label": "You win",
           "value": "65%",
           "note": "198 of his 306 hands"
+        },
+        {
+          "label": "He folds to $72",
+          "value": "0%"
+        },
+        {
+          "label": "He pays or re-raises",
+          "value": "100%"
         }
       ],
       "countSentence": "70 of his 306 hands beat you. That is 23%.",
@@ -8697,7 +8730,7 @@
         "why": {
           "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
           "raise": "$72 is called about as often and collects more. Costs about $13.",
-          "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $29.",
+          "call": "He never fold to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $29.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $54."
         }
       },
@@ -13164,14 +13197,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "29%",
-          "note": "$8 to win $20"
-        },
-        {
           "label": "You win",
           "value": "96%",
           "note": "499,029 of 517,263 ways"
+        },
+        {
+          "label": "They fold to $32",
+          "value": "33%"
+        },
+        {
+          "label": "They pay or re-raise",
+          "value": "67%"
         }
       ],
       "countSentence": "One of them has you beaten 4% of the time, counted across every one of the 517,263 ways the two of them can be dealt.",
@@ -13259,7 +13295,7 @@
         ],
         "why": {
           "raise-big": "You are ahead of most of what they can have, and they still pay a raise.",
-          "call": "You are far enough ahead to raise. Calling only wins what they have already put in. Costs about $23.",
+          "call": "They fold 33% of the time to a raise, so raising charges them rather than losing them. Calling only wins what is already in. Costs about $23.",
           "raise": "$32 keeps more of the field in, and there are two of them to pay you. Costs about $56.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $122."
         }
@@ -13584,14 +13620,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "27%",
-          "note": "$15 to win $41"
-        },
-        {
           "label": "You win",
           "value": "93%",
           "note": "178 of his 192 hands"
+        },
+        {
+          "label": "He folds to $55",
+          "value": "72%"
+        },
+        {
+          "label": "He pays or re-raises",
+          "value": "28%"
         }
       ],
       "countSentence": "12 of his 192 hands beat you. That is 6%.",
@@ -13688,7 +13727,7 @@
         "why": {
           "raise": "You are ahead of most of what he can have, and he still pays a raise.",
           "raise-big": "The worse hands you want paying you fold to this. $55 keeps them in. Costs about $4.",
-          "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $48.",
+          "call": "He folds 72% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $48.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $48."
         }
       },
@@ -13810,14 +13849,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "23%",
-                  "note": "$54 to win $176"
-                },
-                {
                   "label": "You win",
                   "value": "93%",
                   "note": "178 of his 192 hands"
+                },
+                {
+                  "label": "He folds to $375",
+                  "value": "91%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "9%"
                 }
               ],
               "countSentence": "12 of his 192 hands beat you. That is 6%.",
@@ -13916,7 +13958,7 @@
                 "why": {
                   "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
                   "raise": "$375 is called about as often and collects more. Costs about $10.",
-                  "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $58.",
+                  "call": "He folds 91% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $58.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $151."
                 }
               },
@@ -14032,14 +14074,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "21%",
-                  "note": "$66 to win $254"
-                },
-                {
                   "label": "You win",
                   "value": "93%",
                   "note": "178 of his 192 hands"
+                },
+                {
+                  "label": "He folds to $375",
+                  "value": "90%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "10%"
                 }
               ],
               "countSentence": "12 of his 192 hands beat you. That is 6%.",
@@ -14131,7 +14176,7 @@
                 ],
                 "why": {
                   "raise": "You are ahead of most of what he can have, and he still pays a raise.",
-                  "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $61.",
+                  "call": "He folds 90% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $61.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $216."
                 }
               },
@@ -15148,14 +15193,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "20%",
-          "note": "$33 to win $129"
-        },
-        {
           "label": "You win",
           "value": "32%",
           "note": "316 of his 990 hands"
+        },
+        {
+          "label": "He folds to $83",
+          "value": "76%"
+        },
+        {
+          "label": "He pays or re-raises",
+          "value": "24%"
         }
       ],
       "countSentence": "666 of his 990 hands beat you. That is 67%.",
@@ -15261,7 +15309,7 @@
         "why": {
           "raise": "You are ahead of most of what he can have, and he still pays a raise.",
           "raise-big": "$83 folds him out about as often for less money. Costs about $11.",
-          "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $56.",
+          "call": "He folds 76% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $56.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $79."
         }
       },
@@ -15826,14 +15874,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "21%",
-                  "note": "$41 to win $153"
-                },
-                {
                   "label": "You win",
                   "value": "59%",
                   "note": "152 of his 259 hands"
+                },
+                {
+                  "label": "He folds to $103",
+                  "value": "40%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "60%"
                 }
               ],
               "countSentence": "106 of his 259 hands beat you. That is 41%.",
@@ -18174,14 +18225,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "15%",
-                  "note": "$7 to win $40"
-                },
-                {
                   "label": "You win",
                   "value": "84%",
                   "note": "243 of his 289 hands"
+                },
+                {
+                  "label": "He folds to $28",
+                  "value": "9%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "91%"
                 }
               ],
               "countSentence": "43 of his 289 hands beat you. That is 15%.",
@@ -18278,7 +18332,7 @@
                 "why": {
                   "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
                   "raise": "$28 is called about as often and collects more. Costs about $18.",
-                  "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $45.",
+                  "call": "He folds 9% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $45.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $88."
                 }
               },
@@ -18645,14 +18699,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "28%",
-                  "note": "$53 to win $136"
-                },
-                {
                   "label": "You win",
                   "value": "84%",
                   "note": "243 of his 289 hands"
+                },
+                {
+                  "label": "He folds to $312",
+                  "value": "0%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "100%"
                 }
               ],
               "countSentence": "43 of his 289 hands beat you. That is 15%.",
@@ -18749,7 +18806,7 @@
                 "why": {
                   "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
                   "raise": "$312 is called about as often and collects more. Costs about $17.",
-                  "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $20.",
+                  "call": "He never fold to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $20.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $139."
                 }
               },
@@ -20252,14 +20309,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "19%",
-          "note": "$6 to win $26"
-        },
-        {
           "label": "You win",
           "value": "76%",
           "note": "65,262 of 86,383 ways"
+        },
+        {
+          "label": "They fold to $15",
+          "value": "94%"
+        },
+        {
+          "label": "They pay or re-raise",
+          "value": "6%"
         }
       ],
       "countSentence": "One of them has you beaten 25% of the time, counted across every one of the 86,383 ways the two of them can be dealt.",
@@ -20351,7 +20411,7 @@
         "why": {
           "raise": "You are ahead of most of what they can have, and they still pay a raise.",
           "raise-big": "This folds out the players you want paying you. $15 keeps them in. Costs about $5.",
-          "call": "You are far enough ahead to raise. Calling only wins what they have already put in. Costs about $29.",
+          "call": "They fold 94% of the time to a raise, so raising charges them rather than losing them. Calling only wins what is already in. Costs about $29.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $33."
         }
       },
@@ -20697,14 +20757,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "27%",
-          "note": "$25 to win $66"
-        },
-        {
           "label": "You win",
           "value": "2%",
           "note": "3 of his 182 hands"
+        },
+        {
+          "label": "He folds to $100",
+          "value": "98%"
+        },
+        {
+          "label": "He pays or re-raises",
+          "value": "2%"
         }
       ],
       "countSentence": "174 of his 182 hands beat you. That is 96%.",
@@ -20802,7 +20865,7 @@
           "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
           "raise": "This is not enough to move him off the hands that beat you. Costs about $8.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $63.",
-          "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $85."
+          "call": "He folds almost every time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $85."
         }
       },
       "rangeBasis": "hands that fit how he has played",
@@ -22055,14 +22118,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "26%",
-          "note": "$20 to win $58"
-        },
-        {
           "label": "You win",
           "value": "86%",
           "note": "856 of his 990 hands"
+        },
+        {
+          "label": "He folds to $80",
+          "value": "34%"
+        },
+        {
+          "label": "He pays or re-raises",
+          "value": "66%"
         }
       ],
       "countSentence": "128 of his 990 hands beat you. That is 13%.",
@@ -22167,7 +22233,7 @@
         "why": {
           "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
           "raise": "$80 is called about as often and collects more. Costs about $12.",
-          "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $35.",
+          "call": "He folds 34% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $35.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $90."
         }
       },
@@ -23481,14 +23547,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "24%",
-                  "note": "$14 to win $45"
-                },
-                {
                   "label": "You win",
                   "value": "76%",
                   "note": "251 of his 329 hands"
+                },
+                {
+                  "label": "He folds to $56",
+                  "value": "50%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "50%"
                 }
               ],
               "countSentence": "72 of his 329 hands beat you. That is 22%.",
@@ -23584,7 +23653,7 @@
                 ],
                 "why": {
                   "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
-                  "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $3.",
+                  "call": "He folds 50% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $3.",
                   "raise": "$56 is called about as often and collects more. Costs about $10.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $30."
                 }
@@ -23966,14 +24035,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "25%",
-                  "note": "$37 to win $114"
-                },
-                {
                   "label": "You win",
                   "value": "76%",
                   "note": "251 of his 329 hands"
+                },
+                {
+                  "label": "He folds to $240",
+                  "value": "0%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "100%"
                 }
               ],
               "countSentence": "72 of his 329 hands beat you. That is 22%.",
@@ -24070,7 +24142,7 @@
                 "why": {
                   "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
                   "raise": "$240 is called about as often and collects more. Costs about $47.",
-                  "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $68.",
+                  "call": "He never fold to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $68.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $154."
                 }
               },
@@ -25203,14 +25275,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "28%",
-                  "note": "$21 to win $54"
-                },
-                {
                   "label": "You win",
                   "value": "91%",
                   "note": "97,284 of 107,155 ways"
+                },
+                {
+                  "label": "They fold to $84",
+                  "value": "45%"
+                },
+                {
+                  "label": "They pay or re-raise",
+                  "value": "55%"
                 }
               ],
               "countSentence": "One of them has you beaten 9% of the time, counted across every one of the 107,155 ways the two of them can be dealt.",
@@ -25309,7 +25384,7 @@
                 ],
                 "why": {
                   "raise-big": "You are ahead of most of what they can have, and they still pay a raise.",
-                  "call": "You are far enough ahead to raise. Calling only wins what they have already put in. Costs about $7.",
+                  "call": "They fold 45% of the time to a raise, so raising charges them rather than losing them. Calling only wins what is already in. Costs about $7.",
                   "raise": "$84 keeps more of the field in, and there are two of them to pay you. Costs about $12.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $104."
                 }
@@ -27132,14 +27207,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "27%",
-          "note": "$7 to win $19"
-        },
-        {
           "label": "You win",
           "value": "77%",
           "note": "421,321 of 547,320 ways"
+        },
+        {
+          "label": "They fold to $28",
+          "value": "45%"
+        },
+        {
+          "label": "They pay or re-raise",
+          "value": "55%"
         }
       ],
       "countSentence": "One of them has you beaten 23% of the time, counted across every one of the 547,320 ways the two of them can be dealt.",
@@ -27229,7 +27307,7 @@
           "raise-big": "You are ahead of most of what they can have, and they still pay a raise.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $18.",
           "raise": "$28 keeps more of the field in, and there are two of them to pay you. Costs about $19.",
-          "call": "You are far enough ahead to raise. Calling only wins what they have already put in. Costs about $20."
+          "call": "They fold 45% of the time to a raise, so raising charges them rather than losing them. Calling only wins what is already in. Costs about $20."
         }
       },
       "rangeBasis": "hands that fit how he has played",
@@ -27551,14 +27629,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "27%",
-          "note": "$20 to win $55"
-        },
-        {
           "label": "You win",
           "value": "46%",
           "note": "79 of his 172 hands"
+        },
+        {
+          "label": "He folds to $50",
+          "value": "0%"
+        },
+        {
+          "label": "He pays or re-raises",
+          "value": "100%"
         }
       ],
       "countSentence": "89 of his 172 hands beat you. That is 52%.",
@@ -27654,7 +27735,7 @@
         "why": {
           "raise": "You are ahead of most of what he can have, and he still pays a raise.",
           "raise-big": "$50 folds him out about as often for less money. Costs about $20.",
-          "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $29.",
+          "call": "He never fold to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $29.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $46."
         }
       },
@@ -27999,14 +28080,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "22%",
-                  "note": "$51 to win $186"
-                },
-                {
                   "label": "You win",
                   "value": "20%",
                   "note": "31 of his 156 hands"
+                },
+                {
+                  "label": "He folds to $101",
+                  "value": "66%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "34%"
                 }
               ],
               "countSentence": "88 of his 156 hands beat you. That is 56%.",
@@ -28104,7 +28188,7 @@
                 ],
                 "why": {
                   "raise": "You are ahead of most of what he can have, and he still pays a raise.",
-                  "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $26.",
+                  "call": "He folds 66% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $26.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $90."
                 }
               },
@@ -28220,14 +28304,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "15%",
-                  "note": "$41 to win $236"
-                },
-                {
                   "label": "You win",
                   "value": "20%",
                   "note": "31 of his 156 hands"
+                },
+                {
+                  "label": "He folds to $71",
+                  "value": "66%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "34%"
                 }
               ],
               "countSentence": "88 of his 156 hands beat you. That is 56%.",
@@ -28325,7 +28412,7 @@
                 ],
                 "why": {
                   "raise": "You are ahead of most of what he can have, and he still pays a raise.",
-                  "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $40.",
+                  "call": "He folds 66% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $40.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $133."
                 }
               },
@@ -29343,14 +29430,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "27%",
-          "note": "$20 to win $53"
-        },
-        {
           "label": "You win",
           "value": "90%",
           "note": "191 of his 212 hands"
+        },
+        {
+          "label": "He folds to $80",
+          "value": "41%"
+        },
+        {
+          "label": "He pays or re-raises",
+          "value": "59%"
         }
       ],
       "countSentence": "21 of his 212 hands beat you. That is 10%.",
@@ -29455,7 +29545,7 @@
         "why": {
           "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
           "raise": "$80 is called about as often and collects more. Costs about $17.",
-          "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $30.",
+          "call": "He folds 41% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $30.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $76."
         }
       },
@@ -32514,14 +32604,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "20%",
-                  "note": "$20 to win $81"
-                },
-                {
                   "label": "You win",
                   "value": "17%",
                   "note": "162,526 of 979,110 ways"
+                },
+                {
+                  "label": "They fold to $80",
+                  "value": "93%"
+                },
+                {
+                  "label": "They pay or re-raise",
+                  "value": "7%"
                 }
               ],
               "countSentence": "One of them has you beaten 83% of the time, counted across every one of the 979,110 ways the two of them can be dealt.",
@@ -32624,7 +32717,7 @@
                   "raise-big": "You are ahead of most of what they can have, and they still pay a raise.",
                   "raise": "This is too small to fold two players off their hands. Costs about $13.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $55.",
-                  "call": "You are far enough ahead to raise. Calling only wins what they have already put in. Costs about $74."
+                  "call": "They fold 93% of the time to a raise, so raising charges them rather than losing them. Calling only wins what is already in. Costs about $74."
                 }
               },
               "rangeBasis": "hands he could still be dealt",
@@ -35279,14 +35372,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "27%",
-          "note": "$9 to win $24"
-        },
-        {
           "label": "You win",
           "value": "99%",
           "note": "475 of his 480 hands"
+        },
+        {
+          "label": "He folds to $48",
+          "value": "4%"
+        },
+        {
+          "label": "He pays or re-raises",
+          "value": "96%"
         }
       ],
       "countSentence": "5 of his 480 hands beat you. That is 1%.",
@@ -35375,7 +35471,7 @@
         "why": {
           "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
           "raise": "$48 is called about as often and collects more. Costs about $11.",
-          "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $25.",
+          "call": "He almost never fold to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $25.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $96."
         }
       },
@@ -35776,14 +35872,17 @@
       ],
       "facts": [
         {
-          "label": "You need",
-          "value": "33%",
-          "note": "$20 to win $41"
-        },
-        {
           "label": "You win",
           "value": "30%",
           "note": "294,196 of 979,110 ways"
+        },
+        {
+          "label": "They fold to $50",
+          "value": "93%"
+        },
+        {
+          "label": "They pay or re-raise",
+          "value": "7%"
         }
       ],
       "countSentence": "One of them has you beaten 70% of the time, counted across every one of the 979,110 ways the two of them can be dealt.",
@@ -35883,7 +35982,7 @@
         "why": {
           "raise": "You are ahead of most of what they can have, and they still pay a raise.",
           "raise-big": "$50 clears the field about as often for less money. Costs about $6.",
-          "call": "You are far enough ahead to raise. Calling only wins what they have already put in. Costs about $26.",
+          "call": "They fold 93% of the time to a raise, so raising charges them rather than losing them. Calling only wins what is already in. Costs about $26.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $31."
         }
       },
@@ -36029,14 +36128,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "18%",
-                  "note": "$22 to win $97"
-                },
-                {
                   "label": "You win",
                   "value": "55%",
                   "note": "568 of his 1035 hands"
+                },
+                {
+                  "label": "He folds to $153",
+                  "value": "93%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "7%"
                 }
               ],
               "countSentence": "461 of his 1035 hands beat you. That is 45%.",
@@ -36135,7 +36237,7 @@
                 "why": {
                   "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
                   "raise": "$153 is called about as often and collects more. Costs about $23.",
-                  "call": "You are far enough ahead to raise. Calling only wins what he has already put in. Costs about $56.",
+                  "call": "He folds 93% of the time to a raise, so raising charges him rather than losing him. Calling only wins what is already in. Costs about $56.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $84."
                 }
               },
@@ -36279,14 +36381,17 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
-                  "value": "25%",
-                  "note": "$69 to win $204"
-                },
-                {
                   "label": "You win",
                   "value": "55%",
                   "note": "568 of his 1035 hands"
+                },
+                {
+                  "label": "He folds to $153",
+                  "value": "0%"
+                },
+                {
+                  "label": "He pays or re-raises",
+                  "value": "100%"
                 }
               ],
               "countSentence": "461 of his 1035 hands beat you. That is 45%.",

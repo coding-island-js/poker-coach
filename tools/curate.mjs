@@ -246,6 +246,21 @@ export function decidingFacts({ options, best, facing, standingNow, beats, youBe
 
   if (facing) {
     const price = priceOf(pot, toCall);
+    // When the answer is to RAISE, the decision is not about the price of a
+    // call - with 93% equity that clears trivially - it is about how much he
+    // will pay. Showing the calling price there invited exactly the wrong
+    // question: "but what are the chances of him folding?" That number was
+    // measured and simply never shown.
+    if (best && isBetId(best.id)) {
+      const amount = amountOf(best.label);
+      const folds = foldsTo(best);
+      const Who = `${voice.subj[0].toUpperCase()}${voice.subj.slice(1)}`;
+      return [
+        { label: "You win", value: `${pctOf(youBeat, total)}%`, note: ofField },
+        { label: `${Who} ${voice.plural ? "fold" : "folds"} to ${amount}`, value: asPct(folds) },
+        { label: `${Who} ${voice.plural ? "pay" : "pays"} or re-${voice.plural ? "raise" : "raises"}`, value: asPct(1 - folds) },
+      ];
+    }
     return [
       { label: "You need", value: `${price?.percent ?? 0}%`, note: `$${toCall} to win $${Math.round(pot)}` },
       { label: "You win", value: `${pctOf(youBeat, total)}%`, note: ofField },
@@ -309,7 +324,11 @@ export function reasonFor({ chosen, best, options = [], isCorrect, facing, stand
     }
     if (chosen.id === "call") {
       if (isCorrect) return `You clear the price, so calling pays. ${clears ? "Nothing more is needed." : ""}`.trim();
-      if (isBetId(best.id)) return `You are far enough ahead to raise. Calling only wins what ${voice.subj} ${voice.plural ? "have" : "has"} already put in.`;
+      if (isBetId(best.id)) {
+        // Slow-playing to "keep him in" is the commonest reason a learner calls
+        // here, and the answer to it is his fold rate, which is measured.
+        return `${voice.subj[0].toUpperCase()}${voice.subj.slice(1)} ${does("fold", foldsTo(best), voice)} to a raise, so raising charges ${voice.obj} rather than losing ${voice.obj}. Calling only wins what is already in.`;
+      }
       return `You do not win often enough to pay this price.`;
     }
     // Raising into a bet.
