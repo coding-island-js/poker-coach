@@ -384,9 +384,14 @@ export function handCategory(cards, board) {
   if (groups[0] === 2) {
     const pairedRank = Number(Object.keys(counts).find((r) => counts[r] === 2));
     const topBoard = Math.max(...boardRanks);
+    // "Top pair or better" was printed underneath "Three of a kind" and "Two
+    // pair" in the same list, so the label contradicted its own position. It
+    // only ever meant a pair of the highest board card. And "a weaker pair"
+    // reads as "weaker than yours" when it means "below top pair" - a row
+    // labelled that way had 24 of its 37 combos beating the hero.
     return pairedRank >= topBoard
-      ? { order: 6, label: "Top pair or better" }
-      : { order: 7, label: "A weaker pair" };
+      ? { order: 6, label: "Top pair" }
+      : { order: 7, label: "A lower pair" };
   }
   return { order: 8, label: "No pair" };
 }
@@ -491,4 +496,37 @@ export function showdownVsField({ heroCards, board, ranges }) {
     beatsPct: total ? Number(((beats / total) * 100).toFixed(1)) : null,
     opponents: 2,
   };
+}
+
+/**
+ * Whether a modelled range has narrowed to something a coach could not defend.
+ *
+ * poker-sim's read model usually narrows sensibly - across the shipped set the
+ * median modelled range says the hero is beaten MORE often than a uniform one.
+ * But it occasionally strips out exactly the class of hand that beats the hero:
+ * every ace on an ace-high board, every straight on a board four to a straight.
+ * The count computed from it is then exact and indefensible, which is the worst
+ * combination this pipeline can produce.
+ *
+ * Detected by comparing against the uniform fallback: if the model has removed
+ * most of the hands that would beat the hero, it is not a read, it is an
+ * artifact, and the honest fallback is the wider range.
+ */
+export function rangeIsCredible({ heroCards, board, modelled, uniform }) {
+  if (!modelled?.length) return false;
+  const boardIdx = cardIndexes(board);
+  const heroScore = scoreCards([...cardIndexes(heroCards), ...boardIdx]);
+  const beatShare = (holdings) => {
+    if (!holdings.length) return 0;
+    let beats = 0;
+    for (const holding of holdings) {
+      if (scoreCards([...cardIndexes(holding.cards), ...boardIdx]) > heroScore) beats += 1;
+    }
+    return beats / holdings.length;
+  };
+  const modelledShare = beatShare(modelled);
+  const uniformShare = beatShare(uniform);
+  // Narrowing towards "he has you beaten" is a real read. Narrowing away from
+  // it by more than ten points is the failure mode.
+  return modelledShare >= uniformShare - 0.10;
 }

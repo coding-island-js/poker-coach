@@ -90,10 +90,16 @@ function activeLesson() {
 
 // --------------------------------------------------------------- hand parts
 /** "You're in the small blind, he's in the big blind." - or all three seats. */
+// You are ON the button and IN the blinds. "In the button" is not something
+// anyone has ever said at a table, and it was the first line on every screen.
+const seatPhrase = (seat) => `${seat === "button" ? "on" : "in"} the ${seat}`;
+
 function seatLine(hand) {
-  const mine = `You're in the ${hand.heroPosition.toLowerCase()}`;
+  const mine = `You're ${seatPhrase(hand.heroPosition.toLowerCase())}`;
   const others = (hand.opponents ?? []).map((opponent) => (opponent.position ?? "").toLowerCase()).filter(Boolean);
-  if (others.length <= 1) return `${mine}, he's in the ${others[0] ?? (hand.opponentPosition ?? "").toLowerCase()}.`;
+  if (others.length <= 1) {
+    return `${mine}, he's ${seatPhrase(others[0] ?? (hand.opponentPosition ?? "").toLowerCase())}.`;
+  }
   return `${mine}, against the ${others.join(" and the ")}.`;
 }
 

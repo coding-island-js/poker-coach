@@ -591,3 +591,86 @@ test("a continuation is a complete lesson, not a stub", () => {
       `${lesson.id} marks every option correct`);
   }
 });
+
+// ---- guards for the learner-panel findings -----------------------------
+// Five reviewers reading only the rendered screens found these; none of them
+// were catchable by a gate that checks whether a number is TRUE, because every
+// number involved was true. These lock the labelling and the wording.
+import { rangeIsCredible, handCategory } from "../tools/lib/engine.mjs";
+
+test("a range that strips out the hands beating the hero is refused", () => {
+  const board = ["Ad", "5s", "5h", "Jh"];
+  const hero = ["7s", "Jd"]; // jacks and fives
+  const uniform = [
+    { cards: ["Ac", "2d"] }, { cards: ["As", "7c"] }, { cards: ["Ah", "9s"] }, // aces up, all ahead
+    { cards: ["2c", "3d"] }, { cards: ["4c", "6d"] }, { cards: ["8c", "9d"] },
+  ];
+  // The model kept only the hands the hero beats - every ace has vanished.
+  const stripped = uniform.filter((h) => !h.cards.some((c) => c[0] === "A"));
+  assert.equal(rangeIsCredible({ heroCards: hero, board, modelled: stripped, uniform }), false,
+    "dropping every ace on an ace-high board is an artifact, not a read");
+  assert.equal(rangeIsCredible({ heroCards: hero, board, modelled: uniform, uniform }), true);
+});
+
+test("a range that narrows towards being beaten is still a real read", () => {
+  const board = ["Ad", "5s", "5h", "Jh"];
+  const hero = ["7s", "Jd"];
+  const uniform = [
+    { cards: ["Ac", "2d"] }, { cards: ["2c", "3d"] }, { cards: ["4c", "6d"] }, { cards: ["8c", "9d"] },
+  ];
+  const strongOnly = [{ cards: ["Ac", "2d"] }];
+  assert.equal(rangeIsCredible({ heroCards: hero, board, modelled: strongOnly, uniform }), true,
+    "narrowing to the hands that beat you is what a read is supposed to do");
+});
+
+test("a percentage never rounds to a certainty it has not got", () => {
+  // 452 of 453 is 99.8%, and printing "100%" contradicted the count beside it.
+  const d = JSON.parse(readFileSync(new URL("../public/hands.json", import.meta.url), "utf8"));
+  for (const hand of d.hands) {
+    const prose = [hand.countSentence, hand.takeaway, ...Object.values(hand.read.why ?? {})].join(" ");
+    // "almost 100%" and "under 1%" are the honest forms. A bare 100% or 0% is
+    // the claim being guarded against: 452 of 453 rounded to "100%" told a
+    // learner every hand beat them, one line after counting the one that did not.
+    if (/(?<!almost )\b100%/.test(prose)) {
+      assert.equal(hand.numbers.beats, hand.numbers.total,
+        `${hand.id} says 100% but ${hand.numbers.beats} of ${hand.numbers.total} beat you`);
+    }
+    if (/(?<!under 1)\b0%/.test(prose)) {
+      assert.equal(hand.numbers.beats, 0, `${hand.id} says 0% but ${hand.numbers.beats} beat you`);
+    }
+  }
+});
+
+test("two bet sizes never share one purpose", () => {
+  const d = JSON.parse(readFileSync(new URL("../public/hands.json", import.meta.url), "utf8"));
+  const lessons = [...d.hands, ...d.hands.flatMap((h) =>
+    Object.values(h.chain?.branches ?? {}).filter((b) => b.kind === "question").map((b) => b.lesson))];
+  for (const lesson of lessons) {
+    const sized = lesson.action.options.filter((o) => /\$\d+/.test(o.label)
+      && (o.id.startsWith("bet") || o.id.startsWith("raise")));
+    if (sized.length < 2) continue;
+    const purposes = new Set(sized.map((o) => o.purpose));
+    assert.equal(purposes.size, sized.length,
+      `${lesson.id}: ${sized.length} sizes share ${purposes.size} purpose(s) - "what is it for" cannot tell them apart`);
+  }
+});
+
+test("the coaching never claims no worse hand exists while listing worse hands", () => {
+  const d = JSON.parse(readFileSync(new URL("../public/hands.json", import.meta.url), "utf8"));
+  const lessons = [...d.hands, ...d.hands.flatMap((h) =>
+    Object.values(h.chain?.branches ?? {}).filter((b) => b.kind === "question").map((b) => b.lesson))];
+  for (const lesson of lessons) {
+    const prose = [lesson.takeaway, ...Object.values(lesson.action.why ?? {})].join(" ");
+    assert.doesNotMatch(prose, /there isn't one|there is not one here|nothing worse will pay/,
+      `${lesson.id} claims no worse hand exists; the breakdown lists them`);
+    assert.doesNotMatch(prose, /the only way this hand wins/,
+      `${lesson.id} claims a bet is the only way to win, which the check EV usually refutes`);
+  }
+});
+
+test("hand-class labels do not contradict their own ordering", () => {
+  // "Top pair or better" was printed BELOW "Three of a kind" and "Two pair".
+  const board = ["Kd", "7s", "3c", "2h", "9d"];
+  assert.equal(handCategory(["Kh", "Qs"], board).label, "Top pair");
+  assert.equal(handCategory(["7h", "8s"], board).label, "A lower pair");
+});

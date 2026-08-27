@@ -14,7 +14,7 @@ import { dirname } from "node:path";
 import {
   act, getLegalActions, getBotHandContext, decideBotAction, createSeededRng,
   createLineup, newHand, livePlayers, playerOf, rollout, candidateActions,
-  estimateRange, cappedness, bucketOfHolding, candidateCombos, archetypeById, plausibleRange, createBotProfile, showdownSplit, showdownVsField,
+  estimateRange, cappedness, bucketOfHolding, candidateCombos, archetypeById, plausibleRange, createBotProfile, showdownSplit, showdownVsField, rangeIsCredible,
   rangeBreakdown,
 } from "./lib/engine.mjs";
 
@@ -268,11 +268,27 @@ export function classifyLeak({ legal, bestId, temptId, heroBeatsPct, villainChec
  */
 export function renderHistory(hand, heroId, labels) {
   const streets = { preflop: [], flop: [], turn: [], river: [] };
+  // Anyone who did something other than fold has to be named, whether or not
+  // they are still in at the decision. Naming only the survivors deleted the
+  // bet of a player who folded on a later street, leaving flops that read
+  // "You check. Opponent checks. You call $8." - a call with no bet in front
+  // of it. Players who only ever folded stay collapsed into one line, because
+  // naming five seats that folded preflop is noise, not story.
+  const acted = new Set();
+  for (const event of hand.events ?? []) {
+    if (event.type === "ACTION" && event.action !== "fold") acted.add(event.playerId);
+  }
+  const named = (playerId) => labels.get(playerId)
+    ?? (acted.has(playerId) ? `The ${positionName(hand, playerId).toLowerCase()}` : null);
   const conjugate = (id, verb) => {
     // "You raise", "The cutoff raises".
     const you = id === heroId;
-    const forms = { bet: "bet", raise: "raise", call: "call", check: "check", fold: "fold" };
-    const stem = forms[verb] ?? verb;
+    // poker-sim spells shoves as "short-all-in-raise" and friends, and the raw
+    // token was reaching the screen: "Opponent short-all-in-raises."
+    const name = String(verb);
+    const stem = name.includes("all-in") ? "MOVE-ALL-IN"
+      : { bet: "bet", raise: "raise", call: "call", check: "check", fold: "fold" }[name] ?? name;
+    if (stem === "MOVE-ALL-IN") return you ? "move all in" : "moves all in";
     return you ? stem : `${stem}s`;
   };
   let foldedOut = 0;
@@ -281,22 +297,28 @@ export function renderHistory(hand, heroId, labels) {
     const bucket = streets[event.street];
     if (!bucket) continue;
     // Three-handed, "Opponent" is ambiguous and the timeline becomes unreadable,
-    // so everyone still in is named by their seat.
-    if (!labels.has(event.playerId)) {
+    // so everyone who acted is named by their seat.
+    const who = named(event.playerId);
+    if (!who) {
       if (event.action === "fold") foldedOut += 1;
       continue;
     }
-    const who = labels.get(event.playerId);
     const verb = conjugate(event.playerId, event.action);
-    const detail = event.action === "bet" || event.action === "raise"
+    // "bets to $10" is not English at a table; you bet $10 and you raise TO $10.
+    const name = String(event.action);
+    const detail = name.includes("raise") || name.includes("all-in")
       ? ` to ${money(event.streetTotal ?? event.paid)}`
-      : event.action === "call" ? ` ${money(event.paid)}`
+      : name.includes("bet") ? ` ${money(event.streetTotal ?? event.paid)}`
+      : name === "call" ? ` ${money(event.paid)}`
       : "";
     bucket.push(`${who} ${verb}${detail}.`);
   }
   if (foldedOut > 0) {
     streets.preflop.unshift(`${foldedOut} player${foldedOut === 1 ? "" : "s"} fold.`);
   }
+  // Preflop, the big blind is a live bet, so a call there needs no bet in front
+  // of it. Every other street must open with someone putting money in.
+
   const board = hand.board ?? [];
   const label = {
     preflop: "Preflop",
@@ -320,7 +342,7 @@ export function renderHistory(hand, heroId, labels) {
 export function buildCandidate({
   hand, heroId, villainIds, heroCards, board, street, legal, heroContext,
   reads, quoted, split, cap, rangeSource, evs, best, tempt, gap, pot,
-  villainChecks, heroBucket, leak, seed, handIndex, rollouts,
+  villainChecks, heroBucket, leak, seed, handIndex, rollouts, historyLabels,
 }) {
   return {
     // Seeded, because two pools generated with different seeds both emit a
@@ -365,7 +387,7 @@ export function buildCandidate({
     // timeline. Calling a raise a "bet" put "Opponent bets $13 into $26"
     // directly above "Opponent raises to $20" in the history.
     facingAction: facingActionOf(hand, reads[0].villainId, street),
-    history: renderHistory(hand, heroId, new Map([
+    history: renderHistory(hand, heroId, historyLabels ?? new Map([
       [heroId, "You"],
       // Three-handed, "Opponent" is ambiguous. Everyone still in is named by
       // seat so the timeline can be followed.
@@ -481,8 +503,14 @@ async function main() {
       try {
         range = estimateRange({ decisions, profile, board, knownCards: known });
         const modelled = range?.holdings ?? [];
-        const credible = modelled.length >= MIN_CREDIBLE_COMBOS && range?.confident;
-        holdings = credible ? modelled : plausibleRange(board, known);
+        const uniform = plausibleRange(board, known);
+        const credible = modelled.length >= MIN_CREDIBLE_COMBOS
+          && range?.confident
+          // A range that has narrowed away the hands which beat the hero is an
+          // artifact, not a read: one dropped every ace on an ace-high board
+          // and reported that 1% of his range was ahead.
+          && rangeIsCredible({ heroCards, board, modelled, uniform });
+        holdings = credible ? modelled : uniform;
         source = credible ? "modelled" : "heuristic";
       } catch {
         holdings = plausibleRange(board, known);

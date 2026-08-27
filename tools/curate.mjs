@@ -60,7 +60,14 @@ const OPPONENT_NOTES = {
 const opponentNote = (id) => OPPONENT_NOTES[id] ?? "unknown — no reliable read";
 
 // ------------------------------------------------------------------ writing
-const pct = (n) => `${Math.round(n)}%`;
+// Rounding 99.8 to "100%" told a learner that every hand beats them one line
+// after carefully counting the one that does not.
+const pct = (n) => {
+  const rounded = Math.round(n);
+  if (rounded >= 100 && n < 100) return "almost 100%";
+  if (rounded <= 0 && n > 0) return "under 1%";
+  return `${rounded}%`;
+};
 
 /** Where the hero's hand actually sits against what the opponent can hold. */
 export function standing(beatsPct) {
@@ -91,32 +98,73 @@ const READ_PROMPT = (street, players = 2) => {
     : `${against}, where does your hand stand right now?`;
 };
 
-const READ_WHY = (street) => {
-  const tail = street === "River" ? "" : " More cards are still to come.";
+const READ_WHY = (street, players = 2, beatsPct = null) => {
+  // "More cards are still to come" is wrong on the turn, where exactly one is.
+  const tail = street === "River" ? ""
+    : street === "Turn" ? " One more card is still to come."
+    : " Two more cards are still to come.";
+  const who = players >= 3 ? "What they can hold" : "What he can hold";
+  const theirs = players >= 3 ? "Their ranges split" : "His range splits";
+  // "Most" fired at 47%, and "close to evenly" fired at 63/37. Say what the
+  // number actually is rather than reaching for a word that overstates it.
+  const share = beatsPct === null ? null : Math.round(beatsPct);
+  const behindWord = share !== null && share < 55 ? "Slightly more than half of" : "Most of";
+  const evenWord = share !== null && (share < 35 || share > 65) ? "leans" : "splits close to evenly";
   return {
-    ahead: `Counting his possible hands, very few of them are ahead of yours.${tail}`,
-    mixed: `His range splits close to evenly against your hand.${tail}`,
-    behind: `Most of the hands he can hold are better than yours right now.${tail}`,
+    ahead: `${who} is mostly behind your hand.${tail}`,
+    mixed: evenWord === "leans"
+      ? `${theirs} unevenly against your hand, but neither way is clear.${tail}`
+      : `${theirs} close to evenly against your hand.${tail}`,
+    behind: `${behindWord} what ${players >= 3 ? "they" : "he"} can hold is better than yours right now.${tail}`,
   };
 };
 
-/** What a given action is actually trying to do, in plain words. */
-export function purposeOf(optionId, standingNow) {
+/**
+ * What a given action is actually trying to do, in plain words.
+ *
+ * `bigger` distinguishes the two sizes. Without it both said "to charge him now
+ * that you're ahead", so the "and what is it for?" half of the question had no
+ * answer that told them apart - and a sizing mistake is a different mistake
+ * from a line mistake, which is why the taxonomy has a leak called "Right idea,
+ * wrong size". The two intents are genuinely different and neither reads as
+ * obviously correct, so naming them does not give the answer away.
+ *
+ * `river` matters because "fold out the ones still live" and "keep his weaker
+ * hands in" describe draws, and on the river nothing is live and nothing is
+ * left to come.
+ */
+export function purposeOf(optionId, standingNow, { bigger = null, river = false, players = 2 } = {}) {
+  const them = players >= 3 ? "them" : "him";
+  const their = players >= 3 ? "their" : "his";
   if (optionId === "check") {
     if (standingNow === "behind") return "keep the pot small and still win sometimes";
     if (standingNow === "mixed") return "keep the pot small with a hand that isn't clearly ahead";
-    return "keep his weaker hands in, and not get raised";
+    return river
+      ? `let ${them} bet a worse hand, and not get raised`
+      : `keep ${their} weaker hands in, and not get raised`;
   }
   if (optionId === "fold") return "stop paying when you're beaten";
-  if (optionId === "call") return "pay to see it, because you beat his bluffs";
+  if (optionId === "call") return `pay to see it, because you beat ${their} bluffs`;
+
   // Bets and raises. "mixed" needs its own line: a hand that is neither clearly
   // ahead nor clearly behind is not bluffing, and calling it one reads as
   // nonsense next to a big overpair.
+  const bluffing = standingNow === "behind";
+  if (bigger === true) {
+    return bluffing ? `make even the strong hands fold` : `charge as much as ${they(players)} will pay`;
+  }
+  if (bigger === false) {
+    return bluffing ? "buy the pot cheaply" : "keep the worse hands in";
+  }
   const raising = optionId.startsWith("raise");
-  if (standingNow === "ahead") return raising ? "charge him now that you're ahead" : "get called by something worse";
-  if (standingNow === "mixed") return "charge the worse hands, and fold out the ones still live";
+  if (standingNow === "ahead") return raising ? `charge ${them} now that you're ahead` : "get called by something worse";
+  if (standingNow === "mixed") return river
+    ? "charge the worse hands that will still call"
+    : "charge the worse hands, and fold out the ones still live";
   return "make a better hand fold";
 }
+
+const they = (players) => (players >= 3 ? "they" : "he");
 
 /**
  * The one portable sentence for this hand.
@@ -131,7 +179,17 @@ function takeawayFor({ facing, bestIsBet, bestId, standingNow, beats, youBeat, t
   // Three-handed the counts run to seven figures - "868,584 of the 979,110
   // ways" is exact and unreadable. The share leads in prose; the exact pair
   // count still appears in the facts block beside it.
-  const share = (x) => `${Math.round((x / total) * 100)}% of the ways they can be dealt`;
+  // Same guard as `pct`: a rounded 0% or 100% asserts a certainty the count
+  // does not have. "Only 0% of the ways beat you" appeared on a hand where some
+  // of them did.
+  const share = (x) => {
+    const exact = (x / total) * 100;
+    const rounded = Math.round(exact);
+    const label = rounded >= 100 && exact < 100 ? "almost 100%"
+      : rounded <= 0 && exact > 0 ? "under 1%"
+      : `${rounded}%`;
+    return `${label} of the ways they can be dealt`;
+  };
   const n = (x) => String(x);
   const ofTotal = `of his ${total}`;
   // Each sentence carries this hand's own count, so a learner doing a hundred
@@ -158,7 +216,10 @@ function takeawayFor({ facing, bestIsBet, bestId, standingNow, beats, youBeat, t
     // The count has to travel with the sentence. A takeaway that states a
     // principle and no numbers is one of six maxims a learner will read a
     // hundred times, which is exactly what these are meant not to be.
-    return `Only ${count} beat you. But a bet still needs a worse hand to call it, and there isn't one. Checking keeps the pot you already have.`;
+    // "There isn't one" was printed above tables listing 202, 328 and 365 worse
+    // hands. There ARE worse hands; they do not call, which is a different and
+    // checkable claim.
+    return `Only ${count} beat you. But the worse hands mostly fold rather than pay, so checking keeps the pot you already have.`;
   }
   if (standingNow === "mixed") {
     return `${count} beat you and you beat the rest. A bet mostly gets called by the better half, so checking is how this hand gets to showdown.`;
@@ -352,11 +413,16 @@ export function reasonFor({ chosen, best, options = [], isCorrect, facing, stand
       const induced = answeredWith(chosen, "bet");
       if (induced >= 0.4) return `Checking lets a bet come to you, which is more than betting collects.`;
       if (standingNow === "behind") return `You still beat the hands ${voice.subj} ${voice.plural ? "miss" : "misses"} with. Checking wins those; betting does not.`;
-      return `A bet needs a worse hand to call it, and there is not one here.`;
+      // There ARE worse hands - the table lists hundreds of them. They do not
+      // CALL, which is a different and checkable claim.
+      return `The worse hands are there, but they fold rather than pay, so a bet wins nothing extra.`;
     }
-    return standingNow === "behind"
-      ? `Checking gives up. A bet is the only way this hand wins.`
-      : `There are worse hands here that would pay you. Checking collects none of it.`;
+    if (standingNow === "behind") {
+      // "The only way this hand wins" was printed three lines above a check
+      // worth +$16, on a hand that is ahead of half the range.
+      return `You are behind most of what ${voice.subj} can have, so checking mostly gives up. A bet can win it instead.`;
+    }
+    return `There are worse hands here that would pay you. Checking collects none of it.`;
   }
 
   // Betting or raising with nobody yet to call.
@@ -744,7 +810,10 @@ export function toLesson(candidate, index) {
   const bestEv = opts[0].ev;
   // Anything within 5% of the pot of the best play is also defensible; poker
   // rarely has one right answer and marking near-ties wrong teaches nothing.
-  const tolerance = Math.max(1, candidate.potRaw * 0.05);
+  // Matches the generator's own floor for "worth teaching". A gap the pipeline
+  // considers too small to build a lesson around must not be big enough to mark
+  // an answer wrong - that shipped a red cross for three dollars in a $54 pot.
+  const tolerance = Math.max(1, candidate.potRaw * 0.08);
   const correctIds = opts.filter((o) => bestEv - o.ev <= tolerance).map((o) => o.id);
 
   const players = candidate.players ?? 2;
@@ -753,9 +822,17 @@ export function toLesson(candidate, index) {
   // Three-handed the count is over the WAYS the two of them can be dealt
   // between them, not over one range, and saying it the heads-up way would be
   // a different and false claim.
+  // Ties were counted and never shown, so the two screens looked like they
+  // disagreed: 254 minus the 14 that beat you is 240, but the next screen said
+  // 237. The missing three were chops. Every reader who did the subtraction
+  // concluded the app contradicted itself.
+  const tieCount = showdown.ties ?? 0;
+  const tiePhrase = tieCount > 0
+    ? ` ${tieCount} more ${tieCount === 1 ? "chops" : "chop"} with you.`
+    : "";
   const countSentence = players >= 3
     ? `One of them has you beaten ${pct(beatsPct)} of the time, counted across every one of the ${showdown.total.toLocaleString("en-US")} ways the two of them can be dealt.`
-    : `${showdown.beats} of his ${showdown.total} hands beat you. That is ${pct(beatsPct)}.`;
+    : `${showdown.beats} of his ${showdown.total} hands beat you. That is ${pct(beatsPct)}.${tiePhrase}`;
   const facts = decidingFacts({
     options: opts, best: opts[0], facing: candidate.facingBet, standingNow,
     beats: showdown.beats, youBeat: youBeatCount, total: showdown.total,
@@ -775,13 +852,24 @@ export function toLesson(candidate, index) {
     losesPct: Math.round(100 - (beatsPct ?? 0)),
   };
 
+  // Which of the two sizes is the bigger, so their purposes can differ.
+  const sized = opts
+    .filter((o) => (o.id.startsWith("bet") || o.id.startsWith("raise")) && /\$(\d+)/.test(o.label))
+    .sort((a, b) => Number(/\$(\d+)/.exec(a.label)[1]) - Number(/\$(\d+)/.exec(b.label)[1]));
+  const smallestId = sized.length > 1 ? sized[0].id : null;
+  const biggestId = sized.length > 1 ? sized[sized.length - 1].id : null;
+
   const actionOptions = opts.map((o) => ({
     id: o.id,
     // `candidateActions` already formats the money ("Call $17"). This used to
     // add another dollar sign on top, so every priced option in all 100 hands
     // shipped reading "Call $$17".
     label: o.label,
-    purpose: purposeOf(o.id, standingNow),
+    purpose: purposeOf(o.id, standingNow, {
+      bigger: o.id === biggestId ? true : o.id === smallestId ? false : null,
+      river: candidate.street === "River",
+      players,
+    }),
     ev: o.ev,
   }));
 
@@ -810,13 +898,17 @@ export function toLesson(candidate, index) {
     // repeating it here made the same $4 appear twice, once as a gain and once
     // as a cost. Only the loser's gap is worth a clause, because that is the
     // one number the bars do not state directly.
-    actionWhy[option.id] = isCorrect ? reason : `${reason} Costs about $${delta.toFixed(0)}.`;
+    // "Costs about $31" never said cost compared to what. It is the gap to
+    // the best line, which is the one number the bars below do not state.
+    actionWhy[option.id] = isCorrect
+      ? reason
+      : `${reason} That is about $${delta.toFixed(0)} worse than ${opts[0].label.toLowerCase()}.`;
   }
 
   const readWhy = {};
   for (const option of READ_OPTIONS(candidate.street, players)) {
     readWhy[option.id] = option.id === standingNow
-      ? READ_WHY(candidate.street)[option.id]
+      ? READ_WHY(candidate.street, players, beatsPct)[option.id]
       : `Not quite. ${countSentence}`;
   }
 

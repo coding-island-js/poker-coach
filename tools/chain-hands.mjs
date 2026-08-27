@@ -21,7 +21,7 @@ import { basename } from "node:path";
 import {
   act, getLegalActions, getBotHandContext, decideBotAction, createSeededRng, playOut, finalStack,
   candidateActions, rollout, estimateRange, plausibleRange, showdownVsField,
-  rangeBreakdown, cappedness, bucketOfHolding, livePlayers, playerOf,
+  rangeBreakdown, cappedness, bucketOfHolding, livePlayers, playerOf, rangeIsCredible,
   createBotProfile,
 } from "./lib/engine.mjs";
 import { replaySpot, matchesCandidate } from "./lib/replay.mjs";
@@ -89,7 +89,12 @@ function advanceToHero(game, profiles, heroId, rng) {
 function outcomeOf({ game, profiles, heroId, rng, stackBefore, everyoneFolded, pot }) {
   const finished = getLegalActions(game) === null ? game : playOut(game, profiles, rng);
   const delta = Math.round(finalStack(finished, heroId) - stackBefore);
-  if (everyoneFolded) return `You take the ${money(pot)}.`;
+  // `pot` includes the hero's own bet, so reporting it as the take counts the
+  // hero's money as profit - the exact habit this app exists to break. Report
+  // what actually changed hands.
+  if (everyoneFolded) {
+    return delta > 0 ? `They fold. You win ${money(delta)}.` : "They fold and you take it down.";
+  }
   if (delta > 0) return `It goes to showdown and you win ${money(delta)}.`;
   if (delta < 0) return `It goes to showdown and you lose ${money(Math.abs(delta))}.`;
   return "It goes to showdown and the pot is split.";
@@ -125,8 +130,11 @@ function readsFor({ hand, heroId, board, heroCards, decisionsFor, profiles }) {
     try {
       range = estimateRange({ decisions, profile, board, knownCards: known });
       const modelled = range?.holdings ?? [];
-      const credible = modelled.length >= MIN_CREDIBLE_COMBOS && range?.confident;
-      holdings = credible ? modelled : plausibleRange(board, known);
+      const uniform = plausibleRange(board, known);
+      const credible = modelled.length >= MIN_CREDIBLE_COMBOS
+        && range?.confident
+        && rangeIsCredible({ heroCards, board, modelled, uniform });
+      holdings = credible ? modelled : uniform;
       source = credible ? "modelled" : "heuristic";
     } catch {
       holdings = plausibleRange(board, known);
@@ -148,7 +156,7 @@ function readsFor({ hand, heroId, board, heroCards, decisionsFor, profiles }) {
  * Score the hero's next decision on this branch, and return it as a lesson, or
  * null when there is nothing worth asking about.
  */
-function scoreContinuation({ game, legal, profiles, heroId, decisionsFor, seed, handIndex }) {
+function scoreContinuation({ game, legal, profiles, heroId, decisionsFor, seed, handIndex, historyLabels }) {
   const hand = game.table.currentHand;
   const street = hand.phase;
   const heroCards = playerOf(hand, heroId)?.holeCards ?? [];
@@ -200,7 +208,11 @@ function scoreContinuation({ game, legal, profiles, heroId, decisionsFor, seed, 
   const best = evs[0];
   const tempt = evs[evs.length - 1];
   const gap = best.ev - tempt.ev;
-  if (gap / pot < MIN_GAP_POT) return null;
+  // The runner-up, not the worst option: best-versus-worst can be a wide gap
+  // while the top two are a coin toss, and the learner who picks the
+  // runner-up then gets a cross for three dollars.
+  const margin = best.ev - (evs[1]?.ev ?? best.ev);
+  if (gap / pot < MIN_GAP_POT || margin / pot < MIN_GAP_POT) return null;
   // Spots where every line loses are damage control, not a leak.
   if (best.ev <= 0) return null;
 
@@ -246,12 +258,15 @@ async function main() {
     const { game, legal, profiles, heroId } = spot;
     const pot = spot.heroContext.pot;
     const actions = candidateActions(legal, pot);
-    const labels = new Map(livePlayers(game.table.currentHand)
-      .filter((p) => p.id !== heroId)
-      .map((p) => {
-        const seat = positionName(game.table.currentHand, p.id);
-        return [p.id, lesson.players >= 3 ? `The ${seat.toLowerCase()}` : "He"];
-      }));
+    // Everyone who was still in at the decision, whether or not they are still
+    // in later. Labelling only the survivors deleted the actions of anyone who
+    // folded afterwards, which left histories reading "You check. Opponent
+    // checks. You call $8." - a call with no bet in front of it.
+    const seatedNow = livePlayers(game.table.currentHand).filter((p) => p.id !== heroId);
+    const labels = new Map(seatedNow.map((p) => {
+      const seat = positionName(game.table.currentHand, p.id);
+      return [p.id, seatedNow.length > 1 ? `The ${seat.toLowerCase()}` : "He"];
+    }));
 
     const chain = { branches: {} };
     for (const entry of actions) {
@@ -283,7 +298,13 @@ async function main() {
       const forward = advanceToHero(after, profiles, heroId, rng);
       for (const reply of forward.replies) {
         const log = decisions.get(reply.playerId) ?? [];
-        log.push({ action: reply.action });
+        // The generator records {legal, context, action}; recording only the
+        // action made every one of these invisible to the read model, so the
+        // range never narrowed for anything the opponent did after the
+        // learner's choice. Three branches of one hand - he bets $15, he
+        // raises to $43, he raises to $67 - all produced a character-identical
+        // count of what he could hold.
+        log.push({ legal: reply.legal, context: reply.context, action: reply.action });
         decisions.set(reply.playerId, log);
       }
       const decisionsFor = (id) => [...(spot.decisionsFor(id) ?? []), ...(decisions.get(id) ?? [])];
@@ -315,7 +336,23 @@ async function main() {
       const continuation = scoreContinuation({
         game: forward.game, legal: forward.legal, profiles, heroId, decisionsFor,
         seed: lesson.source.seed, handIndex: lesson.source.handIndex,
+        historyLabels: new Map([[heroId, "You"], ...labels]),
       });
+
+      // A range can only ever NARROW. You can rule hands out as someone acts;
+      // you cannot rule them back in. When the read model gives up mid-hand and
+      // falls back to the wide range, his range "grows" after he bets - which is
+      // a contradiction, not a read. One branch went from 99,344 ways to 893,970.
+      if (continuation && continuation.numbers.total > lesson.numbers.total) {
+        skip("continuation range grew after he acted");
+        chain.branches[entry.id] = {
+          kind: "played-out",
+          outcome: replyLine(forward.replies, labels, false, finalPot, dealt)
+            || `The hand plays on to the ${nextHand.phase}.`,
+        };
+        played += 1;
+        continue;
+      }
 
       if (!continuation) {
         // The hand went on but the next decision is not worth a question. Say

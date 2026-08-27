@@ -106,6 +106,24 @@ for (const hand of [...hands, ...continuationsOf(hands)]) {
     fail(id, "three-handed copy speaks as if there were one opponent");
   }
   if (!hand.history?.length) fail(id, "no hand history");
+  // A history has to be a legal sequence of actions. When a chained hand
+  // dropped the actions of a player who folded later, it left streets reading
+  // "You check. Opponent checks. You call $8." - a call with no bet in front
+  // of it, which is not a thing that can happen at a table.
+  for (const street of hand.history ?? []) {
+    // Preflop the big blind is already a live bet, so a call opens the action
+    // legitimately. Every later street has to have someone bet first.
+    if (/^Preflop/.test(street.street)) continue;
+    let facing = false;
+    for (const sentence of street.actions ?? []) {
+      const bets = /(bets?|raises?|raise|bet|moves? all in)/.test(sentence);
+      const calls = /calls?/.test(sentence);
+      if (calls && !facing) {
+        fail(id, `${street.street}: "${sentence}" is a call with nothing to call`);
+      }
+      if (bets) facing = true;
+    }
+  }
 
   // Every question must be answerable and have exactly one defensible target.
   const read = hand.read ?? {};

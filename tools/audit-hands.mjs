@@ -138,7 +138,12 @@ for (const hand of hands) {
   // best EV breaks whenever that EV is negative - a spot where every line loses
   // money is still a spot, and `best * 0.2` goes negative and flags a near-tie.
   const potSize = Number(String(hand.pot).replace(/[^0-9.]/g, "")) || 0;
-  const tolerance = Math.max(1, potSize * 0.05);
+  // MUST match the curator's tolerance, which matches the generator's floor for
+  // "worth teaching". Three components have to agree on one number; when curate
+  // moved to 8% and this stayed at 5%, the audit failed the build on five hands
+  // the curator had deliberately marked as near-ties. Keeping the mismatch
+  // visible here is cheaper than a shared constant nobody reads.
+  const tolerance = Math.max(1, potSize * 0.08);
   for (const id of hand.action.correctIds) {
     const option = options.find((o) => o.id === id);
     if (best - option.ev > tolerance) {
