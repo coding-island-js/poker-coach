@@ -64,12 +64,12 @@ export default async (request) => {
   }
 
   // --- step 2: they came back -------------------------------------------
-  if (url.searchParams.get("error")) return Response.redirect(`${home}/?signin=cancelled`, 302);
+  if (url.searchParams.get("error")) return Response.redirect(`${home}/play?signin=cancelled`, 302);
   if (!stateValid(url.searchParams.get("state"))) {
-    return Response.redirect(`${home}/?signin=badstate`, 302);
+    return Response.redirect(`${home}/play?signin=badstate`, 302);
   }
   const code = url.searchParams.get("code");
-  if (!code) return Response.redirect(`${home}/?signin=nocode`, 302);
+  if (!code) return Response.redirect(`${home}/play?signin=nocode`, 302);
 
   const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST",
@@ -84,10 +84,10 @@ export default async (request) => {
   });
   if (!tokenResponse.ok) {
     console.error("[google] token exchange failed:", await tokenResponse.text());
-    return Response.redirect(`${home}/?signin=failed`, 302);
+    return Response.redirect(`${home}/play?signin=failed`, 302);
   }
   const { id_token: idToken } = await tokenResponse.json();
-  if (!idToken) return Response.redirect(`${home}/?signin=failed`, 302);
+  if (!idToken) return Response.redirect(`${home}/play?signin=failed`, 302);
 
   // Google just minted this over TLS in a direct server-to-server call, so the
   // payload is read rather than re-verified against Google's JWKS.
@@ -95,10 +95,10 @@ export default async (request) => {
   try {
     claims = JSON.parse(Buffer.from(idToken.split(".")[1], "base64url").toString("utf8"));
   } catch {
-    return Response.redirect(`${home}/?signin=failed`, 302);
+    return Response.redirect(`${home}/play?signin=failed`, 302);
   }
   if (!claims.email || claims.email_verified === false || claims.aud !== CLIENT_ID) {
-    return Response.redirect(`${home}/?signin=failed`, 302);
+    return Response.redirect(`${home}/play?signin=failed`, 302);
   }
 
   const user = await upsertUser({
@@ -110,7 +110,7 @@ export default async (request) => {
 
   return new Response(null, {
     status: 302,
-    headers: { location: `${home}/?signin=ok`, "set-cookie": cookieHeader(sessionId) },
+    headers: { location: `${home}/play?signin=ok`, "set-cookie": cookieHeader(sessionId) },
   });
 };
 

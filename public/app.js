@@ -720,6 +720,8 @@ document.getElementById("nav-account")?.addEventListener("click", () => {
 function signinNotice() {
   const status = new URL(window.location.href).searchParams.get("signin");
   if (!status) return null;
+  // Keep the path - the trainer lives at /play now, and rewriting to "/" would
+  // bounce a freshly signed-in learner onto the landing page.
   window.history.replaceState({}, "", window.location.pathname);
   const messages = {
     ok: "You're signed in. Your progress will sync from now on.",

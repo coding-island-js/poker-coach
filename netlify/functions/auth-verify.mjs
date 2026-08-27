@@ -1,4 +1,4 @@
-// GET /api/auth/verify?token=... -> spends the token, starts a session, redirects home.
+// GET /api/auth/verify?token=... -> spends the token, starts a session, redirects to the trainer.
 import { consumeLoginToken, cookieHeader, startSession, upsertUser, siteOrigin } from "./_lib/auth.mjs";
 
 export default async (request) => {
@@ -7,7 +7,7 @@ export default async (request) => {
 
   const email = await consumeLoginToken(token);
   if (!email) {
-    return Response.redirect(`${home}/?signin=expired`, 302);
+    return Response.redirect(`${home}/play?signin=expired`, 302);
   }
 
   const user = await upsertUser({ email });
@@ -15,7 +15,7 @@ export default async (request) => {
 
   return new Response(null, {
     status: 302,
-    headers: { location: `${home}/?signin=ok`, "set-cookie": cookieHeader(sessionId) },
+    headers: { location: `${home}/play?signin=ok`, "set-cookie": cookieHeader(sessionId) },
   });
 };
 
