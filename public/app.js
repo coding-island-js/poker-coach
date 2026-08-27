@@ -70,6 +70,16 @@ const scrollTop = () => window.requestAnimationFrame(() => window.scrollTo({ top
 
 const currentHand = () => content.hands[view.handIndex] ?? content.hands[0];
 
+/**
+ * The identity of the hand being worked, stable across content rebuilds.
+ *
+ * Both decisions of a chained hand share it, because they are one hand.
+ */
+const stableId = () => {
+  const hand = currentHand();
+  return hand.sourceId ?? hand.id;
+};
+
 /** The branch the learner's turn action led to, if this hand has one. */
 const branchOf = (hand) => (view.branch ? hand.chain?.branches?.[view.branch] ?? null : null);
 
@@ -274,15 +284,17 @@ function actionStep(hand) {
           },
         })))));
 
-  // Confidence is asked once the answer is in but before it is graded, so it
-  // records what the learner actually believed rather than how they felt after
-  // being told.
+  // Confidence is asked once the answer is in but BEFORE it is graded, because
+  // asking afterwards records how you felt about being told, which is worthless.
+  // It has to interrupt to mean anything - so it is one small line rather than a
+  // panel with a heading, and it can be skipped in one tap.
   if (chosen && view.confidence === null) {
-    wrap.append(el("div", { class: "feedback", id: "fb" },
-      el("div", { class: "verdict" }, "Before the answer — how sure are you?"),
-      el("div", { class: "confidence" },
-        [["guessing", "Guessing"], ["fairly", "Fairly sure"], ["very", "Very sure"]].map(([id, label]) =>
-          el("button", { class: "ghost", onclick: () => { view.confidence = id; record(hand); render(); scrollToFeedback(); } }, label)))));
+    const pick = (id) => { view.confidence = id; record(hand); render(); scrollToFeedback(); };
+    wrap.append(el("div", { class: "sure", id: "fb" },
+      el("span", { class: "sure-q" }, "How sure?"),
+      [["guessing", "Guessing"], ["fairly", "Fairly"], ["very", "Very"]].map(([id, label]) =>
+        el("button", { class: "chip", onclick: () => pick(id) }, label)),
+      el("button", { class: "chip skip", onclick: () => pick("skipped") }, "Skip")));
   }
 
   if (locked) wrap.append(resultEl(hand, right));
@@ -385,17 +397,22 @@ function record(hand) {
   profile.attempts.push({
     // Stable id so uploading the same attempt twice cannot double-count it.
     id: (crypto.randomUUID?.() ?? `${hand.id}-${Date.now()}-${Math.round(performance.now())}`),
-    // Both decisions of a chained hand record against the SAME hand id: the
-    // progress screen counts distinct hand ids for "N of 100 hands seen", and
-    // giving the river its own id would make that read 135 of 100.
-    handId: hand.chainId ?? hand.id,
+    // Both decisions of a chained hand record against the SAME hand, and that
+    // hand is identified by where it came FROM, not by where it sits in the
+    // shipped hundred. "h042" means "the 42nd hand curated this run", so every
+    // regeneration reassigned it to a different hand and a learner's history
+    // started pointing at hands that no longer exist. `sourceId` is derived from
+    // the deal - same seed, same index, same hand, forever.
+    handId: stableId(),
     step: view.chainStep,
     leak: hand.leak,
     read: view.answers.read,
     readOk: view.answers.read === hand.read.correctId,
     action: view.answers.action,
     actionOk: hand.action.correctIds.includes(view.answers.action),
-    confidence: view.confidence,
+    // "skipped" is not a confidence level - it is the absence of one, and the
+    // server only accepts the three real values.
+    confidence: ["guessing", "fairly", "very"].includes(view.confidence) ? view.confidence : null,
     at: Date.now(),
   });
   profile.lastHand = view.handIndex;
@@ -414,8 +431,32 @@ async function loadAccount() {
     const response = await fetch("/api/me", { credentials: "same-origin" });
     if (!response.ok) return;
     account = await response.json();
-    if (account.signedIn) syncNow();
+    if (account.signedIn) { syncNow(); resumeFromAccount(); }
   } catch { /* stay anonymous */ }
+}
+
+/**
+ * Move to the first hand this account has not worked.
+ *
+ * Progress used to live only in localStorage, so signing in on another device
+ * started at hand one even though the server knew exactly which hands had been
+ * done. Deriving the position from the synced attempts is better than syncing a
+ * position, because it survives the hundred being regenerated: a hand you have
+ * done stays done even when it moves to a different slot.
+ */
+function resumeFromAccount() {
+  const seen = new Set(account.seen ?? []);
+  if (!seen.size || !content) return;
+  const next = content.hands.findIndex((hand) => !seen.has(hand.sourceId ?? hand.id));
+  // Every hand done: leave them where they are rather than dumping them at the
+  // start of a set they have finished.
+  if (next < 0 || next === view.handIndex) return;
+  // Never yank the screen out from under an answer in progress.
+  if (view.answers.read || view.answers.action) return;
+  view.handIndex = next;
+  profile.lastHand = next;
+  save();
+  render();
 }
 
 function syncSoon() {
@@ -624,7 +665,9 @@ fetch("hands.json")
   .then((response) => response.json())
   .then((data) => {
     content = data;
-    // Resume where they left off rather than restarting at hand one.
+    // Resume where they left off rather than restarting at hand one. This is the
+    // browser's own position; once the account answers, `resumeFromAccount`
+    // replaces it with the first hand the ACCOUNT has not done.
     view.handIndex = Math.min(profile.lastHand ?? 0, content.hands.length - 1);
     const notice = signinNotice();
     if (notice) { view.screen = "progress"; view.notice = notice; }

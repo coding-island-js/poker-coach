@@ -131,10 +131,7 @@
         {
           "street": "Preflop",
           "actions": [
-            "1 player fold.",
-            "The lojack calls $3.",
-            "The hijack calls $3.",
-            "The cutoff calls $3.",
+            "4 players fold.",
             "You call $3.",
             "Opponent checks."
           ]
@@ -142,10 +139,7 @@
         {
           "street": "Flop · 5♠ 2♥ 5♦",
           "actions": [
-            "Opponent bets $10.",
-            "The lojack folds.",
-            "The hijack folds.",
-            "The cutoff folds."
+            "Opponent bets $10."
           ]
         }
       ],
@@ -559,20 +553,14 @@
         {
           "street": "Preflop",
           "actions": [
-            "1 player fold.",
-            "The hijack calls $3.",
+            "4 players fold.",
             "You call $3.",
-            "Opponent calls $3.",
-            "The small blind calls $1.",
-            "The big blind checks."
+            "Opponent calls $3."
           ]
         },
         {
           "street": "Flop · 5♥ 6♦ 5♠",
           "actions": [
-            "The small blind checks.",
-            "The big blind checks.",
-            "The hijack checks.",
             "You check.",
             "Opponent checks."
           ]
@@ -580,14 +568,8 @@
         {
           "street": "Turn · 9♣",
           "actions": [
-            "The small blind checks.",
-            "The big blind checks.",
-            "The hijack checks.",
             "You bet $6.",
-            "Opponent raises to $22.",
-            "The small blind folds.",
-            "The big blind folds.",
-            "The hijack folds."
+            "Opponent raises to $22."
           ]
         }
       ],
@@ -797,20 +779,14 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "1 player fold.",
-                    "The hijack calls $3.",
+                    "4 players fold.",
                     "You call $3.",
-                    "Opponent calls $3.",
-                    "The small blind calls $1.",
-                    "The big blind checks."
+                    "Opponent calls $3."
                   ]
                 },
                 {
                   "street": "Flop · 5♥ 6♦ 5♠",
                   "actions": [
-                    "The small blind checks.",
-                    "The big blind checks.",
-                    "The hijack checks.",
                     "You check.",
                     "Opponent checks."
                   ]
@@ -818,14 +794,8 @@
                 {
                   "street": "Turn · 9♣",
                   "actions": [
-                    "The small blind checks.",
-                    "The big blind checks.",
-                    "The hijack checks.",
                     "You bet $6.",
                     "Opponent raises to $22.",
-                    "The small blind folds.",
-                    "The big blind folds.",
-                    "The hijack folds.",
                     "You call $16."
                   ]
                 },
@@ -1047,20 +1017,14 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "1 player fold.",
-                    "The hijack calls $3.",
+                    "4 players fold.",
                     "You call $3.",
-                    "Opponent calls $3.",
-                    "The small blind calls $1.",
-                    "The big blind checks."
+                    "Opponent calls $3."
                   ]
                 },
                 {
                   "street": "Flop · 5♥ 6♦ 5♠",
                   "actions": [
-                    "The small blind checks.",
-                    "The big blind checks.",
-                    "The hijack checks.",
                     "You check.",
                     "Opponent checks."
                   ]
@@ -1068,14 +1032,8 @@
                 {
                   "street": "Turn · 9♣",
                   "actions": [
-                    "The small blind checks.",
-                    "The big blind checks.",
-                    "The hijack checks.",
                     "You bet $6.",
                     "Opponent raises to $22.",
-                    "The small blind folds.",
-                    "The big blind folds.",
-                    "The hijack folds.",
                     "You raise to $88.",
                     "Opponent moves all in to $217."
                   ]
@@ -1263,8 +1221,7 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
-            "The lojack calls $3.",
+            "3 players fold.",
             "The hijack calls $3.",
             "The cutoff calls $3.",
             "You check."
@@ -1274,7 +1231,6 @@
           "street": "Flop · 2♣ 10♦ 8♥",
           "actions": [
             "You check.",
-            "The lojack checks.",
             "The hijack checks.",
             "The cutoff checks."
           ]
@@ -1283,7 +1239,6 @@
           "street": "Turn · 2♠",
           "actions": [
             "You bet $9.",
-            "The lojack folds.",
             "The hijack calls $9.",
             "The cutoff calls $9."
           ]
@@ -2006,18 +1961,14 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
+            "4 players fold.",
             "You call $3.",
-            "Opponent calls $3.",
-            "The small blind calls $1.",
-            "The big blind checks."
+            "Opponent calls $3."
           ]
         },
         {
           "street": "Flop · 5♦ 8♠ 10♠",
           "actions": [
-            "The small blind checks.",
-            "The big blind checks.",
             "You check.",
             "Opponent checks."
           ]
@@ -2025,8 +1976,6 @@
         {
           "street": "Turn · 4♣",
           "actions": [
-            "The small blind checks.",
-            "The big blind checks.",
             "You check.",
             "Opponent checks."
           ]
@@ -2034,12 +1983,8 @@
         {
           "street": "River · J♣",
           "actions": [
-            "The small blind checks.",
-            "The big blind checks.",
             "You bet $6.",
-            "Opponent raises to $20.",
-            "The small blind folds.",
-            "The big blind folds."
+            "Opponent raises to $20."
           ]
         }
       ],
@@ -2426,16 +2371,14 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
+            "4 players fold.",
             "You call $3.",
-            "Opponent calls $3.",
-            "The big blind checks."
+            "Opponent calls $3."
           ]
         },
         {
           "street": "Flop · 9♣ 2♣ K♣",
           "actions": [
-            "The big blind checks.",
             "You check.",
             "Opponent checks."
           ]
@@ -2443,10 +2386,8 @@
         {
           "street": "Turn · 2♥",
           "actions": [
-            "The big blind checks.",
             "You bet $5.",
             "Opponent raises to $18.",
-            "The big blind folds.",
             "You raise to $37.",
             "Opponent calls $19."
           ]
@@ -3624,27 +3565,19 @@
         {
           "street": "Preflop",
           "actions": [
+            "3 players fold.",
             "You call $3.",
-            "The hijack calls $3.",
             "The cutoff calls $3.",
-            "The button calls $3.",
-            "The small blind calls $1.",
-            "The big blind checks."
+            "The button calls $3."
           ]
         },
         {
           "street": "Flop · Q♠ 10♥ 4♣",
           "actions": [
-            "The small blind checks.",
-            "The big blind checks.",
             "You check.",
-            "The hijack checks.",
             "The cutoff checks.",
             "The button bets $8.",
-            "The small blind folds.",
-            "The big blind folds.",
             "You call $8.",
-            "The hijack folds.",
             "The cutoff calls $8."
           ]
         },
@@ -3864,27 +3797,19 @@
                 {
                   "street": "Preflop",
                   "actions": [
+                    "3 players fold.",
                     "You call $3.",
-                    "The hijack calls $3.",
                     "The cutoff calls $3.",
-                    "The button calls $3.",
-                    "The small blind calls $1.",
-                    "The big blind checks."
+                    "The button calls $3."
                   ]
                 },
                 {
                   "street": "Flop · Q♠ 10♥ 4♣",
                   "actions": [
-                    "The small blind checks.",
-                    "The big blind checks.",
                     "You check.",
-                    "The hijack checks.",
                     "The cutoff checks.",
                     "The button bets $8.",
-                    "The small blind folds.",
-                    "The big blind folds.",
                     "You call $8.",
-                    "The hijack folds.",
                     "The cutoff calls $8."
                   ]
                 },
@@ -4072,27 +3997,19 @@
                 {
                   "street": "Preflop",
                   "actions": [
+                    "3 players fold.",
                     "You call $3.",
-                    "The hijack calls $3.",
                     "Opponent calls $3.",
-                    "The button calls $3.",
-                    "The small blind calls $1.",
-                    "The big blind checks."
+                    "The button calls $3."
                   ]
                 },
                 {
                   "street": "Flop · Q♠ 10♥ 4♣",
                   "actions": [
-                    "The small blind checks.",
-                    "The big blind checks.",
                     "You check.",
-                    "The hijack checks.",
                     "Opponent checks.",
                     "The button bets $8.",
-                    "The small blind folds.",
-                    "The big blind folds.",
                     "You call $8.",
-                    "The hijack folds.",
                     "Opponent calls $8."
                   ]
                 },
@@ -4280,27 +4197,19 @@
                 {
                   "street": "Preflop",
                   "actions": [
+                    "3 players fold.",
                     "You call $3.",
-                    "The hijack calls $3.",
                     "Opponent calls $3.",
-                    "The button calls $3.",
-                    "The small blind calls $1.",
-                    "The big blind checks."
+                    "The button calls $3."
                   ]
                 },
                 {
                   "street": "Flop · Q♠ 10♥ 4♣",
                   "actions": [
-                    "The small blind checks.",
-                    "The big blind checks.",
                     "You check.",
-                    "The hijack checks.",
                     "Opponent checks.",
                     "The button bets $8.",
-                    "The small blind folds.",
-                    "The big blind folds.",
                     "You call $8.",
-                    "The hijack folds.",
                     "Opponent calls $8."
                   ]
                 },
@@ -6433,21 +6342,16 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
+            "4 players fold.",
             "Opponent calls $3.",
-            "The button calls $3.",
-            "The small blind calls $1.",
             "You check."
           ]
         },
         {
           "street": "Flop · 8♦ 8♠ 10♥",
           "actions": [
-            "The small blind checks.",
             "You bet $7.",
-            "Opponent raises to $23.",
-            "The button folds.",
-            "The small blind folds."
+            "Opponent raises to $23."
           ]
         }
       ],
@@ -6848,9 +6752,7 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
-            "The cutoff calls $3.",
-            "The button calls $3.",
+            "4 players fold.",
             "You call $1.",
             "Opponent checks."
           ]
@@ -6859,18 +6761,14 @@
           "street": "Flop · 10♥ J♠ 4♣",
           "actions": [
             "You check.",
-            "Opponent checks.",
-            "The cutoff checks.",
-            "The button checks."
+            "Opponent checks."
           ]
         },
         {
           "street": "Turn · K♠",
           "actions": [
             "You bet $7.",
-            "Opponent raises to $22.",
-            "The cutoff folds.",
-            "The button folds."
+            "Opponent raises to $22."
           ]
         }
       ],
@@ -7087,9 +6985,7 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "2 players fold.",
-                    "The cutoff calls $3.",
-                    "The button calls $3.",
+                    "4 players fold.",
                     "You call $1.",
                     "Opponent checks."
                   ]
@@ -7098,9 +6994,7 @@
                   "street": "Flop · 10♥ J♠ 4♣",
                   "actions": [
                     "You check.",
-                    "Opponent checks.",
-                    "The cutoff checks.",
-                    "The button checks."
+                    "Opponent checks."
                   ]
                 },
                 {
@@ -7108,8 +7002,6 @@
                   "actions": [
                     "You bet $7.",
                     "Opponent raises to $22.",
-                    "The cutoff folds.",
-                    "The button folds.",
                     "You raise to $88.",
                     "Opponent raises to $154."
                   ]
@@ -7283,22 +7175,19 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
+            "3 players fold.",
             "Opponent calls $3.",
             "The button calls $3.",
-            "You call $1.",
-            "The big blind checks."
+            "You call $1."
           ]
         },
         {
           "street": "Flop · A♦ 9♣ 6♠",
           "actions": [
             "You check.",
-            "The big blind checks.",
             "Opponent checks.",
             "The button bets $3.",
             "You call $3.",
-            "The big blind folds.",
             "Opponent calls $3."
           ]
         },
@@ -7893,18 +7782,14 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
+            "4 players fold.",
             "You call $3.",
-            "Opponent calls $3.",
-            "The small blind calls $1.",
-            "The big blind checks."
+            "Opponent calls $3."
           ]
         },
         {
           "street": "Flop · 2♣ A♥ 7♥",
           "actions": [
-            "The small blind checks.",
-            "The big blind checks.",
             "You check.",
             "Opponent checks."
           ]
@@ -7912,8 +7797,6 @@
         {
           "street": "Turn · 10♠",
           "actions": [
-            "The small blind checks.",
-            "The big blind checks.",
             "You check.",
             "Opponent checks."
           ]
@@ -7921,12 +7804,8 @@
         {
           "street": "River · 7♦",
           "actions": [
-            "The small blind checks.",
-            "The big blind checks.",
             "You bet $6.",
-            "Opponent raises to $18.",
-            "The small blind folds.",
-            "The big blind folds."
+            "Opponent raises to $18."
           ]
         }
       ],
@@ -8580,11 +8459,8 @@
         {
           "street": "Preflop",
           "actions": [
-            "1 player fold.",
-            "The lojack calls $3.",
-            "The hijack calls $3.",
+            "4 players fold.",
             "Opponent calls $3.",
-            "The button calls $3.",
             "You check."
           ]
         },
@@ -8592,10 +8468,7 @@
           "street": "Flop · K♦ 8♦ 8♥",
           "actions": [
             "You bet $10.",
-            "The lojack folds.",
-            "The hijack folds.",
-            "Opponent calls $10.",
-            "The button folds."
+            "Opponent calls $10."
           ]
         },
         {
@@ -9852,19 +9725,16 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
+            "4 players fold.",
             "You call $3.",
-            "Opponent calls $3.",
-            "The big blind checks."
+            "Opponent calls $3."
           ]
         },
         {
           "street": "Flop · 3♥ Q♥ 6♣",
           "actions": [
-            "The big blind checks.",
             "You bet $5.",
             "Opponent raises to $17.",
-            "The big blind folds.",
             "You call $12."
           ]
         },
@@ -10099,9 +9969,8 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
+            "4 players fold.",
             "You raise to $11.",
-            "The cutoff calls $11.",
             "Opponent calls $11."
           ]
         },
@@ -10109,7 +9978,6 @@
           "street": "Flop · 7♠ A♥ 10♥",
           "actions": [
             "You bet $20.",
-            "The cutoff folds.",
             "Opponent calls $20."
           ]
         },
@@ -10343,9 +10211,8 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "3 players fold.",
+                    "4 players fold.",
                     "You raise to $11.",
-                    "The cutoff calls $11.",
                     "Opponent calls $11."
                   ]
                 },
@@ -10353,7 +10220,6 @@
                   "street": "Flop · 7♠ A♥ 10♥",
                   "actions": [
                     "You bet $20.",
-                    "The cutoff folds.",
                     "Opponent calls $20."
                   ]
                 },
@@ -10596,9 +10462,8 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "3 players fold.",
+                    "4 players fold.",
                     "You raise to $11.",
-                    "The cutoff calls $11.",
                     "Opponent calls $11."
                   ]
                 },
@@ -10606,7 +10471,6 @@
                   "street": "Flop · 7♠ A♥ 10♥",
                   "actions": [
                     "You bet $20.",
-                    "The cutoff folds.",
                     "Opponent calls $20."
                   ]
                 },
@@ -11541,12 +11405,10 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
+            "4 players fold.",
             "Opponent calls $3.",
-            "The button calls $3.",
             "You raise to $20.",
-            "Opponent calls $17.",
-            "The button folds."
+            "Opponent calls $17."
           ]
         },
         {
@@ -12011,18 +11873,16 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
+            "3 players fold.",
             "You call $3.",
             "The button calls $3.",
-            "The small blind calls $1.",
-            "The big blind checks."
+            "The small blind calls $1."
           ]
         },
         {
           "street": "Flop · 6♣ 10♣ 10♦",
           "actions": [
-            "The small blind bets $8.",
-            "The big blind folds."
+            "The small blind bets $8."
           ]
         }
       ],
@@ -12235,16 +12095,9 @@
         {
           "street": "Preflop",
           "actions": [
-            "The lojack calls $3.",
-            "The hijack calls $3.",
-            "The cutoff calls $3.",
-            "The button calls $3.",
+            "4 players fold.",
             "You raise to $33.",
             "Opponent raises to $115.",
-            "The lojack folds.",
-            "The hijack folds.",
-            "The cutoff folds.",
-            "The button folds.",
             "You call $82."
           ]
         },
@@ -12430,9 +12283,8 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
+            "4 players fold.",
             "Opponent raises to $13.",
-            "The button calls $13.",
             "You call $10."
           ]
         },
@@ -12440,16 +12292,14 @@
           "street": "Flop · K♥ Q♥ 5♣",
           "actions": [
             "You check.",
-            "Opponent checks.",
-            "The button checks."
+            "Opponent checks."
           ]
         },
         {
           "street": "Turn · 6♣",
           "actions": [
             "You check.",
-            "Opponent bets $25.",
-            "The button folds."
+            "Opponent bets $25."
           ]
         }
       ],
@@ -12645,9 +12495,8 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "3 players fold.",
+                    "4 players fold.",
                     "Opponent raises to $13.",
-                    "The button calls $13.",
                     "You call $10."
                   ]
                 },
@@ -12655,8 +12504,7 @@
                   "street": "Flop · K♥ Q♥ 5♣",
                   "actions": [
                     "You check.",
-                    "Opponent checks.",
-                    "The button checks."
+                    "Opponent checks."
                   ]
                 },
                 {
@@ -12664,7 +12512,6 @@
                   "actions": [
                     "You check.",
                     "Opponent bets $25.",
-                    "The button folds.",
                     "You call $25."
                   ]
                 },
@@ -13527,13 +13374,9 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
-            "The hijack calls $3.",
-            "The cutoff calls $3.",
+            "4 players fold.",
             "You call $1.",
             "Opponent raises to $24.",
-            "The hijack calls $21.",
-            "The cutoff calls $21.",
             "You call $21."
           ]
         },
@@ -13541,27 +13384,21 @@
           "street": "Flop · 5♠ 3♠ 4♥",
           "actions": [
             "You check.",
-            "Opponent checks.",
-            "The hijack checks.",
-            "The cutoff checks."
+            "Opponent checks."
           ]
         },
         {
           "street": "Turn · Q♣",
           "actions": [
             "You check.",
-            "Opponent checks.",
-            "The hijack checks.",
-            "The cutoff checks."
+            "Opponent checks."
           ]
         },
         {
           "street": "River · 10♠",
           "actions": [
             "You check.",
-            "Opponent bets $33.",
-            "The hijack folds.",
-            "The cutoff folds."
+            "Opponent bets $33."
           ]
         }
       ],
@@ -13990,19 +13827,16 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
+            "4 players fold.",
             "You call $3.",
-            "Opponent calls $3.",
-            "The big blind checks."
+            "Opponent calls $3."
           ]
         },
         {
           "street": "Flop · 9♥ Q♠ J♣",
           "actions": [
-            "The big blind checks.",
             "You check.",
             "Opponent bets $5.",
-            "The big blind folds.",
             "You call $5."
           ]
         },
@@ -15050,11 +14884,9 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
-            "The lojack calls $3.",
+            "4 players fold.",
             "Opponent calls $3.",
             "You raise to $21.",
-            "The lojack folds.",
             "Opponent calls $18."
           ]
         },
@@ -15281,11 +15113,9 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "3 players fold.",
-                    "The lojack calls $3.",
+                    "4 players fold.",
                     "Opponent calls $3.",
                     "You raise to $21.",
-                    "The lojack folds.",
                     "Opponent calls $18."
                   ]
                 },
@@ -15521,11 +15351,9 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "3 players fold.",
-                    "The lojack calls $3.",
+                    "4 players fold.",
                     "Opponent calls $3.",
                     "You raise to $21.",
-                    "The lojack folds.",
                     "Opponent calls $18."
                   ]
                 },
@@ -16001,11 +15829,9 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
-            "The lojack calls $3.",
+            "4 players fold.",
             "You raise to $19.",
-            "Opponent calls $19.",
-            "The lojack folds."
+            "Opponent calls $19."
           ]
         },
         {
@@ -16232,22 +16058,16 @@
         {
           "street": "Preflop",
           "actions": [
-            "1 player fold.",
-            "The lojack calls $3.",
+            "4 players fold.",
             "Opponent calls $3.",
-            "The button calls $3.",
-            "You call $1.",
-            "The big blind checks."
+            "You call $1."
           ]
         },
         {
           "street": "Flop · 10♦ J♦ 10♣",
           "actions": [
             "You bet $9.",
-            "The big blind folds.",
-            "The lojack folds.",
-            "Opponent calls $9.",
-            "The button folds."
+            "Opponent calls $9."
           ]
         },
         {
@@ -16465,22 +16285,16 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "1 player fold.",
-                    "The lojack calls $3.",
+                    "4 players fold.",
                     "Opponent calls $3.",
-                    "The button calls $3.",
-                    "You call $1.",
-                    "The big blind checks."
+                    "You call $1."
                   ]
                 },
                 {
                   "street": "Flop · 10♦ J♦ 10♣",
                   "actions": [
                     "You bet $9.",
-                    "The big blind folds.",
-                    "The lojack folds.",
-                    "Opponent calls $9.",
-                    "The button folds."
+                    "Opponent calls $9."
                   ]
                 },
                 {
@@ -16709,22 +16523,16 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "1 player fold.",
-                    "The lojack calls $3.",
+                    "4 players fold.",
                     "Opponent calls $3.",
-                    "The button calls $3.",
-                    "You call $1.",
-                    "The big blind checks."
+                    "You call $1."
                   ]
                 },
                 {
                   "street": "Flop · 10♦ J♦ 10♣",
                   "actions": [
                     "You bet $9.",
-                    "The big blind folds.",
-                    "The lojack folds.",
-                    "Opponent calls $9.",
-                    "The button folds."
+                    "Opponent calls $9."
                   ]
                 },
                 {
@@ -16951,22 +16759,16 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "1 player fold.",
-                    "The lojack calls $3.",
+                    "4 players fold.",
                     "Opponent calls $3.",
-                    "The button calls $3.",
-                    "You call $1.",
-                    "The big blind checks."
+                    "You call $1."
                   ]
                 },
                 {
                   "street": "Flop · 10♦ J♦ 10♣",
                   "actions": [
                     "You bet $9.",
-                    "The big blind folds.",
-                    "The lojack folds.",
-                    "Opponent calls $9.",
-                    "The button folds."
+                    "Opponent calls $9."
                   ]
                 },
                 {
@@ -17618,9 +17420,8 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
+            "4 players fold.",
             "Opponent calls $3.",
-            "The button calls $3.",
             "You check."
           ]
         },
@@ -17629,7 +17430,6 @@
           "actions": [
             "You check.",
             "Opponent bets $5.",
-            "The button folds.",
             "You call $5."
           ]
         },
@@ -17865,22 +17665,16 @@
         {
           "street": "Preflop",
           "actions": [
-            "1 player fold.",
+            "4 players fold.",
             "Opponent calls $3.",
-            "The cutoff calls $3.",
-            "The button calls $3.",
-            "You call $1.",
-            "The big blind checks."
+            "You call $1."
           ]
         },
         {
           "street": "Flop · 10♠ Q♠ Q♥",
           "actions": [
             "You bet $8.",
-            "The big blind folds.",
-            "Opponent calls $8.",
-            "The cutoff folds.",
-            "The button folds."
+            "Opponent calls $8."
           ]
         },
         {
@@ -18120,8 +17914,7 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
-            "The lojack calls $3.",
+            "3 players fold.",
             "You call $3.",
             "The cutoff calls $3.",
             "The big blind checks."
@@ -18131,11 +17924,9 @@
           "street": "Flop · 7♥ 4♣ 2♣",
           "actions": [
             "The big blind checks.",
-            "The lojack checks.",
             "You check.",
             "The cutoff bets $6.",
-            "The big blind calls $6.",
-            "The lojack folds."
+            "The big blind calls $6."
           ]
         }
       ],
@@ -18600,33 +18391,23 @@
         {
           "street": "Preflop",
           "actions": [
-            "1 player fold.",
-            "The lojack calls $3.",
-            "The hijack calls $3.",
+            "4 players fold.",
             "Opponent calls $3.",
-            "The small blind calls $1.",
             "You check."
           ]
         },
         {
           "street": "Flop · A♦ 5♠ 5♥",
           "actions": [
-            "The small blind checks.",
             "You check.",
-            "The lojack checks.",
-            "The hijack checks.",
             "Opponent checks."
           ]
         },
         {
           "street": "Turn · J♥",
           "actions": [
-            "The small blind checks.",
             "You bet $10.",
-            "The lojack folds.",
-            "The hijack folds.",
-            "Opponent raises to $32.",
-            "The small blind folds."
+            "Opponent raises to $32."
           ]
         }
       ],
@@ -18865,33 +18646,23 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "1 player fold.",
-                    "The lojack calls $3.",
-                    "The hijack calls $3.",
+                    "4 players fold.",
                     "Opponent calls $3.",
-                    "The small blind calls $1.",
                     "You check."
                   ]
                 },
                 {
                   "street": "Flop · A♦ 5♠ 5♥",
                   "actions": [
-                    "The small blind checks.",
                     "You check.",
-                    "The lojack checks.",
-                    "The hijack checks.",
                     "Opponent checks."
                   ]
                 },
                 {
                   "street": "Turn · J♥",
                   "actions": [
-                    "The small blind checks.",
                     "You bet $10.",
-                    "The lojack folds.",
-                    "The hijack folds.",
                     "Opponent raises to $32.",
-                    "The small blind folds.",
                     "You call $22."
                   ]
                 },
@@ -19109,33 +18880,23 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "1 player fold.",
-                    "The lojack calls $3.",
-                    "The hijack calls $3.",
+                    "4 players fold.",
                     "Opponent calls $3.",
-                    "The small blind calls $1.",
                     "You check."
                   ]
                 },
                 {
                   "street": "Flop · A♦ 5♠ 5♥",
                   "actions": [
-                    "The small blind checks.",
                     "You check.",
-                    "The lojack checks.",
-                    "The hijack checks.",
                     "Opponent checks."
                   ]
                 },
                 {
                   "street": "Turn · J♥",
                   "actions": [
-                    "The small blind checks.",
                     "You bet $10.",
-                    "The lojack folds.",
-                    "The hijack folds.",
                     "Opponent raises to $32.",
-                    "The small blind folds.",
                     "You raise to $80.",
                     "Opponent moves all in to $175."
                   ]
@@ -19348,33 +19109,23 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "1 player fold.",
-                    "The lojack calls $3.",
-                    "The hijack calls $3.",
+                    "4 players fold.",
                     "Opponent calls $3.",
-                    "The small blind calls $1.",
                     "You check."
                   ]
                 },
                 {
                   "street": "Flop · A♦ 5♠ 5♥",
                   "actions": [
-                    "The small blind checks.",
                     "You check.",
-                    "The lojack checks.",
-                    "The hijack checks.",
                     "Opponent checks."
                   ]
                 },
                 {
                   "street": "Turn · J♥",
                   "actions": [
-                    "The small blind checks.",
                     "You bet $10.",
-                    "The lojack folds.",
-                    "The hijack folds.",
                     "Opponent raises to $32.",
-                    "The small blind folds.",
                     "You raise to $128.",
                     "Opponent moves all in to $175."
                   ]
@@ -19583,32 +19334,24 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
+            "4 players fold.",
             "You call $3.",
-            "The cutoff calls $3.",
-            "Opponent calls $3.",
-            "The big blind checks."
+            "Opponent calls $3."
           ]
         },
         {
           "street": "Flop · J♣ 9♠ 10♠",
           "actions": [
-            "The big blind checks.",
             "You check.",
-            "The cutoff checks.",
             "Opponent checks."
           ]
         },
         {
           "street": "Turn · J♥",
           "actions": [
-            "The big blind checks.",
             "You bet $3.",
-            "The cutoff calls $3.",
             "Opponent raises to $18.",
-            "The big blind folds.",
-            "You call $15.",
-            "The cutoff folds."
+            "You call $15."
           ]
         },
         {
@@ -20265,30 +20008,25 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
+            "3 players fold.",
             "Opponent calls $3.",
             "The hijack calls $3.",
-            "You call $3.",
-            "The big blind checks."
+            "You call $3."
           ]
         },
         {
           "street": "Flop · 10♣ 10♦ 3♦",
           "actions": [
-            "The big blind checks.",
             "Opponent checks.",
-            "The hijack checks.",
             "You check."
           ]
         },
         {
           "street": "Turn · K♣",
           "actions": [
-            "The big blind checks.",
             "Opponent checks.",
             "The hijack bets $8.",
             "You call $8.",
-            "The big blind folds.",
             "Opponent calls $8."
           ]
         },
@@ -20768,23 +20506,16 @@
         {
           "street": "Preflop",
           "actions": [
-            "The lojack calls $3.",
+            "4 players fold.",
             "Opponent calls $3.",
-            "The cutoff calls $3.",
-            "The button calls $3.",
-            "You call $1.",
-            "The big blind checks."
+            "You call $1."
           ]
         },
         {
           "street": "Flop · 3♦ J♦ K♦",
           "actions": [
             "You bet $11.",
-            "The big blind folds.",
-            "The lojack folds.",
-            "Opponent calls $11.",
-            "The cutoff folds.",
-            "The button folds."
+            "Opponent calls $11."
           ]
         },
         {
@@ -21227,24 +20958,16 @@
         {
           "street": "Preflop",
           "actions": [
-            "1 player fold.",
+            "4 players fold.",
             "You call $3.",
-            "The hijack calls $3.",
-            "Opponent calls $3.",
-            "The small blind calls $1.",
-            "The big blind checks."
+            "Opponent calls $3."
           ]
         },
         {
           "street": "Flop · 4♠ J♠ 2♣",
           "actions": [
-            "The small blind checks.",
-            "The big blind checks.",
             "You bet $8.",
-            "The hijack folds.",
-            "Opponent calls $8.",
-            "The small blind folds.",
-            "The big blind folds."
+            "Opponent calls $8."
           ]
         },
         {
@@ -21481,24 +21204,16 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "1 player fold.",
+                    "4 players fold.",
                     "You call $3.",
-                    "The hijack calls $3.",
-                    "Opponent calls $3.",
-                    "The small blind calls $1.",
-                    "The big blind checks."
+                    "Opponent calls $3."
                   ]
                 },
                 {
                   "street": "Flop · 4♠ J♠ 2♣",
                   "actions": [
-                    "The small blind checks.",
-                    "The big blind checks.",
                     "You bet $8.",
-                    "The hijack folds.",
-                    "Opponent calls $8.",
-                    "The small blind folds.",
-                    "The big blind folds."
+                    "Opponent calls $8."
                   ]
                 },
                 {
@@ -21725,24 +21440,16 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "1 player fold.",
+                    "4 players fold.",
                     "You call $3.",
-                    "The hijack calls $3.",
-                    "Opponent calls $3.",
-                    "The small blind calls $1.",
-                    "The big blind checks."
+                    "Opponent calls $3."
                   ]
                 },
                 {
                   "street": "Flop · 4♠ J♠ 2♣",
                   "actions": [
-                    "The small blind checks.",
-                    "The big blind checks.",
                     "You bet $8.",
-                    "The hijack folds.",
-                    "Opponent calls $8.",
-                    "The small blind folds.",
-                    "The big blind folds."
+                    "Opponent calls $8."
                   ]
                 },
                 {
@@ -22730,18 +22437,16 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
+            "3 players fold.",
             "The hijack calls $3.",
             "The button calls $3.",
-            "You call $1.",
-            "The big blind checks."
+            "You call $1."
           ]
         },
         {
           "street": "Flop · 9♣ 10♣ 8♦",
           "actions": [
             "You bet $7.",
-            "The big blind folds.",
             "The hijack calls $7.",
             "The button calls $7."
           ]
@@ -23003,18 +22708,16 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "2 players fold.",
+                    "3 players fold.",
                     "The hijack calls $3.",
                     "The button calls $3.",
-                    "You call $1.",
-                    "The big blind checks."
+                    "You call $1."
                   ]
                 },
                 {
                   "street": "Flop · 9♣ 10♣ 8♦",
                   "actions": [
                     "You bet $7.",
-                    "The big blind folds.",
                     "The hijack calls $7.",
                     "The button calls $7."
                   ]
@@ -23288,18 +22991,16 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "2 players fold.",
+                    "3 players fold.",
                     "The hijack calls $3.",
                     "The button calls $3.",
-                    "You call $1.",
-                    "The big blind checks."
+                    "You call $1."
                   ]
                 },
                 {
                   "street": "Flop · 9♣ 10♣ 8♦",
                   "actions": [
                     "You bet $7.",
-                    "The big blind folds.",
                     "The hijack calls $7.",
                     "The button calls $7."
                   ]
@@ -23530,19 +23231,15 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "2 players fold.",
-                    "The hijack calls $3.",
+                    "4 players fold.",
                     "Opponent calls $3.",
-                    "You call $1.",
-                    "The big blind checks."
+                    "You call $1."
                   ]
                 },
                 {
                   "street": "Flop · 9♣ 10♣ 8♦",
                   "actions": [
                     "You bet $7.",
-                    "The big blind folds.",
-                    "The hijack calls $7.",
                     "Opponent calls $7."
                   ]
                 },
@@ -23550,7 +23247,6 @@
                   "street": "Turn · 9♥",
                   "actions": [
                     "You bet $25.",
-                    "The hijack folds.",
                     "Opponent calls $25."
                   ]
                 },
@@ -23756,11 +23452,9 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
-            "The lojack calls $3.",
+            "4 players fold.",
             "You raise to $23.",
-            "Opponent calls $23.",
-            "The lojack folds."
+            "Opponent calls $23."
           ]
         },
         {
@@ -23944,11 +23638,9 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "3 players fold.",
-                    "The lojack calls $3.",
+                    "4 players fold.",
                     "You raise to $23.",
-                    "Opponent calls $23.",
-                    "The lojack folds."
+                    "Opponent calls $23."
                   ]
                 },
                 {
@@ -24141,11 +23833,9 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "3 players fold.",
-                    "The lojack calls $3.",
+                    "4 players fold.",
                     "You raise to $23.",
-                    "Opponent calls $23.",
-                    "The lojack folds."
+                    "Opponent calls $23."
                   ]
                 },
                 {
@@ -24381,11 +24071,9 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
-            "The lojack calls $3.",
+            "4 players fold.",
             "You raise to $24.",
-            "Opponent calls $24.",
-            "The lojack folds."
+            "Opponent calls $24."
           ]
         },
         {
@@ -24871,30 +24559,23 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
+            "4 players fold.",
             "You call $3.",
-            "Opponent calls $3.",
-            "The button calls $3.",
-            "The big blind checks."
+            "Opponent calls $3."
           ]
         },
         {
           "street": "Flop · J♦ 6♥ K♥",
           "actions": [
-            "The big blind checks.",
             "You check.",
-            "Opponent checks.",
-            "The button checks."
+            "Opponent checks."
           ]
         },
         {
           "street": "Turn · 6♣",
           "actions": [
-            "The big blind checks.",
             "You bet $6.",
             "Opponent raises to $19.",
-            "The button folds.",
-            "The big blind folds.",
             "You call $13."
           ]
         },
@@ -25149,18 +24830,16 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
+            "3 players fold.",
             "You call $3.",
             "The button calls $3.",
-            "The small blind calls $1.",
-            "The big blind checks."
+            "The small blind calls $1."
           ]
         },
         {
           "street": "Flop · J♥ Q♣ K♠",
           "actions": [
-            "The small blind bets $7.",
-            "The big blind folds."
+            "The small blind bets $7."
           ]
         }
       ],
@@ -25584,7 +25263,6 @@
           "street": "Flop · 8♦ 10♦ 10♣",
           "actions": [
             "Opponent checks.",
-            "The lojack checks.",
             "You check."
           ]
         },
@@ -25809,7 +25487,6 @@
                   "street": "Flop · 8♦ 10♦ 10♣",
                   "actions": [
                     "Opponent checks.",
-                    "The lojack checks.",
                     "You check."
                   ]
                 },
@@ -26042,7 +25719,6 @@
                   "street": "Flop · 8♦ 10♦ 10♣",
                   "actions": [
                     "Opponent checks.",
-                    "The lojack checks.",
                     "You check."
                   ]
                 },
@@ -26269,7 +25945,6 @@
                   "street": "Flop · 8♦ 10♦ 10♣",
                   "actions": [
                     "Opponent checks.",
-                    "The lojack checks.",
                     "You check."
                   ]
                 },
@@ -26753,14 +26428,12 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
+            "3 players fold.",
             "The hijack calls $3.",
             "The button calls $3.",
-            "The small blind calls $1.",
             "You raise to $20.",
             "The hijack calls $17.",
-            "The button calls $17.",
-            "The small blind folds."
+            "The button calls $17."
           ]
         },
         {
@@ -27160,18 +26833,16 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
+            "3 players fold.",
             "You call $3.",
             "Opponent calls $3.",
-            "The small blind calls $1.",
-            "The big blind checks."
+            "The small blind calls $1."
           ]
         },
         {
           "street": "Flop · 2♥ 8♣ K♠",
           "actions": [
             "The small blind bets $7.",
-            "The big blind folds.",
             "You call $7.",
             "Opponent calls $7."
           ]
@@ -27179,7 +26850,6 @@
         {
           "street": "Turn · 9♣",
           "actions": [
-            "The small blind checks.",
             "You check.",
             "Opponent checks."
           ]
@@ -27187,7 +26857,6 @@
         {
           "street": "River · 5♠",
           "actions": [
-            "The small blind checks.",
             "You check.",
             "Opponent bets $20.",
             "The small blind folds."
@@ -27668,11 +27337,9 @@
         {
           "street": "Preflop",
           "actions": [
-            "1 player fold.",
+            "3 players fold.",
             "The lojack calls $3.",
             "The hijack calls $3.",
-            "The cutoff calls $3.",
-            "The button calls $3.",
             "You check."
           ]
         },
@@ -27681,9 +27348,7 @@
           "actions": [
             "You bet $10.",
             "The lojack calls $10.",
-            "The hijack calls $10.",
-            "The cutoff folds.",
-            "The button folds."
+            "The hijack calls $10."
           ]
         },
         {
@@ -29276,24 +28941,18 @@
         {
           "street": "Preflop",
           "actions": [
-            "1 player fold.",
-            "The lojack calls $3.",
+            "3 players fold.",
             "You call $3.",
             "The cutoff calls $3.",
-            "The button calls $3.",
-            "The big blind checks."
+            "The button calls $3."
           ]
         },
         {
           "street": "Flop · 7♥ K♥ 5♥",
           "actions": [
-            "The big blind checks.",
-            "The lojack checks.",
             "You check.",
             "The cutoff checks.",
             "The button bets $8.",
-            "The big blind folds.",
-            "The lojack folds.",
             "You call $8.",
             "The cutoff calls $8."
           ]
@@ -29577,24 +29236,18 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "1 player fold.",
-                    "The lojack calls $3.",
+                    "3 players fold.",
                     "You call $3.",
                     "The cutoff calls $3.",
-                    "The button calls $3.",
-                    "The big blind checks."
+                    "The button calls $3."
                   ]
                 },
                 {
                   "street": "Flop · 7♥ K♥ 5♥",
                   "actions": [
-                    "The big blind checks.",
-                    "The lojack checks.",
                     "You check.",
                     "The cutoff checks.",
                     "The button bets $8.",
-                    "The big blind folds.",
-                    "The lojack folds.",
                     "You call $8.",
                     "The cutoff calls $8."
                   ]
@@ -29889,24 +29542,18 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "1 player fold.",
-                    "The lojack calls $3.",
+                    "3 players fold.",
                     "You call $3.",
                     "The cutoff calls $3.",
-                    "The button calls $3.",
-                    "The big blind checks."
+                    "The button calls $3."
                   ]
                 },
                 {
                   "street": "Flop · 7♥ K♥ 5♥",
                   "actions": [
-                    "The big blind checks.",
-                    "The lojack checks.",
                     "You check.",
                     "The cutoff checks.",
                     "The button bets $8.",
-                    "The big blind folds.",
-                    "The lojack folds.",
                     "You call $8.",
                     "The cutoff calls $8."
                   ]
@@ -30200,24 +29847,18 @@
                 {
                   "street": "Preflop",
                   "actions": [
-                    "1 player fold.",
-                    "The lojack calls $3.",
+                    "3 players fold.",
                     "You call $3.",
                     "The cutoff calls $3.",
-                    "The button calls $3.",
-                    "The big blind checks."
+                    "The button calls $3."
                   ]
                 },
                 {
                   "street": "Flop · 7♥ K♥ 5♥",
                   "actions": [
-                    "The big blind checks.",
-                    "The lojack checks.",
                     "You check.",
                     "The cutoff checks.",
                     "The button bets $8.",
-                    "The big blind folds.",
-                    "The lojack folds.",
                     "You call $8.",
                     "The cutoff calls $8."
                   ]
@@ -30475,16 +30116,14 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
+            "4 players fold.",
             "You raise to $10.",
-            "Opponent calls $10.",
-            "The big blind calls $7."
+            "Opponent calls $10."
           ]
         },
         {
           "street": "Flop · 4♦ 2♥ 8♦",
           "actions": [
-            "The big blind checks.",
             "You check.",
             "Opponent checks."
           ]
@@ -30492,10 +30131,8 @@
         {
           "street": "Turn · 5♥",
           "actions": [
-            "The big blind checks.",
             "You check.",
             "Opponent bets $11.",
-            "The big blind folds.",
             "You call $11."
           ]
         },
@@ -30940,19 +30577,15 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
-            "The hijack calls $3.",
+            "4 players fold.",
             "Opponent calls $3.",
-            "You call $1.",
-            "The big blind checks."
+            "You call $1."
           ]
         },
         {
           "street": "Flop · 3♦ J♥ J♣",
           "actions": [
             "You bet $6.",
-            "The big blind folds.",
-            "The hijack folds.",
             "Opponent raises to $18.",
             "You call $12."
           ]
@@ -31614,17 +31247,15 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
+            "4 players fold.",
             "Opponent calls $3.",
-            "You call $1.",
-            "The big blind checks."
+            "You call $1."
           ]
         },
         {
           "street": "Flop · Q♣ Q♦ J♠",
           "actions": [
             "You check.",
-            "The big blind checks.",
             "Opponent checks."
           ]
         },
@@ -31632,7 +31263,6 @@
           "street": "Turn · 7♦",
           "actions": [
             "You bet $5.",
-            "The big blind folds.",
             "Opponent raises to $16.",
             "You call $11."
           ]
@@ -31818,19 +31448,16 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
+            "4 players fold.",
             "Opponent calls $3.",
-            "The small blind calls $1.",
             "You check."
           ]
         },
         {
           "street": "Flop · 5♦ J♦ 5♣",
           "actions": [
-            "The small blind checks.",
             "You bet $3.",
-            "Opponent raises to $12.",
-            "The small blind folds."
+            "Opponent raises to $12."
           ]
         }
       ],
@@ -32273,9 +31900,7 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
-            "The lojack calls $3.",
-            "The hijack calls $3.",
+            "4 players fold.",
             "You call $3.",
             "Opponent checks."
           ]
@@ -32284,8 +31909,6 @@
           "street": "Flop · Q♣ J♦ A♥",
           "actions": [
             "Opponent checks.",
-            "The lojack checks.",
-            "The hijack checks.",
             "You check."
           ]
         },
@@ -32293,12 +31916,8 @@
           "street": "Turn · 8♥",
           "actions": [
             "Opponent checks.",
-            "The lojack checks.",
-            "The hijack checks.",
             "You bet $6.",
-            "Opponent raises to $19.",
-            "The lojack folds.",
-            "The hijack folds."
+            "Opponent raises to $19."
           ]
         }
       ],
@@ -33182,38 +32801,31 @@
         {
           "street": "Preflop",
           "actions": [
-            "2 players fold.",
-            "The lojack calls $3.",
+            "4 players fold.",
             "Opponent calls $3.",
-            "The cutoff calls $3.",
             "You raise to $21.",
-            "The lojack folds.",
-            "Opponent calls $18.",
-            "The cutoff calls $18."
+            "Opponent calls $18."
           ]
         },
         {
           "street": "Flop · Q♣ 4♥ K♠",
           "actions": [
             "You check.",
-            "Opponent checks.",
-            "The cutoff checks."
+            "Opponent checks."
           ]
         },
         {
           "street": "Turn · 7♠",
           "actions": [
             "You check.",
-            "Opponent checks.",
-            "The cutoff checks."
+            "Opponent checks."
           ]
         },
         {
           "street": "River · J♥",
           "actions": [
             "You check.",
-            "Opponent bets $37.",
-            "The cutoff folds."
+            "Opponent bets $37."
           ]
         }
       ],
@@ -33622,17 +33234,15 @@
         {
           "street": "Preflop",
           "actions": [
-            "3 players fold.",
+            "4 players fold.",
             "Opponent calls $3.",
-            "You call $1.",
-            "The big blind checks."
+            "You call $1."
           ]
         },
         {
           "street": "Flop · A♥ 10♥ 10♦",
           "actions": [
             "You bet $6.",
-            "The big blind folds.",
             "Opponent calls $6."
           ]
         },

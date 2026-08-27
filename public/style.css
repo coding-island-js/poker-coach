@@ -217,6 +217,17 @@ button { font-family: inherit; }
 .chain-reply { margin: 0 0 6px; font-size: 15px; font-weight: 600; }
 .chain-next .primary { margin-top: 10px; }
 
+/* Confidence, asked before the answer is revealed. One line, not a panel: it
+   has to interrupt to mean anything, but it does not have to shout. */
+.sure { display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-top: 12px; padding: 8px 12px; border: 1px solid var(--line);
+  border-radius: 10px; background: var(--surface); }
+.sure-q { font-size: 13.5px; color: var(--ink-2); margin-right: 2px; }
+.chip { font: inherit; font-size: 13.5px; padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; }
+.chip:hover { border-color: var(--felt); }
+.chip.skip { color: var(--ink-3); margin-left: auto; }
+
 .takeaway {
   border-left: 3px solid var(--felt); background: var(--surface);
   border-radius: 0 10px 10px 0; padding: 12px 14px; margin: 14px 0;

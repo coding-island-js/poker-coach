@@ -274,12 +274,21 @@ export function renderHistory(hand, heroId, labels) {
   // "You check. Opponent checks. You call $8." - a call with no bet in front
   // of it. Players who only ever folded stay collapsed into one line, because
   // naming five seats that folded preflop is noise, not story.
-  const acted = new Set();
+  // Naming everyone who acted fixed the missing-bet bug and produced a wall:
+  // five seats checking and folding before the story starts. Only two kinds of
+  // player earn a name - those still in at the decision, and anyone who PUT
+  // MONEY IN, because that is what built the pot and a call with no bet in
+  // front of it is unreadable. Everyone else collapses into one count.
+  const putMoneyIn = new Set();
   for (const event of hand.events ?? []) {
-    if (event.type === "ACTION" && event.action !== "fold") acted.add(event.playerId);
+    if (event.type !== "ACTION") continue;
+    const name = String(event.action);
+    if (name.includes("bet") || name.includes("raise") || name.includes("all-in")) {
+      putMoneyIn.add(event.playerId);
+    }
   }
   const named = (playerId) => labels.get(playerId)
-    ?? (acted.has(playerId) ? `The ${positionName(hand, playerId).toLowerCase()}` : null);
+    ?? (putMoneyIn.has(playerId) ? `The ${positionName(hand, playerId).toLowerCase()}` : null);
   const conjugate = (id, verb) => {
     // "You raise", "The cutoff raises".
     const you = id === heroId;
@@ -311,6 +320,10 @@ export function renderHistory(hand, heroId, labels) {
       : name.includes("bet") ? ` ${money(event.streetTotal ?? event.paid)}`
       : name === "call" ? ` ${money(event.paid)}`
       : "";
+    // A player who is not in the hand any more is only interesting for the money
+    // they put in and the moment they left. Their checks are noise.
+    const stillIn = labels.has(event.playerId);
+    if (!stillIn && event.action === "check") continue;
     bucket.push(`${who} ${verb}${detail}.`);
   }
   if (foldedOut > 0) {
