@@ -161,6 +161,33 @@ for (const hand of [...hands, ...continuationsOf(hands)]) {
     if (/\$-/.test(why)) fail(id, `feedback for "${option.id}" has a malformed negative amount: "${why}"`);
   }
 
+  // Coaching that contradicts the street it is on. Twenty river lessons said
+  // "you then play every later street second"; there is no later street.
+  const proseAll = [hand.takeaway, ...Object.values(action.why ?? {})].join(" ");
+  if (hand.street === "River" && /later street|still to come|cards to come/.test(proseAll)) {
+    fail(id, "river coaching refers to a later street");
+  }
+  // A purpose may not promise folds the play-outs did not produce.
+  for (const option of action.options ?? []) {
+    const purpose = option.purpose ?? "";
+    // Only purposes that PROMISE folds. One that explicitly says he rarely
+    // folds is the honest version of exactly this fix, and flagging it made the
+    // gate reject its own remedy.
+    const promisesFolds = /(make .*fold|fold out|buy the pot)/.test(purpose)
+      && !/rarely folds|even if he calls|keeps calling/.test(purpose);
+    if (!promisesFolds) continue;
+    const amount = (/\$\d+/.exec(option.label ?? "") ?? [])[0];
+    if (!amount) continue;
+    const fact = (hand.facts ?? []).find((f) => f.label.includes(`folds to ${amount}`));
+    if (fact && Number.parseInt(fact.value, 10) <= 5) {
+      fail(id, `"${option.label}" is sold as folding him out, but he folds ${fact.value}`);
+    }
+  }
+  // A takeaway must not assume which option was chosen.
+  if (/before you check|before you bet|before you call/.test(hand.takeaway ?? "")) {
+    fail(id, `takeaway presumes an action the learner may not have taken: "${hand.takeaway}"`);
+  }
+
   // Rank names built by stripping letters off the plural: aces -> "Ac",
   // nines -> "Nin", fives -> "Fiv", threes -> "Thre".
   for (const [field, text] of [["title", hand.title], ["takeaway", hand.takeaway]]) {

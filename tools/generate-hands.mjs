@@ -370,7 +370,10 @@ export function buildCandidate({
     street: street.charAt(0).toUpperCase() + street.slice(1),
     pot: money(pot),
     potRaw: pot,
-    effective: `${money(heroContext.effectiveStack ?? heroContext.stack)} behind`,
+    // The EFFECTIVE stack - the smaller of the two - not the hero's own. Calling
+    // it "behind" made legal bet sizes above it look impossible: the hero can
+    // hold more than the opponent is able to call.
+    effective: `${money(heroContext.effectiveStack ?? heroContext.stack)} effective`,
     heroPosition: positionName(hand, heroId),
     // Every seat still in, named. Heads-up hands keep `opponentPosition` so
     // nothing downstream has to special-case the commonest shape.
@@ -496,7 +499,7 @@ async function main() {
 
     const pot = heroContext.pot;
     if (pot < (MIN_POT_BB[street] ?? 12) * 3) { drop("pot too small", seated); continue; }
-    const actions = candidateActions(legal, pot);
+    const actions = candidateActions(legal, pot, heroContext.effectiveStack);
     if (actions.length < 2) { drop("fewer than two actions", seated); continue; }
 
     // --- what each opponent's actions actually imply ----------------------

@@ -259,7 +259,7 @@ export function reshuffleUndealt(game, rng) {
  * "different" bets that are both the hero's last $58 are one action wearing two
  * labels, and scoring them separately turns pure rollout noise into an EV gap.
  */
-export function candidateActions(legal, pot) {
+export function candidateActions(legal, pot, effectiveStack = null) {
   const out = [];
   const round = (n) => Math.max(1, Math.round(n));
   if (legal.canCheck) out.push({ id: "check", label: "Check", action: { type: "check" } });
@@ -272,7 +272,15 @@ export function candidateActions(legal, pot) {
       ? [{ id: "raise", mult: 2.5 }, { id: "raise-big", mult: 4 }]
       : [{ id: "bet-small", mult: 0.33 }, { id: "bet-big", mult: 0.75 }];
     const floor = legal.minRaiseTo ?? 1;
-    const ceiling = legal.maxRaiseTo ?? Infinity;
+    // Nothing above the EFFECTIVE stack is a distinct action: the extra chips
+    // cannot be called and come straight back. A hero with $369 against a
+    // villain with $61 was being offered "Bet $98" and "Bet $43" and graded on
+    // a $6.50 difference between them, which is rollout noise wearing the
+    // clothes of a decision.
+    const reachable = Number.isFinite(effectiveStack) && effectiveStack > 0
+      ? Math.min(legal.maxRaiseTo ?? Infinity, (legal.currentBet ?? 0) + effectiveStack)
+      : (legal.maxRaiseTo ?? Infinity);
+    const ceiling = reachable;
 
     for (const size of sizes) {
       const target = facing ? round(legal.currentBet * size.mult) : round(pot * size.mult);

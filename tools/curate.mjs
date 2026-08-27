@@ -51,6 +51,54 @@ export const LEAK_PLAIN = {
   "wrong-price": "This one was about the price you were being offered.",
 };
 
+/**
+ * The mistake, named from the option the learner actually picked.
+ *
+ * The first version read the hand's leak tag, which is derived from the TEMPTING
+ * play rather than the chosen one - so someone who bet $8 when $18 was right was
+ * told "You checked a hand that worse hands would have paid off." They had not
+ * checked. That is the trap this project's own notes warn about: never derive
+ * copy from the leak tag, derive it from the shape of what happened.
+ */
+export function mistakePlain({ chosenId, chosenLabel, bestId, bestLabel, standingNow }) {
+  const isBet = (id) => String(id).startsWith("bet") || String(id).startsWith("raise");
+  const amount = (label) => (/\$\d+/.exec(label ?? "") ?? [""])[0];
+  const size = (label) => {
+    const found = /\$(\d+)/.exec(label ?? "");
+    return found ? Number(found[1]) : null;
+  };
+
+  if (chosenId === "check") {
+    return standingNow === "behind"
+      ? "You checked where a bet would have won it."
+      : "You checked a hand that worse hands would have paid off.";
+  }
+  if (chosenId === "fold") return "You folded a hand that was winning often enough to pay.";
+  if (chosenId === "call") {
+    return isBet(bestId)
+      ? "You called where you were ahead enough to raise."
+      : "You paid a price your hand could not cover.";
+  }
+  if (isBet(bestId)) {
+    const mine = size(chosenLabel);
+    const theirs = size(bestLabel);
+    if (mine !== null && theirs !== null && mine !== theirs) {
+      return mine < theirs
+        ? `Right idea, but ${amount(chosenLabel)} was too small to charge him properly.`
+        : `Right idea, but ${amount(chosenLabel)} was more than the hands you wanted paying you could take.`;
+    }
+    return "Right idea, wrong amount.";
+  }
+  if (bestId === "check") {
+    return standingNow === "behind"
+      ? "You bet a hand that was already winning by checking."
+      : "You bet where only the hands that beat you would call.";
+  }
+  if (bestId === "fold") return "You put money in where the price was never there.";
+  if (bestId === "call") return "You raised where only better hands would continue.";
+  return null;
+}
+
 export const LEAK_LABELS = {
   "missed-value": "Leaving value behind",
   "missed-bluff": "A bluff you didn't make",
@@ -113,9 +161,18 @@ const OPPONENT_CLAUSE = {
  * time. Quoting the read there would compound the problem, so the read is only
  * invoked when the numbers back it up.
  */
-export function readClause(archetype, { paysOff = null, foldsOut = null } = {}) {
+export function readClause(archetype, { paysOff = null, foldsOut = null, want = null } = {}) {
   const clause = OPPONENT_CLAUSE[archetype];
   if (!clause) return null;
+  // The clause has a DIRECTION and so does the sentence it lands in. Without
+  // this it produced "He calls far too much, so betting folds him out often
+  // enough" - a read used to justify the opposite of what it says.
+  if (want === "pays") {
+    return clause.pays && paysOff !== null && paysOff >= 0.5 ? clause.pays : null;
+  }
+  if (want === "folds") {
+    return clause.folds && foldsOut !== null && foldsOut >= 0.5 ? clause.folds : null;
+  }
   if (clause.pays && paysOff !== null && paysOff >= 0.5) return clause.pays;
   if (clause.folds && foldsOut !== null && foldsOut >= 0.5) return clause.folds;
   return null;
@@ -183,7 +240,12 @@ const READ_WHY = (street, players = 2, beatsPct = null) => {
   // "Most" fired at 47%, and "close to evenly" fired at 63/37. Say what the
   // number actually is rather than reaching for a word that overstates it.
   const share = beatsPct === null ? null : Math.round(beatsPct);
-  const behindWord = share !== null && share < 55 ? "Slightly more than half of" : "Most of";
+  // Fired at 47%, which is slightly LESS than half. Say which side of half it
+  // is on, or do not reach for the word at all.
+  const behindWord = share === null ? "Most of"
+    : share < 50 ? "Just under half of"
+    : share < 56 ? "Just over half of"
+    : "Most of";
   const evenWord = share !== null && (share < 35 || share > 65) ? "leans" : "splits close to evenly";
   return {
     ahead: `${who} is mostly behind your hand.${tail}`,
@@ -208,7 +270,7 @@ const READ_WHY = (street, players = 2, beatsPct = null) => {
  * hands in" describe draws, and on the river nothing is live and nothing is
  * left to come.
  */
-export function purposeOf(optionId, standingNow, { bigger = null, river = false, players = 2 } = {}) {
+export function purposeOf(optionId, standingNow, { bigger = null, river = false, players = 2, folds = null } = {}) {
   const them = players >= 3 ? "them" : "him";
   const their = players >= 3 ? "their" : "his";
   if (optionId === "check") {
@@ -225,18 +287,27 @@ export function purposeOf(optionId, standingNow, { bigger = null, river = false,
   // ahead nor clearly behind is not bluffing, and calling it one reads as
   // nonsense next to a big overpair.
   const bluffing = standingNow === "behind";
+  // A purpose that promises folds against someone who folds nothing is worse
+  // than a generic one: "to buy the pot cheaply" appeared thirteen times on
+  // sizes with a measured fold rate of 0%.
+  const foldsEnough = folds === null || folds >= 0.15;
   if (bigger === true) {
-    return bluffing ? `make even the strong hands fold` : `charge as much as ${they(players)} will pay`;
+    if (bluffing) return foldsEnough ? "make even the strong hands fold" : "put maximum pressure on, even if he calls";
+    return `charge as much as ${they(players)} will pay`;
   }
   if (bigger === false) {
-    return bluffing ? "buy the pot cheaply" : "keep the worse hands in";
+    if (bluffing) return foldsEnough ? "buy the pot cheaply" : "risk less against someone who keeps calling";
+    return "keep the worse hands in";
   }
   const raising = optionId.startsWith("raise");
   if (standingNow === "ahead") return raising ? `charge ${them} now that you're ahead` : "get called by something worse";
   if (standingNow === "mixed") return river
     ? "charge the worse hands that will still call"
     : "charge the worse hands, and fold out the ones still live";
-  return "make a better hand fold";
+  // The fallback promised folds too. With only one sized option there is no
+  // bigger/smaller to compare, so this branch was reached with a measured fold
+  // rate of 1% and still sold as folding him out.
+  return foldsEnough ? "make a better hand fold" : "put pressure on, even though he rarely folds";
 }
 
 const they = (players) => (players >= 3 ? "they" : "he");
@@ -282,7 +353,7 @@ function takeawayFor({ facing, bestIsBet, bestId, standingNow, beats, youBeat, t
   if (bestIsBet) {
     return standingNow === "behind"
       ? `${count} beat you. Checking wins none of those. A bet can. Name the better hands that fold.`
-      : `Only ${count} beat you. So name the worse ones that will actually call before you check.`;
+      : `Only ${count} beat you. So before you act, name the worse ones that will actually call.`;
   }
   // Checking was best. All three standings need their own line: telling someone
   // holding a flush that "bluffing into him does not" win describes a hand they
@@ -327,6 +398,17 @@ const takesItDown = (option) => option?.uncontested ?? 0;
 const asPct = (n) => `${Math.round((n ?? 0) * 100)}%`;
 const commas = (n) => Number(n).toLocaleString("en-US");
 const pctOf = (some, all) => (all > 0 ? Math.round((some / all) * 100) : 0);
+
+/** "Bet $18" -> "betting $18", "Raise to $40" -> "raising to $40". */
+function asAction(label) {
+  return String(label)
+    .replace(/^Bet\b/, "betting")
+    .replace(/^Raise\b/, "raising")
+    .replace(/^Call\b/, "calling")
+    .replace(/^Check\b/, "checking")
+    .replace(/^Fold\b/, "folding")
+    .toLowerCase();
+}
 
 const amountOf = (label) => (/\$\d+/.exec(label) ?? ["that much"])[0];
 const numAmount = (label) => {
@@ -462,8 +544,11 @@ export function reasonFor({ chosen, best, options = [], isCorrect, facing, stand
   const yourShare = pctOf(youBeat, total);
   // Named only where the measurement agrees with it, and only where it is what
   // makes the answer what it is.
-  const because = (option) => readClause(archetype, {
-    paysOff: paysYou(option), foldsOut: foldsTo(option),
+  // `want` names which way the sentence runs: "pays" for a value line, "folds"
+  // for a bluff. Asking for the wrong one returns nothing rather than a clause
+  // that argues against the sentence carrying it.
+  const because = (option, want) => readClause(archetype, {
+    paysOff: paysYou(option), foldsOut: foldsTo(option), want,
   });
   const seat = positionClause({ inPosition, street, facing });
 
@@ -517,11 +602,14 @@ export function reasonFor({ chosen, best, options = [], isCorrect, facing, stand
         : `Two players can pay you here, and betting charges both of them.`;
     }
     return standingNow === "behind"
-      ? (because(chosen)
-          ? `${because(chosen)[0].toUpperCase()}${because(chosen).slice(1)}, so betting folds ${voice.obj} out often enough to win pots checking never wins.`
-          : `Betting folds ${voice.obj} out often enough to win pots that checking never wins.`)
-      : (because(chosen)
-          ? `There are worse hands that call this, and ${because(chosen)}. That is who pays you.`
+      ? (() => {
+          const why = because(chosen, "folds");
+          return why
+            ? `${why[0].toUpperCase()}${why.slice(1)}, so betting folds ${voice.obj} out often enough to win pots checking never wins.`
+            : `Betting folds ${voice.obj} out often enough to win pots that checking never wins.`;
+        })()
+      : (because(chosen, "pays")
+          ? `There are worse hands that call this, and ${because(chosen, "pays")}. That is who pays you.`
           : inPosition === false
             ? `There are worse hands that call this. Out of position, betting is how you get paid before he sets the price.`
             : `There are worse hands that call this. That is who pays you.`);
@@ -532,6 +620,11 @@ export function reasonFor({ chosen, best, options = [], isCorrect, facing, stand
   if (raised >= 0.25) {
     // Being raised is worse out of position, because every later street is then
     // decided after him rather than before.
+    // There is no later street on the river, and saying there is on twenty
+    // lessons was the clearest sign the clause was pasted rather than reasoned.
+    if (street === "River") {
+      return `This gets raised too often, and on the river a raise is the whole stack talking. You had a hand that could just be shown down.`;
+    }
     return inPosition === false
       ? `This gets raised too often, and out of position you then play every later street second. It turns a hand you could have shown down into one you must defend.`
       : `This gets raised too often. It turns a hand you could have shown down into one you must defend.`;
@@ -570,8 +663,13 @@ function sizingSentence({ chosen, best, standingNow, voice, multiway }) {
       ? `${bestAmount} folds ${voice.obj} out about as often for less money.`
       : `This is not enough to move ${voice.obj} off the hands that beat you.`;
   }
-  return bigger
-    ? `The worse hands you want paying you fold to this. ${bestAmount} keeps them in.`
+  if (bigger) return `The worse hands you want paying you fold to this. ${bestAmount} keeps them in.`;
+  // "About as often" read oddly on a hand where the bigger bet was called MORE
+  // often - 41% against 38%. Say which way it actually went.
+  const callsMineNow = paysYou(chosen);
+  const callsBestNow = paysYou(best);
+  return callsBestNow > callsMineNow + 0.02
+    ? `${bestAmount} is called even more often than ${amountOf(chosen.label)}, and collects more.`
     : `${bestAmount} is called about as often and collects more.`;
 }
 
@@ -963,6 +1061,9 @@ export function toLesson(candidate, index) {
       bigger: o.id === biggestId ? true : o.id === smallestId ? false : null,
       river: candidate.street === "River",
       players,
+      // The measured fold rate for THIS size, so a purpose cannot promise folds
+      // that never happen.
+      folds: o.answered?.fold ?? null,
     }),
     ev: o.ev,
   }));
@@ -971,6 +1072,7 @@ export function toLesson(candidate, index) {
   // it, so it goes second and in one short clause rather than being the whole
   // sentence the way it used to be.
   const actionWhy = {};
+  const actionPlain = {};
   for (const option of opts) {
     const isCorrect = correctIds.includes(option.id);
     const delta = bestEv - option.ev;
@@ -997,9 +1099,15 @@ export function toLesson(candidate, index) {
     // one number the bars do not state directly.
     // "Costs about $31" never said cost compared to what. It is the gap to
     // the best line, which is the one number the bars below do not state.
+    actionPlain[option.id] = isCorrect ? null : mistakePlain({
+      chosenId: option.id, chosenLabel: option.label,
+      bestId: opts[0].id, bestLabel: opts[0].label,
+      standingNow,
+    });
     actionWhy[option.id] = isCorrect
       ? reason
-      : `${reason} That is about $${delta.toFixed(0)} worse than ${opts[0].label.toLowerCase()}.`;
+      // "worse than bet $18" reads like a robot. Verbs, not option labels.
+      : `${reason} That is about $${delta.toFixed(0)} worse than ${asAction(opts[0].label)}.`;
   }
 
   const readWhy = {};
@@ -1025,7 +1133,6 @@ export function toLesson(candidate, index) {
     },
     leak,
     leakLabel: LEAK_LABELS[leak] ?? leak,
-    leakPlain: LEAK_PLAIN[leak] ?? null,
     title: handTitle(candidate, shape),
     street: candidate.street,
     pot: candidate.pot,
@@ -1074,6 +1181,9 @@ export function toLesson(candidate, index) {
       options: actionOptions,
       correctIds,
       why: actionWhy,
+      // What the mistake is called, per option. Null for the right answers - it
+      // describes an error, so it only exists for one.
+      plain: actionPlain,
     },
 
     // What the count is actually counting. "Hands he can hold" implies his

@@ -366,7 +366,10 @@ function resultEl(hand, right) {
     el("div", { class: "verdict" }, right ? "✓ That line holds up" : `✕ ${best.label} does better here`),
     // What that mistake is called, in words with nothing to look up. Only for
     // someone who made it - it describes the error, not the spot.
-    right || !hand.leakPlain ? null : el("p", { class: "leak-plain" }, hand.leakPlain),
+    // Named from what they actually picked. The hand-level version described
+    // the TEMPTING play, so someone who bet small was told they had checked.
+    right || !hand.action.plain?.[chosen] ? null
+      : el("p", { class: "leak-plain" }, hand.action.plain[chosen]),
     // The numbers that decide the spot, out of the prose and into a small table
     // so the two that matter sit next to each other and can be compared. This
     // replaced a second paragraph that restated the same count in words - when

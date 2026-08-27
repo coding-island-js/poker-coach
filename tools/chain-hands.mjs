@@ -165,7 +165,7 @@ function scoreContinuation({ game, legal, profiles, heroId, decisionsFor, seed, 
   const pot = heroContext.pot;
   if (heroCards.length !== 2 || !board.length || pot <= 0) return null;
 
-  const actions = candidateActions(legal, pot);
+  const actions = candidateActions(legal, pot, heroContext.effectiveStack);
   if (actions.length < 2) return null;
 
   const villainIds = livePlayers(hand).filter((p) => p.id !== heroId).map((p) => p.id);
@@ -259,7 +259,7 @@ async function main() {
 
     const { game, legal, profiles, heroId } = spot;
     const pot = spot.heroContext.pot;
-    const actions = candidateActions(legal, pot);
+    const actions = candidateActions(legal, pot, spot.heroContext.effectiveStack);
     // Everyone who was still in at the decision, whether or not they are still
     // in later. Labelling only the survivors deleted the actions of anyone who
     // folded afterwards, which left histories reading "You check. Opponent
