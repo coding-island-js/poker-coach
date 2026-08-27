@@ -164,8 +164,13 @@ reviewer, not yet verified.
   whether the current clearest-first order feels right
 - A bigger pool so the hundred can be refreshed
 
-## 📦 V3 — closer to real poker
+## 📦 V3 — closer to real poker, plus a view for the owner
 
+- **Owner analytics.** Raj 2026-08-27: "should be analytics for me the product owner included
+  too." Everything needed is already recorded per attempt - which hands get answered, which
+  get abandoned, which leaks people fail, how confidence tracks correctness, where in the
+  hundred they stop. What is missing is a page that shows it. Needs an owner-only route, not
+  the learner's progress screen.
 - Advanced mode: HIDE the opponent read and make the learner infer it from the betting.
   Raj 2026-08-27 wanted this; it is the realistic version of the read.
 - The six seats drawn as a table rather than described in a sentence

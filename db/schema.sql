@@ -76,3 +76,26 @@ select
 from attempts
 where confidence is not null
 group by user_id, confidence;
+
+-- What a person has bought. One row per user, absent means free.
+--
+-- Deliberately its own table rather than a column on `users`: a purchase has a
+-- source (stripe, or granted by hand) and a time, and when Stripe lands it will
+-- want the payment id alongside. Keeping it separate means that is an insert
+-- rather than a migration.
+create table if not exists entitlements (
+  user_id     uuid primary key references users (id) on delete cascade,
+  plan        text not null default 'full',
+  source      text not null default 'granted',   -- 'stripe' | 'granted'
+  reference   text,                              -- Stripe payment id, once there is one
+  granted_at  timestamptz not null default now()
+);
+
+-- The owner's own account, so the app can be tested against the full set
+-- whatever the paywall flag says. Idempotent, and harmless if the account does
+-- not exist yet - it becomes a no-op until that email signs in for the first
+-- time, and can be re-run afterwards.
+insert into entitlements (user_id, plan, source, reference)
+select id, 'full', 'granted', 'owner'
+from users where lower(email) = 'rajanlakhani@gmail.com'
+on conflict (user_id) do nothing;

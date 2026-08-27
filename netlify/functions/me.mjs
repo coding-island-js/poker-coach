@@ -20,7 +20,7 @@ export default async (request) => {
   const user = await currentUser(request);
   if (!user) return json({ signedIn: false, googleEnabled, paywall, paid: false });
 
-  const [leaks, calibration, totals, seen] = await Promise.all([
+  const [leaks, calibration, totals, seen, entitlement] = await Promise.all([
     sql`select leak, attempts, clean, read_missed, action_missed
         from leak_profile where user_id = ${user.id}::uuid`,
     sql`select confidence, answered, correct
@@ -32,15 +32,17 @@ export default async (request) => {
     // resume, so progress follows the ACCOUNT rather than the browser: signing
     // in on a phone used to start you back at hand one.
     sql`select distinct hand_id from attempts where user_id = ${user.id}::uuid`,
+    sql`select plan, source from entitlements where user_id = ${user.id}::uuid`,
   ]);
 
   return json({
     signedIn: true,
     googleEnabled,
     paywall,
-    // No payments yet, so nobody has paid. When Stripe lands this reads from
-    // the purchase record rather than being hardcoded.
-    paid: false,
+    // Read from the purchase record. Stripe will write the same row with
+    // source 'stripe'; a hand-granted one looks identical to the app.
+    paid: entitlement.length > 0,
+    plan: entitlement[0]?.plan ?? "free",
     user: { email: user.email, name: user.display_name },
     totals: totals[0],
     leaks,
