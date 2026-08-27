@@ -102,7 +102,7 @@
       ],
       "facts": [
         {
-          "label": "You win",
+          "label": "You're ahead of",
           "value": "93%",
           "note": "237 of his 254 hands"
         },
@@ -309,7 +309,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "91%",
           "note": "232 of his 254 hands"
         },
@@ -509,7 +509,7 @@
       ],
       "facts": [
         {
-          "label": "You win",
+          "label": "You're ahead of",
           "value": "87%",
           "note": "564 of his 649 hands"
         },
@@ -734,7 +734,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "87%",
                   "note": "536 of his 619 hands"
                 },
@@ -958,7 +958,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "87%",
                   "note": "564 of his 649 hands"
                 },
@@ -1061,7 +1061,7 @@
                 ],
                 "why": {
                   "raise": "You are ahead of most of what he can have, and he still pays a raise.",
-                  "call": "You clear the price, so calling pays. Nothing more is needed.",
+                  "call": "You are ahead far more often than calling needs, so it pays.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $225."
                 }
               },
@@ -1177,12 +1177,12 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
+                  "label": "Calling needs",
                   "value": "13%",
-                  "note": "$47 to win $318"
+                  "note": "$47 into a $318 pot"
                 },
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "87%",
                   "note": "564 of his 649 hands"
                 }
@@ -1269,7 +1269,7 @@
                   "call"
                 ],
                 "why": {
-                  "call": "You clear the price, so calling pays. Nothing more is needed.",
+                  "call": "You are ahead far more often than calling needs, so it pays.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $265."
                 }
               },
@@ -1377,7 +1377,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "63%",
           "note": "9,867 of 15,585 ways"
         },
@@ -1652,7 +1652,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "68%",
           "note": "19,646 of 28,855 ways"
         },
@@ -1853,7 +1853,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "94%",
           "note": "202 of his 214 hands"
         },
@@ -2104,7 +2104,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "95%",
           "note": "28,831 of 30,416 ways"
         },
@@ -2557,7 +2557,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "47%",
           "note": "57 of his 122 hands"
         },
@@ -2771,7 +2771,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "47%",
           "note": "132 of his 281 hands"
         },
@@ -2998,12 +2998,12 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
+                  "label": "Calling needs",
                   "value": "22%",
-                  "note": "$15 to win $54"
+                  "note": "$15 into a $54 pot"
                 },
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "53%",
                   "note": "148 of his 281 hands"
                 }
@@ -3100,7 +3100,7 @@
                   "call"
                 ],
                 "why": {
-                  "call": "You clear the price, so calling pays. Nothing more is needed.",
+                  "call": "You are ahead far more often than calling needs, so it pays.",
                   "raise": "He folds 17% of the time to this, and what calls has you beaten. Costs about $9.",
                   "raise-big": "He folds 18% of the time to this, and what calls has you beaten. Costs about $14.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $16."
@@ -3232,7 +3232,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "53%",
                   "note": "148 of his 281 hands"
                 },
@@ -3469,7 +3469,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "53%",
                   "note": "148 of his 281 hands"
                 },
@@ -3733,7 +3733,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "84%",
           "note": "165,286 of 197,729 ways"
         },
@@ -3964,7 +3964,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "82%",
                   "note": "155,488 of 188,994 ways"
                 },
@@ -4164,7 +4164,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "91%",
                   "note": "198 of his 218 hands"
                 },
@@ -4361,7 +4361,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "91%",
                   "note": "198 of his 218 hands"
                 },
@@ -4599,7 +4599,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "95%",
           "note": "15,983 of 16,761 ways"
         },
@@ -4792,7 +4792,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "100%",
           "note": "452 of his 453 hands"
         },
@@ -4978,7 +4978,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "96%",
                   "note": "414 of his 431 hands"
                 },
@@ -5209,7 +5209,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "96%",
           "note": "325 of his 340 hands"
         },
@@ -5422,7 +5422,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "96%",
                   "note": "325 of his 340 hands"
                 },
@@ -5666,7 +5666,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "91%",
           "note": "136 of his 150 hands"
         },
@@ -5875,7 +5875,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "70%",
           "note": "118 of his 169 hands"
         },
@@ -6117,7 +6117,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You lose",
           "value": "74%",
           "note": "733 of his 990 hands"
         },
@@ -6320,7 +6320,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You lose",
           "value": "49%",
           "note": "64 of his 131 hands"
         },
@@ -6509,7 +6509,7 @@
       ],
       "facts": [
         {
-          "label": "You win",
+          "label": "You're ahead of",
           "value": "91%",
           "note": "120 of his 132 hands"
         },
@@ -6718,7 +6718,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "83%",
           "note": "139 of his 168 hands"
         },
@@ -6932,7 +6932,7 @@
       ],
       "facts": [
         {
-          "label": "You win",
+          "label": "You're ahead of",
           "value": "90%",
           "note": "288 of his 320 hands"
         },
@@ -7157,7 +7157,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "73%",
                   "note": "232 of his 316 hands"
                 },
@@ -7395,7 +7395,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "90%",
                   "note": "288 of his 320 hands"
                 },
@@ -7498,7 +7498,7 @@
                 ],
                 "why": {
                   "raise": "You are ahead of most of what he can have, and he still pays a raise.",
-                  "call": "You clear the price, so calling pays. Nothing more is needed.",
+                  "call": "You are ahead far more often than calling needs, so it pays.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $161."
                 }
               },
@@ -7628,12 +7628,12 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
+                  "label": "Calling needs",
                   "value": "29%",
-                  "note": "$129 to win $320"
+                  "note": "$129 into a $320 pot"
                 },
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "90%",
                   "note": "288 of his 320 hands"
                 }
@@ -7720,7 +7720,7 @@
                   "call"
                 ],
                 "why": {
-                  "call": "You clear the price, so calling pays. Nothing more is needed.",
+                  "call": "You are ahead far more often than calling needs, so it pays.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $220."
                 }
               },
@@ -7807,7 +7807,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You lose",
           "value": "55%",
           "note": "72 of his 130 hands"
         },
@@ -8039,7 +8039,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "61%",
           "note": "131 of his 214 hands"
         },
@@ -8225,7 +8225,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "98%",
           "note": "114 of his 116 hands"
         },
@@ -8443,7 +8443,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "99%",
           "note": "293 of his 296 hands"
         },
@@ -8839,7 +8839,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "57%",
           "note": "57 of his 100 hands"
         },
@@ -9039,7 +9039,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "57%",
           "note": "143 of his 252 hands"
         },
@@ -9256,7 +9256,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "48%",
                   "note": "118 of his 245 hands"
                 },
@@ -9531,7 +9531,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "84%",
           "note": "40,851 of 48,660 ways"
         },
@@ -9802,7 +9802,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "77%",
                   "note": "33,477 of 43,271 ways"
                 },
@@ -10042,7 +10042,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "88%",
                   "note": "308 of his 349 hands"
                 },
@@ -10282,7 +10282,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "88%",
           "note": "233 of his 264 hands"
         },
@@ -10534,7 +10534,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "47%",
           "note": "28,610 of 60,497 ways"
         },
@@ -10770,7 +10770,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "49%",
                   "note": "29,342 of 59,701 ways"
                 },
@@ -11031,7 +11031,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "99%",
           "note": "159 of his 160 hands"
         },
@@ -11272,7 +11272,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "68%",
                   "note": "102 of his 150 hands"
                 },
@@ -11523,7 +11523,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "68%",
                   "note": "102 of his 150 hands"
                 },
@@ -11763,7 +11763,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "73%",
           "note": "328 of his 451 hands"
         },
@@ -11990,7 +11990,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "59%",
                   "note": "250 of his 425 hands"
                 },
@@ -12227,7 +12227,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "59%",
                   "note": "250 of his 425 hands"
                 },
@@ -12495,7 +12495,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "59%",
           "note": "61,801 of 103,877 ways"
         },
@@ -12727,7 +12727,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You lose",
           "value": "85%",
           "note": "845 of his 990 hands"
         },
@@ -12945,7 +12945,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "99%",
           "note": "362 of his 364 hands"
         },
@@ -13197,7 +13197,7 @@
       ],
       "facts": [
         {
-          "label": "You win",
+          "label": "You're ahead of",
           "value": "96%",
           "note": "499,029 of 517,263 ways"
         },
@@ -13419,7 +13419,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "96%",
           "note": "1039 of his 1081 hands"
         },
@@ -13620,7 +13620,7 @@
       ],
       "facts": [
         {
-          "label": "You win",
+          "label": "You're ahead of",
           "value": "93%",
           "note": "178 of his 192 hands"
         },
@@ -13849,7 +13849,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "93%",
                   "note": "178 of his 192 hands"
                 },
@@ -14074,7 +14074,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "93%",
                   "note": "178 of his 192 hands"
                 },
@@ -14277,7 +14277,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "55%",
           "note": "108 of his 196 hands"
         },
@@ -14496,7 +14496,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "73%",
           "note": "75 of his 103 hands"
         },
@@ -14731,7 +14731,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "95%",
           "note": "78,702 of 82,512 ways"
         },
@@ -14950,7 +14950,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "99%",
           "note": "271 of his 274 hands"
         },
@@ -15432,7 +15432,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "58%",
           "note": "134 of his 230 hands"
         },
@@ -15646,7 +15646,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "59%",
           "note": "152 of his 259 hands"
         },
@@ -15874,7 +15874,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "59%",
                   "note": "152 of his 259 hands"
                 },
@@ -15982,7 +15982,7 @@
                 ],
                 "why": {
                   "raise": "You are ahead of most of what he can have, and he still pays a raise.",
-                  "call": "You clear the price, so calling pays. Nothing more is needed.",
+                  "call": "You are ahead far more often than calling needs, so it pays.",
                   "raise-big": "The worse hands you want paying you fold to this. $103 keeps them in. Costs about $14.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $81."
                 }
@@ -16113,7 +16113,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "56%",
                   "note": "135 of his 242 hands"
                 },
@@ -16340,7 +16340,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "81%",
           "note": "318 of his 393 hands"
         },
@@ -16568,7 +16568,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "78%",
                   "note": "296 of his 380 hands"
                 },
@@ -16806,7 +16806,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "78%",
                   "note": "296 of his 380 hands"
                 },
@@ -17044,7 +17044,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "78%",
                   "note": "296 of his 380 hands"
                 },
@@ -17267,7 +17267,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "99%",
           "note": "526 of his 533 hands"
         },
@@ -17512,7 +17512,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "74%",
           "note": "762 of his 1035 hands"
         },
@@ -17753,7 +17753,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "85%",
                   "note": "837 of his 990 hands"
                 },
@@ -17998,7 +17998,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "84%",
           "note": "243 of his 289 hands"
         },
@@ -18225,7 +18225,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "84%",
                   "note": "243 of his 289 hands"
                 },
@@ -18462,7 +18462,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "71%",
                   "note": "194 of his 275 hands"
                 },
@@ -18699,7 +18699,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "84%",
                   "note": "243 of his 289 hands"
                 },
@@ -18935,7 +18935,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "69%",
           "note": "125 of his 182 hands"
         },
@@ -19134,7 +19134,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "68%",
                   "note": "120 of his 177 hands"
                 },
@@ -19343,7 +19343,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "68%",
                   "note": "120 of his 177 hands"
                 },
@@ -19584,7 +19584,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "99%",
           "note": "227 of his 230 hands"
         },
@@ -19813,7 +19813,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You lose",
           "value": "93%",
           "note": "917 of his 990 hands"
         },
@@ -20058,7 +20058,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "61%",
           "note": "600 of his 990 hands"
         },
@@ -20309,7 +20309,7 @@
       ],
       "facts": [
         {
-          "label": "You win",
+          "label": "You're ahead of",
           "value": "76%",
           "note": "65,262 of 86,383 ways"
         },
@@ -20569,7 +20569,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "92%",
           "note": "68,026 of 74,184 ways"
         },
@@ -20757,7 +20757,7 @@
       ],
       "facts": [
         {
-          "label": "You win",
+          "label": "You're ahead of",
           "value": "2%",
           "note": "3 of his 182 hands"
         },
@@ -20968,7 +20968,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "95%",
                   "note": "168 of his 176 hands"
                 },
@@ -21213,7 +21213,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You lose",
           "value": "45%",
           "note": "252 of his 557 hands"
         },
@@ -21445,7 +21445,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "77%",
           "note": "836 of his 1081 hands"
         },
@@ -21659,7 +21659,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "95%",
           "note": "432 of his 457 hands"
         },
@@ -21890,7 +21890,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "97%",
           "note": "412 of his 425 hands"
         },
@@ -22398,7 +22398,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "70%",
           "note": "747,018 of 1,070,190 ways"
         },
@@ -22613,7 +22613,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "63%",
           "note": "654 of his 1035 hands"
         },
@@ -22845,7 +22845,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "48%",
                   "note": "471 of his 990 hands"
                 },
@@ -23083,7 +23083,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "48%",
                   "note": "471 of his 990 hands"
                 },
@@ -23320,7 +23320,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "76%",
           "note": "251 of his 329 hands"
         },
@@ -23547,7 +23547,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "76%",
                   "note": "251 of his 329 hands"
                 },
@@ -23798,7 +23798,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "70%",
                   "note": "224 of his 320 hands"
                 },
@@ -24035,7 +24035,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "76%",
                   "note": "251 of his 329 hands"
                 },
@@ -24243,7 +24243,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "95%",
           "note": "169 of his 178 hands"
         },
@@ -24460,7 +24460,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "97%",
           "note": "340 of his 349 hands"
         },
@@ -24717,7 +24717,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "92%",
                   "note": "303 of his 330 hands"
                 },
@@ -25004,7 +25004,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "91%",
           "note": "97,284 of 107,155 ways"
         },
@@ -25275,7 +25275,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "91%",
                   "note": "97,284 of 107,155 ways"
                 },
@@ -25557,7 +25557,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "89%",
                   "note": "93,605 of 104,631 ways"
                 },
@@ -25797,7 +25797,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "95%",
                   "note": "449 of his 471 hands"
                 },
@@ -26005,7 +26005,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "49%",
           "note": "246 of his 499 hands"
         },
@@ -26204,7 +26204,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "50%",
                   "note": "243 of his 489 hands"
                 },
@@ -26448,7 +26448,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "94%",
           "note": "409 of his 436 hands"
         },
@@ -26690,7 +26690,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You lose",
           "value": "55%",
           "note": "540 of his 990 hands"
         },
@@ -26934,7 +26934,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "56%",
           "note": "551 of his 990 hands"
         },
@@ -27207,7 +27207,7 @@
       ],
       "facts": [
         {
-          "label": "You win",
+          "label": "You're ahead of",
           "value": "77%",
           "note": "421,321 of 547,320 ways"
         },
@@ -27429,7 +27429,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "75%",
           "note": "155 of his 207 hands"
         },
@@ -27629,7 +27629,7 @@
       ],
       "facts": [
         {
-          "label": "You win",
+          "label": "You're ahead of",
           "value": "46%",
           "note": "79 of his 172 hands"
         },
@@ -27853,9 +27853,9 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
+                  "label": "Calling needs",
                   "value": "23%",
-                  "note": "$31 to win $106"
+                  "note": "$31 into a $106 pot"
                 },
                 {
                   "label": "You win",
@@ -27962,7 +27962,7 @@
                   "call"
                 ],
                 "why": {
-                  "call": "You clear the price, so calling pays.",
+                  "call": "You are ahead far more often than calling needs, so it pays.",
                   "raise": "He never fold to this, and what calls has you beaten. Costs about $14.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $35.",
                   "raise-big": "He folds 37% of the time to this, and what calls has you beaten. Costs about $41."
@@ -28520,7 +28520,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You lose",
           "value": "62%",
           "note": "90,250 of 145,990 ways"
         },
@@ -28797,7 +28797,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "77%",
           "note": "161,795 of 210,905 ways"
         },
@@ -29014,7 +29014,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "100%",
           "note": "420 of his 422 hands"
         },
@@ -29244,7 +29244,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "91%",
           "note": "986 of his 1081 hands"
         },
@@ -29654,7 +29654,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "71%",
           "note": "317 of his 444 hands"
         },
@@ -29882,7 +29882,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "95%",
           "note": "979 of his 1035 hands"
         },
@@ -30125,7 +30125,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "94%",
                   "note": "931 of his 990 hands"
                 },
@@ -30379,7 +30379,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "94%",
                   "note": "931 of his 990 hands"
                 },
@@ -30632,7 +30632,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "94%",
                   "note": "931 of his 990 hands"
                 },
@@ -30933,7 +30933,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "63%",
           "note": "18,874 of 29,850 ways"
         },
@@ -31176,12 +31176,12 @@
               ],
               "facts": [
                 {
-                  "label": "You need",
+                  "label": "Calling needs",
                   "value": "25%",
-                  "note": "$49 to win $151"
+                  "note": "$49 into a $151 pot"
                 },
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "78%",
                   "note": "156 of his 201 hands"
                 }
@@ -31279,7 +31279,7 @@
                   "raise-big"
                 ],
                 "why": {
-                  "call": "You clear the price, so calling pays. Nothing more is needed.",
+                  "call": "You are ahead far more often than calling needs, so it pays.",
                   "raise-big": "You are ahead of most of what he can have, and he still pays a raise.",
                   "raise": "He folds 14% of the time to this, and what calls has you beaten. Costs about $17.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $127."
@@ -31474,7 +31474,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "52%",
                   "note": "14,455 of 27,580 ways"
                 },
@@ -31778,7 +31778,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "52%",
                   "note": "14,455 of 27,580 ways"
                 },
@@ -32017,7 +32017,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "92%",
           "note": "338 of his 367 hands"
         },
@@ -32310,7 +32310,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "83%",
           "note": "816,584 of 979,110 ways"
         },
@@ -32604,7 +32604,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "17%",
                   "note": "162,526 of 979,110 ways"
                 },
@@ -32909,7 +32909,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "78%",
                   "note": "695,604 of 893,970 ways"
                 },
@@ -33214,7 +33214,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "78%",
                   "note": "695,604 of 893,970 ways"
                 },
@@ -33476,7 +33476,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "91%",
           "note": "90,069 of 99,344 ways"
         },
@@ -33705,7 +33705,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are best",
+                  "label": "You win",
                   "value": "88%",
                   "note": "83,870 of 95,610 ways"
                 },
@@ -33938,7 +33938,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "86%",
           "note": "362 of his 420 hands"
         },
@@ -34123,7 +34123,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "78%",
                   "note": "312 of his 400 hands"
                 },
@@ -34318,7 +34318,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "78%",
                   "note": "312 of his 400 hands"
                 },
@@ -34513,7 +34513,7 @@
               ],
               "facts": [
                 {
-                  "label": "You are beaten",
+                  "label": "You lose",
                   "value": "78%",
                   "note": "312 of his 400 hands"
                 },
@@ -34736,7 +34736,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "86%",
           "note": "218 of his 254 hands"
         },
@@ -34951,7 +34951,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You lose",
           "value": "83%",
           "note": "135 of his 162 hands"
         },
@@ -35168,7 +35168,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "97%",
           "note": "139 of his 144 hands"
         },
@@ -35372,7 +35372,7 @@
       ],
       "facts": [
         {
-          "label": "You win",
+          "label": "You're ahead of",
           "value": "99%",
           "note": "475 of his 480 hands"
         },
@@ -35594,7 +35594,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "97%",
           "note": "450 of his 465 hands"
         },
@@ -35872,7 +35872,7 @@
       ],
       "facts": [
         {
-          "label": "You win",
+          "label": "You're ahead of",
           "value": "30%",
           "note": "294,196 of 979,110 ways"
         },
@@ -36128,7 +36128,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "55%",
                   "note": "568 of his 1035 hands"
                 },
@@ -36381,7 +36381,7 @@
               ],
               "facts": [
                 {
-                  "label": "You win",
+                  "label": "You're ahead of",
                   "value": "55%",
                   "note": "568 of his 1035 hands"
                 },
@@ -36484,7 +36484,7 @@
                 ],
                 "why": {
                   "raise": "You are ahead of most of what he can have, and he still pays a raise.",
-                  "call": "You clear the price, so calling pays. Nothing more is needed.",
+                  "call": "You are ahead far more often than calling needs, so it pays.",
                   "fold": "You win more often than the price needs, so folding gives up money. Costs about $58."
                 }
               },
@@ -36603,7 +36603,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You lose",
           "value": "50%",
           "note": "72 of his 145 hands"
         },
@@ -36833,7 +36833,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "72%",
           "note": "313 of his 437 hands"
         },
@@ -37110,7 +37110,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You win",
           "value": "100%",
           "note": "890,360 of 893,970 ways"
         },
@@ -37357,7 +37357,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "91%",
           "note": "400 of his 439 hands"
         },
@@ -37585,9 +37585,9 @@
       ],
       "facts": [
         {
-          "label": "You need",
+          "label": "Calling needs",
           "value": "26%",
-          "note": "$37 to win $106"
+          "note": "$37 into a $106 pot"
         },
         {
           "label": "You win",
@@ -37690,7 +37690,7 @@
           "call"
         ],
         "why": {
-          "call": "You clear the price, so calling pays. Nothing more is needed.",
+          "call": "You are ahead far more often than calling needs, so it pays.",
           "raise": "He folds 60% of the time to this, and what calls has you beaten. Costs about $28.",
           "fold": "You win more often than the price needs, so folding gives up money. Costs about $54."
         }
@@ -37800,7 +37800,7 @@
       ],
       "facts": [
         {
-          "label": "You are beaten",
+          "label": "You're behind",
           "value": "71%",
           "note": "232 of his 328 hands"
         },
@@ -37987,7 +37987,7 @@
       ],
       "facts": [
         {
-          "label": "You are best",
+          "label": "You're ahead of",
           "value": "61%",
           "note": "164 of his 270 hands"
         },

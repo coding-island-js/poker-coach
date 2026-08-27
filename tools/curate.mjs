@@ -232,7 +232,13 @@ export function priceOf(pot, toCall) {
  * A facing-a-bet decision is one comparison - the price against the share - and
  * putting those two numbers on adjacent lines does more than any paragraph.
  */
-export function decidingFacts({ options, best, facing, standingNow, beats, youBeat, total, pot, toCall, players }) {
+export function decidingFacts({ options, best, facing, standingNow, beats, youBeat, total, pot, toCall, players, street }) {
+  // On the flop and turn the count is how much of his range you are AHEAD OF
+  // right now, with cards still to come. Labelling that "You win" told a
+  // learner they would win the hand that often, which is a different and false
+  // claim - and they read it exactly that way. Only the river can say "win".
+  const aheadLabel = street === "River" ? "You win" : "You're ahead of";
+  const beatenLabel = street === "River" ? "You lose" : "You're behind";
   const voice = voiceFor(players);
   const multiway = players >= 3;
   // Three-handed, the count is over the WAYS the two of them can be dealt, not
@@ -256,14 +262,18 @@ export function decidingFacts({ options, best, facing, standingNow, beats, youBe
       const folds = foldsTo(best);
       const Who = `${voice.subj[0].toUpperCase()}${voice.subj.slice(1)}`;
       return [
-        { label: "You win", value: `${pctOf(youBeat, total)}%`, note: ofField },
+        { label: aheadLabel, value: `${pctOf(youBeat, total)}%`, note: ofField },
         { label: `${Who} ${voice.plural ? "fold" : "folds"} to ${amount}`, value: asPct(folds) },
         { label: `${Who} ${voice.plural ? "pay" : "pays"} or re-${voice.plural ? "raise" : "raises"}`, value: asPct(1 - folds) },
       ];
     }
+    // "You need 26%" never said what it was the threshold FOR, and sat in a row
+    // identical to the one beside it, which says the two are the same kind of
+    // number. One is a break-even point for one action; the other is where the
+    // hand stands.
     return [
-      { label: "You need", value: `${price?.percent ?? 0}%`, note: `$${toCall} to win $${Math.round(pot)}` },
-      { label: "You win", value: `${pctOf(youBeat, total)}%`, note: ofField },
+      { label: "Calling needs", value: `${price?.percent ?? 0}%`, note: `$${toCall} into a $${Math.round(pot)} pot` },
+      { label: aheadLabel, value: `${pctOf(youBeat, total)}%`, note: ofField },
     ];
   }
 
@@ -273,8 +283,8 @@ export function decidingFacts({ options, best, facing, standingNow, beats, youBe
   const bluffing = standingNow === "behind";
 
   const facts = [bluffing
-    ? { label: "You are beaten", value: `${pctOf(beats, total)}%`, note: beatenBy }
-    : { label: "You are best", value: `${pctOf(youBeat, total)}%`, note: ofField }];
+    ? { label: beatenLabel, value: `${pctOf(beats, total)}%`, note: beatenBy }
+    : { label: aheadLabel, value: `${pctOf(youBeat, total)}%`, note: ofField }];
 
   // What each size actually achieves. Bluffing, that is how often it folds them
   // out; value betting, how often it gets paid. Multiway neither reply tally is
@@ -323,7 +333,7 @@ export function reasonFor({ chosen, best, options = [], isCorrect, facing, stand
         : `You win more often than the price needs, so folding gives up money.`;
     }
     if (chosen.id === "call") {
-      if (isCorrect) return `You clear the price, so calling pays. ${clears ? "Nothing more is needed." : ""}`.trim();
+      if (isCorrect) return `You are ahead far more often than calling needs, so it pays.`;
       if (isBetId(best.id)) {
         // Slow-playing to "keep him in" is the commonest reason a learner calls
         // here, and the answer to it is his fold rate, which is measured.
@@ -750,6 +760,7 @@ export function toLesson(candidate, index) {
     options: opts, best: opts[0], facing: candidate.facingBet, standingNow,
     beats: showdown.beats, youBeat: youBeatCount, total: showdown.total,
     pot: candidate.potRaw, toCall: candidate.toCall, players,
+    street: candidate.street,
   });
 
   const shape = {

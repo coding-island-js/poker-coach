@@ -281,13 +281,28 @@ const shape = (over = {}) => ({
 test("facing a bet, the facts are the price and the share, side by side", () => {
   const facts = decidingFacts({
     ...shape({ facing: true, standingNow: "behind", beats: 210, youBeat: 124, total: 334, pot: 26, toCall: 13 }),
-    options: [], best: null,
+    options: [], best: null, street: "River",
   });
   assert.equal(facts.length, 2, "one comparison, two rows");
-  assert.equal(facts[0].label, "You need");
-  assert.equal(facts[0].value, "33%", "$13 to win $26 needs a third");
+  // The threshold has to say what it is a threshold FOR. "You need 26%" was
+  // read as an unmoored number sitting in a row identical to the one below it.
+  assert.equal(facts[0].label, "Calling needs");
+  assert.equal(facts[0].value, "33%", "$13 into a $26 pot needs a third");
   assert.equal(facts[1].label, "You win");
   assert.equal(facts[1].value, "37%", "124 of 334");
+});
+
+// On the flop and turn the count is how much of his range you are AHEAD OF, with
+// cards still to come. Labelling it "You win" was read - correctly, from the
+// words - as "I win that often", which is a different and false claim.
+test("only the river may say you win; earlier streets say you are ahead", () => {
+  const args = shape({ facing: true, standingNow: "behind", beats: 210, youBeat: 124, total: 334, pot: 26, toCall: 13 });
+  for (const street of ["Flop", "Turn"]) {
+    const facts = decidingFacts({ ...args, options: [], best: null, street });
+    assert.equal(facts[1].label, "You're ahead of", `${street} must not claim a win`);
+  }
+  const river = decidingFacts({ ...args, options: [], best: null, street: "River" });
+  assert.equal(river[1].label, "You win", "the river has nothing left to come");
 });
 
 test("the reason never repeats the numbers the facts already show", () => {
