@@ -8,26 +8,22 @@ context lives in memory (`~/.claude/projects/C--Users-raj-Projects-poker-coach/m
 
 ---
 
-## Where it stands (2026-08-27)
+## Where it stands (2026-08-27, end of day)
 
-100 hands, 22 of them three-handed, 25 turn hands chaining to a river decision on the line
-the learner picked. Every EV measured against the opponent's whole range rather than the one
-hand he was dealt. Feedback rewritten so the numbers sit in a facts table and the sentence
-carries only the judgment. Three checking layers on every build — engine fuzzer, content
-gate, correctness audit — plus 52 tests.
+Live at https://pokercoach.withmagic.ai, tree clean at `462a3a4`. 100 hands: 21 three-handed,
+51 chaining to a second decision (94 second questions). Landing page at `/`, trainer at
+`/play`, account page with sign-in/out on both. Paywall ON: anonymous visitors get 10 free
+hands, Raj granted `full` via the `entitlements` table. Four checking layers - engine fuzzer,
+content gate, correctness audit, and a learner panel of fresh subagents - plus 52 tests.
 
-**The honest gap now:** position and the opponent read are shown on screen and never used in
-a single coaching sentence. The app names your seat and tells you he is "loose and
-aggressive", then explains the answer as if neither existed. Two independent reviewers and
-Raj all noticed. That is the next real build.
+**What changed everything today:** `rollout()` never re-dealt the opponent's hole cards, so
+every EV measured ONE opponent hand rather than his range. It shipped a fold recommendation
+on a flush that beat 305 of 355 hands. Found by Raj dogfooding, invisible to every gate.
+The coaching has since been rewritten three times and now uses position and the opponent read
+where the measurement supports them.
 
----
-
-## 🔄 IN FLIGHT
-
-Regeneration running (started 2026-08-27). Carries the history fix (actions of players who
-folded later were being deleted, leaving flops that read "You call $8" with nothing to call)
-and the range-monotonicity gate. On completion: verify, commit, push, deploy.
+**The honest gap now:** nobody except Raj has used this. The landing page, the price and the
+free-ten split are all untested against a real stranger.
 
 ---
 
@@ -190,6 +186,11 @@ reviewer, not yet verified.
 ---
 
 ## ✅ DONE 2026-08-26 to 27
+
+Twelve commits, `37f415c` through `462a3a4`. Paywall switched on and the owner granted;
+landing/account/auth pages; progress keyed on the deal rather than the slot so it survives
+regeneration and follows the account; per-option mistake naming; bet sizes capped at what can
+actually be called.
 
 - **The opponent's cards were never re-dealt**, so every EV measured one specific hand rather
   than his range. It shipped a fold recommendation on a flush that beat 305 of 355 hands.
